@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string_view>
+#include <mutex>
 #include <atomic>
 
 #include "Core/OSWindow.h"
@@ -38,8 +39,8 @@ namespace mirras
         void onWindowResize(WindowResized& event);
         void onWindowClose(WindowClosed& event);
 
-        void addLayer(std::unique_ptr<Layer> layer)   { layers.addLayer(std::move(layer)); }
-        void addOverlay(std::unique_ptr<Layer> layer) { layers.addOverlay(std::move(layer)); }
+        void addLayer(std::unique_ptr<Layer> layer);
+        void addOverlay(std::unique_ptr<Layer> layer);
 
         ~App();
 
@@ -50,6 +51,7 @@ namespace mirras
 
     private:
         OSWindow window;
+        std::mutex layersMutex;
         AppLayers layers;
         std::thread updateThread;
 

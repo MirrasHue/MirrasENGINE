@@ -46,17 +46,17 @@ namespace mirras
 
     void App::renderLayers()
     {
-        glClearColor(0.5f, 0.5f, 1.f, 1.f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         for(auto& layer : layers)
             layer->draw();
 
         imgui::beginFrame();
-        ImGui::ShowDemoWindow();
 
             for(auto& layer : layers)
                 layer->drawImGui();
+                
         imgui::endFrame();
     }
 
@@ -80,15 +80,20 @@ namespace mirras
         while(running)
         {
             float frameTime = timer.elapsed();
-            updateLayers(frameTime);
+
+            {
+                std::lock_guard lock{layersMutex};
+
+                updateLayers(frameTime);
+
+                renderLayers();
+            }
 
             if(resizing)
             {
                 handleResize();
                 continue;
             }
-
-            renderLayers();
 
             window.swapBuffers();
         }
@@ -109,6 +114,9 @@ namespace mirras
 
     void App::onWindowResize(WindowResized& event)
     {
+        if(event.windowSize.x == 0 || event.windowSize.y == 0)
+            return;
+
         resizing = true;
         
         switchContext.wait(false); // Wait until we are notified that 'switchContext' was set to true
@@ -117,8 +125,8 @@ namespace mirras
 
         auto [width, height] = window.getFramebufferSize();
         glViewport(0, 0, width, height);
-        
-        renderLayers();
+
+        // No need to render here anymore, still have to swap the buffers to keep rendering on resize
 
         window.swapBuffers();
         
@@ -129,6 +137,8 @@ namespace mirras
 
         resizing = false;
         resizing.notify_one();
+
+        event.wasHandled = true;
     }
 
     void App::onWindowClose(WindowClosed& event)
@@ -142,8 +152,16 @@ namespace mirras
         Event::dispatch_to_member<WindowResized, App::onWindowResize>(event, this);
         Event::dispatch_to_member<WindowClosed, App::onWindowClose>(event, this);
 
+        imgui::onEvent(event);
+
+        std::lock_guard lock{layersMutex};
+
         for(auto& layer : layers | std::views::reverse)
+        {
+            if(event.wasHandled)
+                break;
             layer->onEvent(event);
+        }
 
         // Another way to dispatch events, not limited to functions with only an event as argument
         /*if(Event::is_a<WindowResized>(event))
@@ -157,6 +175,18 @@ namespace mirras
     {
         MIRR_ASSERT_CORE(appInstance, "No application instance yet");
         return *appInstance;
+    }
+
+    void App::addLayer(std::unique_ptr<Layer> layer)
+    {
+        std::lock_guard lock{layersMutex};
+        layers.addLayer(std::move(layer));
+    }
+
+    void App::addOverlay(std::unique_ptr<Layer> layer)
+    {
+        std::lock_guard lock{layersMutex};
+        layers.addOverlay(std::move(layer));
     }
 
     App::~App()
