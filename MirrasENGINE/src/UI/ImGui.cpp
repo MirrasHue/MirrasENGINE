@@ -17,6 +17,7 @@ namespace mirras::imgui
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;        // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        io.ConfigDockingAnyDraggableArea = true;                    // Enable docking a window from any draggable area
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
@@ -27,7 +28,7 @@ namespace mirras::imgui
 
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(App::getInstance().getOSWindow(), true);
-        ImGui_ImplOpenGL3_Init("#version 450");
+        ImGui_ImplOpenGL3_Init("#version 330");
     }
 
     void beginFrame()
@@ -35,7 +36,7 @@ namespace mirras::imgui
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::DockSpaceOverViewport();
+        ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
     }
 
     void endFrame()
@@ -46,7 +47,9 @@ namespace mirras::imgui
 
     void onEvent(Event& event)
     {
-        
+        ImGuiIO& io = ImGui::GetIO();
+		event.wasHandled |= event.isInCategory(EventCategory::Mouse) && io.WantCaptureMouse;
+        event.wasHandled |= event.isInCategory(EventCategory::Keyboard) && io.WantCaptureKeyboard;
     }
 
     void shutdown()
