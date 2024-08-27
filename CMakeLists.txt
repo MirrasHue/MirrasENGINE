@@ -10,17 +10,13 @@ project(MirrasENGINE)
 
 # Fetch source files
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS MirrasENGINE/src/*.cpp)
-file(GLOB_RECURSE imgui_src CONFIGURE_DEPENDS MirrasENGINE/3rdParty/ImGui/src/*.cpp)
 
-add_library(${PROJECT_NAME} STATIC ${engine_src} ${imgui_src})
+add_library(${PROJECT_NAME} STATIC ${engine_src})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC 
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/MirrasENGINE/src
-        MirrasENGINE/3rdParty/ImGui/include
-        MirrasENGINE/3rdParty/ImGui/include/imgui # So that internal ImGui includes don't brake
-        MirrasENGINE/3rdParty/ImGui/include/imgui/backends # Same, just for not braking include paths
         MirrasENGINE/3rdParty/Glad/include
 )
 
@@ -30,9 +26,11 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(MirrasENGINE/3rdParty/GLFW)
 
+add_subdirectory(MirrasENGINE/3rdParty/ImGui)
+
 add_subdirectory(MirrasENGINE/3rdParty/spdlog)
 
-target_link_libraries(${PROJECT_NAME} glfw spdlog)
+target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog)
 
 ##################################################################
 
