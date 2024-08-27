@@ -21,7 +21,7 @@ namespace mirras
     class MouseButtonPressed : public MouseButtonEvent
     {
     public:
-        Event_Runtime_Identification(EventType::MouseButtonPressed)
+        Event_Runtime_Identification(EventType::MouseButtonPressed, EventCategory::Mouse)
 
         MouseButtonPressed() = default;
         MouseButtonPressed(MouseButton buttonCode, ModifierKeyFlag modifiers) :
@@ -31,7 +31,7 @@ namespace mirras
     class MouseButtonReleased : public MouseButtonEvent
     {
     public:
-        Event_Runtime_Identification(EventType::MouseButtonReleased)
+        Event_Runtime_Identification(EventType::MouseButtonReleased, EventCategory::Mouse)
 
         MouseButtonReleased() = default;
         MouseButtonReleased(MouseButton buttonCode, ModifierKeyFlag modifiers) :
@@ -41,7 +41,7 @@ namespace mirras
     class MouseMoved : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::MouseMoved)
+        Event_Runtime_Identification(EventType::MouseMoved, EventCategory::Mouse)
 
         MouseMoved() = default;
         MouseMoved(float x, float y) :
@@ -53,7 +53,7 @@ namespace mirras
     class MouseWheelScrolled : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::MouseWheelScrolled)
+        Event_Runtime_Identification(EventType::MouseWheelScrolled, EventCategory::Mouse)
 
         MouseWheelScrolled() = default;
         MouseWheelScrolled(float x, float y) :

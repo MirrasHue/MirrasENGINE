@@ -11,13 +11,20 @@ namespace mirras
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseWheelScrolled
 	};
 
+    enum class EventCategory
+    {
+        Window, 
+        Keyboard,
+        Mouse
+    };
+
     class Event
     {
     public:
         virtual ~Event() = default;
 
         template<typename EventClass>
-        static bool is_a(Event& event);
+        static bool is_a(Event& event); // This doesn't take the parent class into consideration
 
         template<typename EventClass, auto func>
         static bool dispatch(Event& event);
@@ -26,12 +33,15 @@ namespace mirras
         static bool dispatch_to_member(Event& event, Object* this_pointer);
 
         virtual EventType getEventType() const = 0;
+        virtual EventCategory getEventCategory() const = 0;
+
+        bool isInCategory(EventCategory category) { return getEventCategory() == category; }
 
         bool wasHandled{};
     };
 
     template <typename EventClass>
-    bool Event::is_a(Event &event)
+    bool Event::is_a(Event& event)
     {
         if(event.getEventType() == EventClass::getEventTypeStatic())
             return true;
@@ -40,7 +50,7 @@ namespace mirras
     }
 
     template <typename EventClass, auto func>
-    inline bool Event::dispatch(Event &event)
+    bool Event::dispatch(Event& event)
     {
         if(Event::is_a<EventClass>(event))
         {
@@ -68,6 +78,8 @@ namespace mirras
         return false;
     }
 
-    #define Event_Runtime_Identification(event_type) virtual EventType getEventType() const { return event_type; } \
-                                                     static EventType getEventTypeStatic()  { return event_type; }
+    #define Event_Runtime_Identification(event_type, event_category)  \
+        virtual EventType getEventType() const { return event_type; } \
+        static EventType getEventTypeStatic()  { return event_type; } \
+        virtual EventCategory getEventCategory() const { return event_category; }
 }

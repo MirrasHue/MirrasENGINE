@@ -22,7 +22,7 @@ namespace mirras
     class KeyPressed : public KeyEvent
     {
     public:
-        Event_Runtime_Identification(EventType::KeyPressed)
+        Event_Runtime_Identification(EventType::KeyPressed, EventCategory::Keyboard)
 
         KeyPressed() = default;
         KeyPressed(KeyCode code, int32 scan, ModifierKeyFlag modifiers, bool isRepeat = false) :
@@ -34,7 +34,7 @@ namespace mirras
     class KeyReleased : public KeyEvent
     {
     public:
-        Event_Runtime_Identification(EventType::KeyReleased)
+        Event_Runtime_Identification(EventType::KeyReleased, EventCategory::Keyboard)
 
         KeyReleased() = default;
         KeyReleased(KeyCode code, int32 scan, ModifierKeyFlag modifiers) :
@@ -44,7 +44,7 @@ namespace mirras
     class TextEntered : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::TextEntered)
+        Event_Runtime_Identification(EventType::TextEntered, EventCategory::Keyboard)
 
         TextEntered() = default;
         TextEntered(uint32 code) :

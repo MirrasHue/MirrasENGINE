@@ -8,7 +8,7 @@ namespace mirras
     class WindowResized : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::WindowResized)
+        Event_Runtime_Identification(EventType::WindowResized, EventCategory::Window)
 
         WindowResized() = default;
         WindowResized(int32 w, int32 h) :
@@ -20,7 +20,7 @@ namespace mirras
     class WindowMoved : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::WindowMoved)
+        Event_Runtime_Identification(EventType::WindowMoved, EventCategory::Window)
 
         WindowMoved() = default;
         WindowMoved(int32 x, int32 y) :
@@ -32,18 +32,18 @@ namespace mirras
     class WindowClosed : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::WindowClosed)
+        Event_Runtime_Identification(EventType::WindowClosed, EventCategory::Window)
     };
 
     class WindowFocusGained : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::WindowFocusGained)
+        Event_Runtime_Identification(EventType::WindowFocusGained, EventCategory::Window)
     };
 
     class WindowFocusLost : public Event
     {
     public:
-        Event_Runtime_Identification(EventType::WindowFocusLost)
+        Event_Runtime_Identification(EventType::WindowFocusLost, EventCategory::Window)
     };
 }
