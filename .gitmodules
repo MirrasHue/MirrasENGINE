@@ -9,3 +9,6 @@
 	path = MirrasENGINE/3rdParty/ImGui
 	url = https://github.com/MirrasHue/ImGui.git
 	branch = docking
+[submodule "MirrasENGINE/3rdParty/GLM"]
+	path = MirrasENGINE/3rdParty/GLM
+	url = https://github.com/g-truc/glm.git
