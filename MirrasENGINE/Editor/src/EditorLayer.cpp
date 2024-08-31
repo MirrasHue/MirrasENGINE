@@ -8,6 +8,7 @@ namespace mirras
 {
     void EditorLayer::drawImGui()
     {
+        ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
         ImGui::ShowDemoWindow();
     }
 

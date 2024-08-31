@@ -20,10 +20,10 @@ namespace mirras
     #endif
         }
 
-        static void initAppLog(std::string_view appTitle)
+        static void initAppLog(std::string_view appName)
     #ifndef DISTRIBUTION_BUILD
         {
-            appLogger = spdlog::stdout_color_mt(appTitle.data());
+            appLogger = spdlog::stdout_color_mt(appName.data());
             appLogger->set_level(spdlog::level::trace);
         }
 

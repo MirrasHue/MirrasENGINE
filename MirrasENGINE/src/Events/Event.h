@@ -37,7 +37,7 @@ namespace mirras
 
         bool isInCategory(EventCategory category) { return getEventCategory() == category; }
 
-        bool wasHandled{};
+        bool propagable = true;
     };
 
     template <typename EventClass>
