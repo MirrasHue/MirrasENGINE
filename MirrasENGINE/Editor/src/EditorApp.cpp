@@ -8,8 +8,8 @@ namespace mirras
     class EditorApp : public App
     {
     public:
-        EditorApp(AppSpecs& specs) :
-            App{specs}
+        EditorApp(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs) :
+            App{appSpecs, windowSpecs}
         {
             addLayer(std::make_unique<EditorLayer>());
         }
@@ -17,10 +17,13 @@ namespace mirras
 
     std::unique_ptr<App> createClientApp()
     {
-        AppSpecs specs {.title = "MirrasENGINE Editor",
-                        .width = 1280,
-                        .height = 720};
+        AppSpecs appSpecs {.name = "Editor",
+                           .updateRate = 60};
 
-        return std::make_unique<EditorApp>(specs);
+        WindowSpecs windowSpecs {.title = "MirrasENGINE Editor",
+                                 .minWidth = 600,
+                                 .minHeight = 400};
+
+        return std::make_unique<EditorApp>(appSpecs, windowSpecs);
     }
 }

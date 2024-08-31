@@ -17,23 +17,19 @@ namespace mirras
 {
     struct AppSpecs
     {
-        std::string_view title = "MirrasENGINE";
-        int32 width = 1280;
-        int32 height = 720;
+        std::string_view name = "MirrasENGINE";
         uint16 updateRate = 60;
-        bool fullScreen = false;
-        bool VSync = true;
     };
 
     class App
     {
     public:
-        App(AppSpecs& specs);
+        App(const AppSpecs& AppSpecs, const WindowSpecs& windowSpecs);
         void run();
         void update();
 
         static App& getInstance();
-        OSWindow&   getOSWindow() { return window; }
+        static OSWindow& getOSWindow() { return App::getInstance().window; }
         
         void onEvent(Event& event);
         void onWindowResize(WindowResized& event);

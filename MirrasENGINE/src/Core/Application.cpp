@@ -3,6 +3,7 @@
 #include "Core/Asserts.h"
 
 #include "UI/ImGui.h"
+#include "Input/Input.h"
 
 #include <thread>
 #include <ranges>
@@ -12,13 +13,13 @@
 
 namespace mirras
 {
-    App::App(AppSpecs& specs) :
-        window{specs.title, specs.width, specs.height, specs.VSync, specs.fullScreen}
+    App::App(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs) :
+        window{windowSpecs}
     {
         MIRR_ASSERT_CORE(appInstance == nullptr, "One instance of application already exists");
         appInstance = this;
 
-        Log::initAppLog(specs.title);
+        Log::initAppLog(appSpecs.name);
 
         imgui::init();
         
@@ -27,7 +28,7 @@ namespace mirras
             App::onEvent(event);
         });
 
-        fixedTimestep = 1.f / specs.updateRate;
+        fixedTimestep = 1.f / appSpecs.updateRate;
     }
 
     void App::updateLayers(float frameTime)
@@ -137,8 +138,6 @@ namespace mirras
 
         resizing = false;
         resizing.notify_one();
-
-        event.wasHandled = true;
     }
 
     void App::onWindowClose(WindowClosed& event)
@@ -158,7 +157,7 @@ namespace mirras
 
         for(auto& layer : layers | std::views::reverse)
         {
-            if(event.wasHandled)
+            if(!event.propagable)
                 break;
             layer->onEvent(event);
         }

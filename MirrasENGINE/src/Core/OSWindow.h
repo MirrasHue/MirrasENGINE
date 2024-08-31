@@ -11,12 +11,24 @@
 
 namespace mirras
 {
+    struct WindowSpecs
+    {
+        std::string_view title;
+        int32 width = 1280;
+        int32 height = 720;
+        int32 minWidth = -1; // Both need to be set in
+        int32 minHeight = -1;// order to take effect
+        bool fullScreen = false;
+        bool VSync = true;
+        bool keepAspectRatio = false;
+    };
+
     class OSWindow
     {
     public:
         using EventCallback = std::function<void(Event&)>;
 
-        OSWindow(std::string_view title, int32 width, int32 height, bool VSync, bool fullScreen);
+        OSWindow(const WindowSpecs& windowSpecs);
 
         void setOnEventCallback(const EventCallback& callback) { appCallbacks.onEvent = callback; }
 

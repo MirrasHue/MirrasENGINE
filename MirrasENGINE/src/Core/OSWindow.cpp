@@ -10,7 +10,7 @@ namespace mirras
 {
     static void glfwErrorCallback(int32 errorCode, const char* what);
 
-    OSWindow::OSWindow(std::string_view title, int32 width, int32 height, bool VSync, bool fullScreen)
+    OSWindow::OSWindow(const WindowSpecs& windowSpecs)
     {
         glfwSetErrorCallback(glfwErrorCallback);
 
@@ -21,10 +21,28 @@ namespace mirras
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
 
-        windowHandle = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
+        GLFWmonitor* monitor = nullptr;
+        int32 width = windowSpecs.width;
+        int32 height = windowSpecs.height;
+
+        if(windowSpecs.fullScreen)
+        {
+            monitor = glfwGetPrimaryMonitor();
+            auto videoMode = glfwGetVideoMode(monitor);
+            width = videoMode->width;
+            height = videoMode->height;
+        }
+
+        windowHandle = glfwCreateWindow(width, height, windowSpecs.title.data(), monitor, nullptr);
+
+        // GLFW only applies the limits if both minimum/maximum values are different from -1
+        glfwSetWindowSizeLimits(windowHandle, windowSpecs.minWidth, windowSpecs.minHeight, -1, -1); // -1 here indicates there's no limits
+
+        if(windowSpecs.keepAspectRatio)
+            glfwSetWindowAspectRatio(windowHandle, width, height);
 
         glfwMakeContextCurrent(windowHandle);
-        glfwSwapInterval(VSync);
+        glfwSwapInterval(windowSpecs.VSync);
 
         glfwSetWindowUserPointer(windowHandle, &appCallbacks);
 
