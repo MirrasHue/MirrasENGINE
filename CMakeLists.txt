@@ -17,6 +17,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC 
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/MirrasENGINE/src
+        MirrasENGINE/3rdParty/raylib/include
         MirrasENGINE/3rdParty/Glad/include
 )
 
@@ -30,7 +31,9 @@ add_subdirectory(MirrasENGINE/3rdParty/ImGui)
 
 add_subdirectory(MirrasENGINE/3rdParty/spdlog)
 
-target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog)
+add_subdirectory(MirrasENGINE/3rdParty/glm)
+
+target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog glm)
 
 ##################################################################
 
