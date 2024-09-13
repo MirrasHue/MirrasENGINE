@@ -1,6 +1,7 @@
 #pragma once
 
-#include <glad/glad.h>
+// So that it doesn't include GL/gl.h (which defines __gl_h_, making Glad complain)
+#define GLFW_INCLUDE_NONE
 #include <glfw/glfw3.h>
 
 #include <string_view>
@@ -14,10 +15,10 @@ namespace mirras
     struct WindowSpecs
     {
         std::string_view title;
-        int32 width = 1280;
+        int32 width  = 1280;
         int32 height = 720;
-        int32 minWidth = -1; // Both need to be set in
-        int32 minHeight = -1;// order to take effect
+        int32 minWidth  = -1; // Both need to be set in
+        int32 minHeight = -1; // order to take effect
         bool fullScreen = false;
         bool VSync = true;
         bool keepAspectRatio = false;
@@ -34,12 +35,8 @@ namespace mirras
 
         void makeContextCurrent(bool makeCurrent) { makeCurrent ? glfwMakeContextCurrent(windowHandle) : glfwMakeContextCurrent(nullptr); }
 
-        vec2i getFramebufferSize()
-        {
-            vec2i size;
-            glfwGetFramebufferSize(windowHandle, &size.x, &size.y);
-            return size;
-        }
+        vec2i getFramebufferSize();
+        vec2i getInitialFbSize() { return initialFbSize; }
 
         bool shouldClose() { return glfwWindowShouldClose(windowHandle); }
 
@@ -49,13 +46,12 @@ namespace mirras
 
         void pollEvents()  { glfwPollEvents(); }
 
+        static void setVSync(bool VSync) { glfwSwapInterval(VSync); VSyncEnabled = VSync; }
+        static bool isVSynced() { return VSyncEnabled; }
+
         operator GLFWwindow*() { return windowHandle; }
 
-        ~OSWindow()
-        {
-            glfwDestroyWindow(windowHandle);
-            std::atexit(glfwTerminate);
-        }
+        ~OSWindow();
 
     private:
         void setGLFWCallbacks();
@@ -68,5 +64,8 @@ namespace mirras
         appCallbacks;
 
         GLFWwindow* windowHandle = nullptr;
+        vec2i initialFbSize; // Used by Camera2D
+
+        inline static bool VSyncEnabled = false;
     };
 }

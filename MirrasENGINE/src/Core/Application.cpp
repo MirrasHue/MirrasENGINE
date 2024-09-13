@@ -8,9 +8,6 @@
 #include <thread>
 #include <ranges>
 
-#define GLAD_GL_IMPLEMENTATION // Necessary for using Glad2 header only version
-#include <glad/glad.h>
-
 namespace mirras
 {
     App::App(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs) :
@@ -20,6 +17,9 @@ namespace mirras
         appInstance = this;
 
         Log::initAppLog(appSpecs.name);
+
+        Renderer::init(appSpecs.backend);
+        Renderer::setClearColor(0.2f, 0.2f, 0.2f);
 
         imgui::init();
         
@@ -47,12 +47,15 @@ namespace mirras
 
     void App::renderLayers()
     {
-        glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::clearBackBuffers();
 
-        for(auto& layer : layers)
-            layer->draw();
+        Renderer::beginDrawing();
 
+            for(auto& layer : layers)
+                layer->draw();
+
+        Renderer::endDrawing();
+        
         imgui::beginFrame();
 
             for(auto& layer : layers)
@@ -61,7 +64,7 @@ namespace mirras
         imgui::endFrame();
     }
 
-    void App::handleResize()
+    void App::synchronizeResize()
     {
         window.makeContextCurrent(false);
 
@@ -92,7 +95,7 @@ namespace mirras
 
             if(resizing)
             {
-                handleResize();
+                synchronizeResize();
                 continue;
             }
 
@@ -115,21 +118,35 @@ namespace mirras
 
     void App::onWindowResize(WindowResized& event)
     {
-        if(event.windowSize.x == 0 || event.windowSize.y == 0)
-            return;
+        auto [width, height] = event.windowSize;
 
-        resizing = true;
+        if(width == 0 || height == 0)
+            return;
         
+        resizing = true;
+
         switchContext.wait(false); // Wait until we are notified that 'switchContext' was set to true
 
         window.makeContextCurrent(true);
 
-        auto [width, height] = window.getFramebufferSize();
-        glViewport(0, 0, width, height);
+        Renderer::setViewport(0, 0, width, height);
+
+        bool reDisableVSync = false;
+        
+        // ImGui widgets start to flicker on resize when VSync is disabled, and the fps is very high
+        // Waiting at the buffer swap eases the flickering considerably
+        if(!OSWindow::isVSynced())
+        {
+            reDisableVSync = true;
+            OSWindow::setVSync(true);
+        }
 
         // No need to render here anymore, still have to swap the buffers to keep rendering on resize
 
         window.swapBuffers();
+
+        if(reDisableVSync)
+            OSWindow::setVSync(false);
         
         window.makeContextCurrent(false);
         
@@ -146,7 +163,7 @@ namespace mirras
         running = false;
     }
 
-    void App::onEvent(Event &event)
+    void App::onEvent(Event& event)
     {
         Event::dispatch_to_member<WindowResized, App::onWindowResize>(event, this);
         Event::dispatch_to_member<WindowClosed, App::onWindowClose>(event, this);

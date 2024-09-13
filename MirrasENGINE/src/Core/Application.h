@@ -13,11 +13,17 @@
 #include "Events/KeyboardEvents.h"
 #include "Events/MouseEvents.h"
 
+#include "Core/Renderer/Renderer.h"
+
 namespace mirras
 {
+    // Defined by the client
+    inline std::unique_ptr<class App> createClientApp();
+
     struct AppSpecs
     {
         std::string_view name = "MirrasENGINE";
+        Renderer::Backend backend = Renderer::Backend::OpenGL;
         uint16 updateRate = 60;
     };
 
@@ -25,16 +31,13 @@ namespace mirras
     {
     public:
         App(const AppSpecs& AppSpecs, const WindowSpecs& windowSpecs);
+
         void run();
         void update();
 
         static App& getInstance();
         static OSWindow& getOSWindow() { return App::getInstance().window; }
         
-        void onEvent(Event& event);
-        void onWindowResize(WindowResized& event);
-        void onWindowClose(WindowClosed& event);
-
         void addLayer(std::unique_ptr<Layer> layer);
         void addOverlay(std::unique_ptr<Layer> layer);
 
@@ -43,7 +46,11 @@ namespace mirras
     private:
         void updateLayers(float frameTime);
         void renderLayers();
-        void handleResize();
+        void synchronizeResize();
+
+        void onEvent(Event& event);
+        void onWindowResize(WindowResized& event);
+        void onWindowClose(WindowClosed& event);
 
     private:
         OSWindow window;
@@ -51,7 +58,7 @@ namespace mirras
         AppLayers layers;
         std::thread updateThread;
 
-        inline static App* appInstance{};
+        inline static App* appInstance = nullptr;
 
         float fixedTimestep{};
 
@@ -59,7 +66,4 @@ namespace mirras
         std::atomic_bool switchContext = false;
         std::atomic_bool running = true;
     };
-
-    // Defined by the client
-    inline std::unique_ptr<App> createClientApp();
 }

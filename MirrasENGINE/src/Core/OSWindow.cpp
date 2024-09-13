@@ -35,6 +35,9 @@ namespace mirras
 
         windowHandle = glfwCreateWindow(width, height, windowSpecs.title.data(), monitor, nullptr);
 
+        // We don't use the size in the specs, because the created window can't always match the requested size
+        initialFbSize = getFramebufferSize();
+
         // GLFW only applies the limits if both minimum/maximum values are different from -1
         glfwSetWindowSizeLimits(windowHandle, windowSpecs.minWidth, windowSpecs.minHeight, -1, -1); // -1 here indicates there's no limits
 
@@ -42,19 +45,25 @@ namespace mirras
             glfwSetWindowAspectRatio(windowHandle, width, height);
 
         glfwMakeContextCurrent(windowHandle);
+
         glfwSwapInterval(windowSpecs.VSync);
+        OSWindow::VSyncEnabled = true;
 
         glfwSetWindowUserPointer(windowHandle, &appCallbacks);
-
-        if(!gladLoadGL(glfwGetProcAddress))
-            external_adversity("Could not initialize GLAD\n");
 
         setGLFWCallbacks();
     }
 
+    vec2i OSWindow::getFramebufferSize()
+    {
+        vec2i size;
+        glfwGetFramebufferSize(windowHandle, &size.x, &size.y);
+        return size;
+    }
+
     void OSWindow::setGLFWCallbacks()
     {
-        glfwSetWindowSizeCallback(windowHandle, [](GLFWwindow* window, int32 width, int32 height)
+        glfwSetFramebufferSizeCallback(windowHandle, [](GLFWwindow* window, int32 width, int32 height)
         {
             auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
 
@@ -168,6 +177,12 @@ namespace mirras
         glfw_error(const char* what) :
             std::runtime_error{what} {}
     };
+
+    OSWindow::~OSWindow()
+    {
+        glfwDestroyWindow(windowHandle);
+        std::atexit(glfwTerminate);
+    }
 
     void glfwErrorCallback(int32 errorCode, const char* what)
     {
