@@ -14,7 +14,15 @@ namespace mirras
 
     void EditorLayer::onEvent(Event& event)
     {
-        
+        camera.onWindowResize(event);
+    }
+
+    void EditorLayer::draw()
+    {
+        // Temp, later moving to Playground
+        Renderer::beginMode2D(camera);
+            Renderer::drawTriangle();
+        Renderer::endMode2D();
     }
 }
 

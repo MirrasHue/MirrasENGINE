@@ -18,6 +18,7 @@ namespace mirras
     std::unique_ptr<App> createClientApp()
     {
         AppSpecs appSpecs {.name = "Editor",
+                           .backend = Renderer::Backend::OpenGL,
                            .updateRate = 60};
 
         WindowSpecs windowSpecs {.title = "MirrasENGINE Editor",
