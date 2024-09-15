@@ -8,7 +8,7 @@
 #include <cstdlib>
 
 #include "Events/Event.h"
-#include "Core/Utils.h"
+#include "Core/BasicTypes.h"
 
 namespace mirras
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -27,8 +27,8 @@ namespace mirras
             appLogger->set_level(spdlog::level::trace);
         }
 
-        inline static std::shared_ptr<spdlog::logger> coreLogger;
-		inline static std::shared_ptr<spdlog::logger> appLogger;
+        inline static shared_ref<spdlog::logger> coreLogger;
+		inline static shared_ref<spdlog::logger> appLogger;
     #else
         { }
     #endif

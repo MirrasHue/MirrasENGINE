@@ -193,13 +193,13 @@ namespace mirras
         return *appInstance;
     }
 
-    void App::addLayer(std::unique_ptr<Layer> layer)
+    void App::addLayer(single_ref<Layer> layer)
     {
         std::lock_guard lock{layersMutex};
         layers.addLayer(std::move(layer));
     }
 
-    void App::addOverlay(std::unique_ptr<Layer> layer)
+    void App::addOverlay(single_ref<Layer> layer)
     {
         std::lock_guard lock{layersMutex};
         layers.addOverlay(std::move(layer));

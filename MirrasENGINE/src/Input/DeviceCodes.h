@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Utils.h"
+#include "Core/BasicTypes.h"
 
 // Codes from GLFW
 

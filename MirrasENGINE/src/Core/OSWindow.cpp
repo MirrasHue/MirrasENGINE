@@ -1,6 +1,7 @@
 #include "Core/OSWindow.h"
 #include "Core/Log.h"
 #include "Core/Asserts.h"
+#include "Core/Utils.h"
 
 #include "Events/WindowEvents.h"
 #include "Events/KeyboardEvents.h"

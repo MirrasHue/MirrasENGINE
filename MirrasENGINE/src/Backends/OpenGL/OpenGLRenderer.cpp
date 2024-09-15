@@ -8,6 +8,7 @@
 #include "Core/Application.h"
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Utils.h"
+#include "Core/BasicTypes.h"
 
 #define RLGL_IMPLEMENTATION
 #include <raylib/rlgl.h>
@@ -25,7 +26,7 @@
 namespace mirras
 {
     // Setup viewport and internal projection/modelview matrices
-    void resetViewport(int32 x, int32 y, int32 width, int32 height);
+    static void resetViewport(int32 x, int32 y, int32 width, int32 height);
 
     static int32 windowFbWidth{};
     static int32 windowFbHeight{};

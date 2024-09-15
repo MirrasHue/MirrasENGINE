@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include "Core/BasicTypes.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -63,7 +63,7 @@ namespace mirras
             }
         }
 
-        inline static std::shared_ptr<spdlog::logger> openGLLogger;
+        inline static shared_ref<spdlog::logger> openGLLogger;
     #else
         { }
     #endif

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-
-#include "Core/Utils.h"
+#include "Core/BasicTypes.h"
 
 namespace mirras
 {
@@ -38,7 +36,7 @@ namespace mirras
         // the methods we find in OpenGLRenderer. And all renderers would inherit from that class and conform to its interface.
         // We would also need to abstract context creation, given that the default one provided by GLFW is meant for OpenGL
         static class OpenGLRenderer renderer;
-        // This would become something like 'static std::unique_ptr<class BackendRenderer> renderer', and in the 'init'
+        // This would become something like 'static single_ref<class BackendRenderer> renderer', and in the 'init'
         // method we'd switch on the backend selected by the client and instantiate an actual renderer based on that
     };
 }

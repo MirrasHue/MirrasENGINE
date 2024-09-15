@@ -4,15 +4,15 @@
 #include <memory>
 
 #include "Core/Layer.h"
-#include "Core/Utils.h"
+#include "Core/BasicTypes.h"
 
 namespace mirras
 {
     class AppLayers
     {
     public:
-        void addLayer(std::unique_ptr<Layer> layer);
-        void addOverlay(std::unique_ptr<Layer> layer);
+        void addLayer(single_ref<Layer> layer);
+        void addOverlay(single_ref<Layer> layer);
 
         auto begin() { return layers.begin(); }
         auto end()   { return layers.end(); }
@@ -24,7 +24,7 @@ namespace mirras
         }
 
     private:
-        std::vector<std::unique_ptr<Layer>> layers;
+        std::vector<single_ref<Layer>> layers;
         uint32 layerInsertionIdx{};
     };
 }

@@ -11,11 +11,11 @@ namespace mirras
         EditorApp(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs) :
             App{appSpecs, windowSpecs}
         {
-            addLayer(std::make_unique<EditorLayer>());
+            addLayer(instantiate<EditorLayer>());
         }
     };
 
-    std::unique_ptr<App> createClientApp()
+    single_ref<App> createClientApp()
     {
         AppSpecs appSpecs {.name = "Editor",
                            .backend = Renderer::Backend::OpenGL,
@@ -25,6 +25,6 @@ namespace mirras
                                  .minWidth = 600,
                                  .minHeight = 400};
 
-        return std::make_unique<EditorApp>(appSpecs, windowSpecs);
+        return instantiate<EditorApp>(appSpecs, windowSpecs);
     }
 }

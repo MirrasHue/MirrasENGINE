@@ -18,7 +18,7 @@
 namespace mirras
 {
     // Defined by the client
-    inline std::unique_ptr<class App> createClientApp();
+    inline single_ref<class App> createClientApp();
 
     struct AppSpecs
     {
@@ -38,8 +38,8 @@ namespace mirras
         static App& getInstance();
         static OSWindow& getOSWindow() { return App::getInstance().window; }
         
-        void addLayer(std::unique_ptr<Layer> layer);
-        void addOverlay(std::unique_ptr<Layer> layer);
+        void addLayer(single_ref<Layer> layer);
+        void addOverlay(single_ref<Layer> layer);
 
         ~App();
 

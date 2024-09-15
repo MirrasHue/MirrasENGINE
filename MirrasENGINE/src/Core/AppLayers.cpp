@@ -3,7 +3,7 @@
 
 namespace mirras
 {
-    void AppLayers::addLayer(std::unique_ptr<Layer> layer)
+    void AppLayers::addLayer(single_ref<Layer> layer)
     {
         MIRR_ASSERT_CORE(layer, "Can't add a null layer");
 
@@ -12,7 +12,7 @@ namespace mirras
         ++layerInsertionIdx;
     }
 
-    void AppLayers::addOverlay(std::unique_ptr<Layer> layer)
+    void AppLayers::addOverlay(single_ref<Layer> layer)
     {
         MIRR_ASSERT_CORE(layer, "Can't add a null layer");
         
