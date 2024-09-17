@@ -33,23 +33,23 @@ namespace mirras
 
         void setOnEventCallback(const EventCallback& callback) { appCallbacks.onEvent = callback; }
 
-        void makeContextCurrent(bool makeCurrent) { makeCurrent ? glfwMakeContextCurrent(windowHandle) : glfwMakeContextCurrent(nullptr); }
+        void makeContextCurrent(bool makeCurrent) const { makeCurrent ? glfwMakeContextCurrent(windowHandle) : glfwMakeContextCurrent(nullptr); }
 
-        vec2i getFramebufferSize();
-        vec2i getInitialFbSize() { return initialFbSize; }
+        vec2i getFramebufferSize() const;
+        vec2i getInitialFbSize() const { return initialFbSize; }
 
-        bool shouldClose() { return glfwWindowShouldClose(windowHandle); }
+        bool shouldClose() const { return glfwWindowShouldClose(windowHandle); }
 
-        void swapBuffers() { glfwSwapBuffers(windowHandle); }
+        void swapBuffers() const { glfwSwapBuffers(windowHandle); }
 
-        void waitEvents()  { glfwWaitEvents(); }
+        void waitEvents()  const { glfwWaitEvents(); }
 
-        void pollEvents()  { glfwPollEvents(); }
+        void pollEvents()  const { glfwPollEvents(); }
 
         static void setVSync(bool VSync) { glfwSwapInterval(VSync); VSyncEnabled = VSync; }
         static bool isVSynced() { return VSyncEnabled; }
 
-        operator GLFWwindow*() { return windowHandle; }
+        operator GLFWwindow*() const { return windowHandle; }
 
         ~OSWindow();
 

@@ -9,6 +9,12 @@ namespace mirras
     void Renderer::init(Backend backend)
     {
         renderer.init();
+        currentBackend = backend;
+    }
+
+    void Renderer::shutdown()
+    {
+        renderer.shutdown();
     }
 
     void Renderer::setViewport(int32 x, int32 y, int32 width, int32 height)
@@ -36,7 +42,7 @@ namespace mirras
         renderer.endDrawing();
     }
 
-    void Renderer::beginMode2D(Camera2D& camera)
+    void Renderer::beginMode2D(const Camera2D& camera)
     {
         renderer.beginMode2D(camera);
     }

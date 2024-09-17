@@ -55,7 +55,7 @@ namespace mirras
         setGLFWCallbacks();
     }
 
-    vec2i OSWindow::getFramebufferSize()
+    vec2i OSWindow::getFramebufferSize() const
     {
         vec2i size;
         glfwGetFramebufferSize(windowHandle, &size.x, &size.y);

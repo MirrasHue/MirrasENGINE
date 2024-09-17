@@ -10,6 +10,7 @@ namespace mirras
     {
     public:
         void init();
+        void shutdown();
 
         void setViewport(int32 x, int32 y, int32 width, int32 height);
         
@@ -19,11 +20,9 @@ namespace mirras
         void beginDrawing();
         void endDrawing();
 
-        void beginMode2D(Camera2D& camera);
+        void beginMode2D(const Camera2D& camera);
         void endMode2D();
 
         void drawTriangle(); // Temp, used for testing the camera
-
-        ~OpenGLRenderer();
     };
 }

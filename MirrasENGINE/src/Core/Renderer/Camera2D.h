@@ -14,7 +14,7 @@ namespace mirras
         void setOffsetX(float xOffset);
         void setOffsetY(float yOffset);
 
-        vec2f getOffset() { return offset; }
+        vec2f getOffset() const { return offset; }
 
         void onWindowResize(class Event& event);
 

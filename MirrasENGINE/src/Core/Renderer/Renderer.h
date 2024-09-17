@@ -18,6 +18,8 @@ namespace mirras
         Renderer() = delete;
 
         static void init(Backend backend);
+        static void shutdown();
+        
         static void setViewport(int32 x, int32 y, int32 width, int32 height);
         
         static void clearBackBuffers();
@@ -26,10 +28,15 @@ namespace mirras
         static void beginDrawing();
         static void endDrawing();
 
-        static void beginMode2D(Camera2D& camera);
+        static void beginMode2D(const Camera2D& camera);
         static void endMode2D();
 
         static void drawTriangle();
+
+        static Backend getBackend() { return currentBackend; }
+    
+    private:
+        inline static Backend currentBackend;
 
     private:
         // In the eventual support of another graphics API, we'd have an abstract class 'BackendRenderer' that declares all

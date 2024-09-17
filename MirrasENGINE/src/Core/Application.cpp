@@ -140,7 +140,7 @@ namespace mirras
             reDisableVSync = true;
             OSWindow::setVSync(true);
         }
-
+        
         // No need to render here anymore, still have to swap the buffers to keep rendering on resize
 
         window.swapBuffers();

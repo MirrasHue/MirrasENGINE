@@ -50,7 +50,12 @@ namespace mirras
         windowFbHeight = height;
     }
 
-    glm::mat4 getCameraMatrix(Camera2D& camera)
+    void OpenGLRenderer::shutdown()
+    {
+        rlglClose();
+    }
+
+    glm::mat4 getCameraMatrix(const Camera2D& camera)
     {
         return glm::translate(glm::vec3{windowFbWidth/2.f - camera.getOffset().x, windowFbHeight/2.f - camera.getOffset().y, 0.f}) *
                glm::rotate(glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
@@ -100,7 +105,7 @@ namespace mirras
         rlDrawRenderBatchActive();
     }
 
-    void OpenGLRenderer::beginMode2D(Camera2D& camera)
+    void OpenGLRenderer::beginMode2D(const Camera2D& camera)
     {
         rlDrawRenderBatchActive();
         rlLoadIdentity();
@@ -122,10 +127,5 @@ namespace mirras
             rlVertex3f(600.f, 400.f, 0.f);
             rlVertex3f(400.f, 100.f, 0.f);
         rlEnd();
-    }
-
-    OpenGLRenderer::~OpenGLRenderer()
-    {
-        rlglClose();
     }
 }

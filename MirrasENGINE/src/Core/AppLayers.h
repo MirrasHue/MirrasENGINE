@@ -14,8 +14,8 @@ namespace mirras
         void addLayer(single_ref<Layer> layer);
         void addOverlay(single_ref<Layer> layer);
 
-        auto begin() { return layers.begin(); }
-        auto end()   { return layers.end(); }
+        auto begin() const { return layers.begin(); }
+        auto end()   const { return layers.end(); }
 
         ~AppLayers()
         {
