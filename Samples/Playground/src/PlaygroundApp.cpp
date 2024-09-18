@@ -1,18 +1,35 @@
 #include "MirrasENGINE.h"
 #include "MirrasENGINE/MainEntryPoint.h"
 
+#include "PlaygroundLayer.h"
+
+//using namespace mirras;
+
 class PlaygroundApp : public mirras::App
 {
 public:
-    PlaygroundApp(mirras::AppSpecs& specs) :
-        App{specs} {}
+    PlaygroundApp(const mirras::AppSpecs& appSpecs, const mirras::WindowSpecs& windowSpecs) :
+        App{appSpecs, windowSpecs}
+    {
+        addLayer(mirras::instantiate<PlaygroundLayer>());
+    }
 };
 
-std::unique_ptr<mirras::App> mirras::createClientApp()
+mirras::single_ref<mirras::App> mirras::createClientApp()
 {
-    mirras::AppSpecs specs {.title = "Playground",
-                            .width = 1280,
-                            .height = 720};
+    mirras::AppSpecs appSpecs {
+        .name = "Playground",
+        .backend = Renderer::Backend::OpenGL,
+        .updateRate = 60
+    };
 
-    return std::make_unique<PlaygroundApp>(specs);
+    mirras::WindowSpecs windowSpecs {
+        .title = "MirrasENGINE Editor",
+        .width = 1366,
+        .height = 768,
+        .minWidth = 900,
+        .minHeight = 500
+    };
+
+    return instantiate<PlaygroundApp>(appSpecs, windowSpecs);
 }
