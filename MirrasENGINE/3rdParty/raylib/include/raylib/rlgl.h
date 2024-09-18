@@ -342,6 +342,54 @@
     #define RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2 5
 #endif
 
+// Default shader vertex attribute names to set location points
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION     "vertexPosition"    // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION
+#endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD     "vertexTexCoord"    // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD
+#endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL       "vertexNormal"      // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL
+#endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR        "vertexColor"       // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR
+#endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT      "vertexTangent"     // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT
+#endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2    "vertexTexCoord2"   // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2
+#endif
+
+#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_MVP
+    #define RL_DEFAULT_SHADER_UNIFORM_NAME_MVP         "mvp"               // model-view-projection matrix
+#endif
+#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_VIEW
+    #define RL_DEFAULT_SHADER_UNIFORM_NAME_VIEW        "matView"           // view matrix
+#endif
+#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_PROJECTION
+    #define RL_DEFAULT_SHADER_UNIFORM_NAME_PROJECTION  "matProjection"     // projection matrix
+#endif
+#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_MODEL
+    #define RL_DEFAULT_SHADER_UNIFORM_NAME_MODEL       "matModel"          // model matrix
+#endif
+#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_NORMAL
+    #define RL_DEFAULT_SHADER_UNIFORM_NAME_NORMAL      "matNormal"         // normal matrix (transpose(inverse(matModelView))
+#endif
+#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_COLOR
+    #define RL_DEFAULT_SHADER_UNIFORM_NAME_COLOR       "colDiffuse"        // color diffuse (base tint color, multiplied by texture color)
+#endif
+#ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE0
+    #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE0  "texture0"          // texture0 (texture slot active 0)
+#endif
+#ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE1
+    #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE1  "texture1"          // texture1 (texture slot active 1)
+#endif
+#ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2
+    #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2  "texture2"          // texture2 (texture slot active 2)
+#endif
+
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -691,16 +739,16 @@ RLAPI void rlSetBlendFactorsSeparate(int glSrcRGB, int glDstRGB, int glSrcAlpha,
 // rlgl initialization functions
 RLAPI void rlglInit(int width, int height);             // Initialize rlgl (buffers, shaders, textures, states)
 RLAPI void rlglClose(void);                             // De-initialize rlgl (buffers, shaders, textures)
-RLAPI void rlLoadExtensions(void *loader);              // Load OpenGL extensions (loader function required)
+RLAPI void rlLoadExtensions(/*void *loader*/);              // Load OpenGL extensions (loader function required)
 RLAPI int rlGetVersion(void);                           // Get current OpenGL version
 RLAPI void rlSetFramebufferWidth(int width);            // Set current framebuffer width
 RLAPI int rlGetFramebufferWidth(void);                  // Get default framebuffer width
 RLAPI void rlSetFramebufferHeight(int height);          // Set current framebuffer height
 RLAPI int rlGetFramebufferHeight(void);                 // Get default framebuffer height
 
-RLAPI unsigned int rlGetTextureIdDefault(void);         // Get default texture id
-RLAPI unsigned int rlGetShaderIdDefault(void);          // Get default shader id
-RLAPI int *rlGetShaderLocsDefault(void);                // Get default shader locations
+RLAPI unsigned int rlGetDefaultTextureId(void);         // Get default texture id
+RLAPI unsigned int rlGetDefaultShaderId(void);          // Get default shader id
+RLAPI int *rlGetDefaultShaderLocs(void);                // Get default shader locations
 
 // Render batch management
 // NOTE: rlgl provides a default render batch to behave like OpenGL 1.1 immediate mode
@@ -957,54 +1005,6 @@ RLAPI void rlLoadDrawQuad(void);     // Load and draw a quad
         #define GL_READ_FRAMEBUFFER         GL_FRAMEBUFFER
         #define GL_DRAW_FRAMEBUFFER         GL_FRAMEBUFFER
     #endif
-#endif
-
-// Default shader vertex attribute names to set location points
-#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION
-    #define RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION     "vertexPosition"    // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION
-#endif
-#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD
-    #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD     "vertexTexCoord"    // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD
-#endif
-#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL
-    #define RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL       "vertexNormal"      // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL
-#endif
-#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR
-    #define RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR        "vertexColor"       // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR
-#endif
-#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT
-    #define RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT      "vertexTangent"     // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT
-#endif
-#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2
-    #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2    "vertexTexCoord2"   // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2
-#endif
-
-#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_MVP
-    #define RL_DEFAULT_SHADER_UNIFORM_NAME_MVP         "mvp"               // model-view-projection matrix
-#endif
-#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_VIEW
-    #define RL_DEFAULT_SHADER_UNIFORM_NAME_VIEW        "matView"           // view matrix
-#endif
-#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_PROJECTION
-    #define RL_DEFAULT_SHADER_UNIFORM_NAME_PROJECTION  "matProjection"     // projection matrix
-#endif
-#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_MODEL
-    #define RL_DEFAULT_SHADER_UNIFORM_NAME_MODEL       "matModel"          // model matrix
-#endif
-#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_NORMAL
-    #define RL_DEFAULT_SHADER_UNIFORM_NAME_NORMAL      "matNormal"         // normal matrix (transpose(inverse(matModelView))
-#endif
-#ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_COLOR
-    #define RL_DEFAULT_SHADER_UNIFORM_NAME_COLOR       "colDiffuse"        // color diffuse (base tint color, multiplied by texture color)
-#endif
-#ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE0
-    #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE0  "texture0"          // texture0 (texture slot active 0)
-#endif
-#ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE1
-    #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE1  "texture1"          // texture1 (texture slot active 1)
-#endif
-#ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2
-    #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2  "texture2"          // texture2 (texture slot active 2)
 #endif
 
 //----------------------------------------------------------------------------------
@@ -2644,7 +2644,7 @@ int rlGetFramebufferHeight(void)
 
 // Get default internal texture (white texture)
 // NOTE: Default texture is a 1x1 pixel UNCOMPRESSED_R8G8B8A8
-unsigned int rlGetTextureIdDefault(void)
+unsigned int rlGetDefaultTextureId(void)
 {
     unsigned int id = 0;
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
@@ -2654,7 +2654,7 @@ unsigned int rlGetTextureIdDefault(void)
 }
 
 // Get default shader id
-unsigned int rlGetShaderIdDefault(void)
+unsigned int rlGetDefaultShaderId(void)
 {
     unsigned int id = 0;
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
@@ -2664,7 +2664,7 @@ unsigned int rlGetShaderIdDefault(void)
 }
 
 // Get default shader locs
-int *rlGetShaderLocsDefault(void)
+int *rlGetDefaultShaderLocs(void)
 {
     int *locs = NULL;
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
@@ -4001,17 +4001,21 @@ unsigned int rlLoadShaderCode(const char *vsCode, const char *fsCode)
     unsigned int fragmentShaderId = 0;
 
     // Compile vertex shader (if provided)
-    // NOTE: If not vertex shader is provided, use default one
+    // NOTE: If no vertex shader is provided, or compilation fails, use default one
     if (vsCode != NULL) vertexShaderId = rlCompileShader(vsCode, GL_VERTEX_SHADER);
-    else vertexShaderId = RLGL.State.defaultVShaderId;
+    if (!vertexShaderId) vertexShaderId = RLGL.State.defaultVShaderId;
 
     // Compile fragment shader (if provided)
-    // NOTE: If not vertex shader is provided, use default one
+    // NOTE: If no vertex shader is provided, or compilation fails, use default one
     if (fsCode != NULL) fragmentShaderId = rlCompileShader(fsCode, GL_FRAGMENT_SHADER);
-    else fragmentShaderId = RLGL.State.defaultFShaderId;
+    if (!fragmentShaderId) fragmentShaderId = RLGL.State.defaultFShaderId;
 
     // In case vertex and fragment shader are the default ones, no need to recompile, we can just assign the default shader program id
-    if ((vertexShaderId == RLGL.State.defaultVShaderId) && (fragmentShaderId == RLGL.State.defaultFShaderId)) id = RLGL.State.defaultShaderId;
+    if ((vertexShaderId == RLGL.State.defaultVShaderId) && (fragmentShaderId == RLGL.State.defaultFShaderId))
+    {
+        TRACELOG(RL_LOG_INFO, "SHADER: Using default vertex and fragment shaders");
+        id = RLGL.State.defaultShaderId;
+    }
     else if ((vertexShaderId > 0) && (fragmentShaderId > 0))
     {
         // One of or both shader are new, we need to compile a new shader program
