@@ -85,18 +85,18 @@ namespace mirras
         {
             float frameTime = timer.elapsed();
 
+            if(resizing)
+            {
+                synchronizeResize();
+                continue;
+            }
+
             {
                 std::lock_guard lock{layersMutex};
 
                 updateLayers(frameTime);
 
                 renderLayers();
-            }
-
-            if(resizing)
-            {
-                synchronizeResize();
-                continue;
             }
 
             window.swapBuffers();
@@ -141,7 +141,8 @@ namespace mirras
             OSWindow::setVSync(true);
         }
         
-        // No need to render here anymore, still have to swap the buffers to keep rendering on resize
+        // Keep rendering on window resize
+        renderLayers();
 
         window.swapBuffers();
 
@@ -212,5 +213,6 @@ namespace mirras
             updateThread.join();
 
         imgui::shutdown();
+        Renderer::shutdown();
     }
 }

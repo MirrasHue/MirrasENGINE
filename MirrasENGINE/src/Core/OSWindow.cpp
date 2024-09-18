@@ -48,7 +48,7 @@ namespace mirras
         glfwMakeContextCurrent(windowHandle);
 
         glfwSwapInterval(windowSpecs.VSync);
-        OSWindow::VSyncEnabled = true;
+        OSWindow::VSyncEnabled = windowSpecs.VSync;
 
         glfwSetWindowUserPointer(windowHandle, &appCallbacks);
 
