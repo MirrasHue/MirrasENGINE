@@ -760,6 +760,8 @@ RLAPI void rlSetRenderBatchActive(rlRenderBatch *batch); // Set the active rende
 RLAPI void rlDrawRenderBatchActive(void);               // Update and draw internal render batch
 RLAPI bool rlCheckRenderBatchLimit(int vCount);         // Check internal buffer overflow for a given number of vertex
 
+RLAPI float rlGetCurrentDrawDepth();
+
 RLAPI void rlSetTexture(unsigned int id);               // Set current texture for render batch and check buffers limits
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -1357,7 +1359,7 @@ void rlOrtho(double left, double right, double bottom, double top, double znear,
     matOrtho.m7 = 0.0f;
     matOrtho.m8 = 0.0f;
     matOrtho.m9 = 0.0f;
-    matOrtho.m10 = -2.0f/fn;
+    matOrtho.m10 = 2.0f/fn;
     matOrtho.m11 = 0.0f;
     matOrtho.m12 = -((float)left + (float)right)/rl;
     matOrtho.m13 = -((float)top + (float)bottom)/tb;
@@ -1461,7 +1463,7 @@ void rlEnd(void)
     // NOTE: Depth increment is dependant on rlOrtho(): z-near and z-far values,
     // as well as depth buffer bit-depth (16bit or 24bit or 32bit)
     // Correct increment formula would be: depthInc = (zfar - znear)/pow(2, bits)
-    RLGL.currentBatch->currentDepth += (1.0f/20000.0f);
+    RLGL.currentBatch->currentDepth -= (1.0f/20000.0f);
 }
 
 // Define one vertex (position)
@@ -1791,7 +1793,12 @@ void rlCubemapParameters(unsigned int id, int param, int value)
 void rlEnableShader(unsigned int id)
 {
 #if (defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2))
-    glUseProgram(id);
+    static unsigned int currentProgramId = 0;
+    if(currentProgramId != id)
+    {
+        glUseProgram(id);
+        currentProgramId = id;
+    }
 #endif
 }
 
@@ -1799,7 +1806,8 @@ void rlEnableShader(unsigned int id)
 void rlDisableShader(void)
 {
 #if (defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2))
-    glUseProgram(0);
+    // Ensures the check in rlEnableShader works correctly, in case we try to enable the same shader after it has been disabled
+    rlEnableShader(0);
 #endif
 }
 
@@ -2801,7 +2809,7 @@ rlRenderBatch rlLoadRenderBatch(int numBuffers, int bufferElements)
 
     batch.bufferCount = numBuffers;    // Record buffer count
     batch.drawCounter = 1;             // Reset draws counter
-    batch.currentDepth = -1.0f;         // Reset depth value
+    batch.currentDepth = 1.0f;         // Reset depth value
     //--------------------------------------------------------------------------------------------
 #endif
 
@@ -3053,7 +3061,7 @@ void rlDrawRenderBatch(rlRenderBatch *batch)
     RLGL.State.vertexCounter = 0;
 
     // Reset depth for next draw
-    batch->currentDepth = -1.0f;
+    batch->currentDepth = 1.0f;
 
     // Restore projection/modelview matrices
     RLGL.State.projection = matProjection;
@@ -3124,6 +3132,11 @@ bool rlCheckRenderBatchLimit(int vCount)
 #endif
 
     return overflow;
+}
+
+float rlGetCurrentDrawDepth()
+{
+    return RLGL.currentBatch->currentDepth;
 }
 
 // Textures data management
