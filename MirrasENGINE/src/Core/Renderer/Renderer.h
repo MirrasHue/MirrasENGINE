@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/BasicTypes.h"
+#include <glm/fwd.hpp>
 
 namespace mirras
 {
@@ -31,12 +32,17 @@ namespace mirras
         static void beginMode2D(const Camera2D& camera);
         static void endMode2D();
 
-        static void drawTriangle();
+        // 2D shapes
+        static void drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color);
+        static void drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color);
+
+        static void drawRectangle(const glm::vec3& topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
+        static void drawRectangle(glm::vec2 topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
 
         static Backend getBackend() { return currentBackend; }
     
     private:
-        inline static Backend currentBackend;
+        inline static Backend currentBackend = Backend::OpenGL;
 
     private:
         // In the eventual support of another graphics API, we'd have an abstract class 'BackendRenderer' that declares all

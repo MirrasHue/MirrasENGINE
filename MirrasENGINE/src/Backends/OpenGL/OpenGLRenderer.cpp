@@ -48,6 +48,10 @@ namespace mirras
 
         windowFbWidth = width;
         windowFbHeight = height;
+
+        // So that we can use the Z axis to determine the draw order
+        // independent of the draw call order (for different Z values)
+        rlEnableDepthTest();
     }
 
     void OpenGLRenderer::shutdown()
@@ -87,7 +91,7 @@ namespace mirras
 
     void OpenGLRenderer::clearBackBuffers()
     {
-        glClear(GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void OpenGLRenderer::setClearColor(float r, float g, float b, float a)
@@ -118,14 +122,72 @@ namespace mirras
         rlLoadIdentity();
     }
 
-    void OpenGLRenderer::drawTriangle()
+    void OpenGLRenderer::drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color)
     {
-        // Temp
         rlBegin(RL_TRIANGLES);
-            rlColor4ub(255, 255, 255, 255);
-            rlVertex3f(200.f, 400.f, 0.f);
-            rlVertex3f(600.f, 400.f, 0.f);
-            rlVertex3f(400.f, 100.f, 0.f);
+            rlColor4f(color.r, color.g, color.b, color.a);
+            rlVertex3f(p1.x, p1.y, p1.z);
+            rlVertex3f(p2.x, p2.y, p2.z);
+            rlVertex3f(p3.x, p3.y, p3.z);
         rlEnd();
+    }
+
+    void OpenGLRenderer::drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color)
+    {
+        float drawDepth = rlGetCurrentDrawDepth();
+        drawTriangle(glm::vec3{p1, drawDepth}, glm::vec3{p2, drawDepth}, glm::vec3{p3, drawDepth}, color);
+    }
+
+    void OpenGLRenderer::drawRectangle(const glm::vec3& topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation)
+    {
+        const float x = topLeftPos.x;
+        const float y = topLeftPos.y;
+        const float z = topLeftPos.z;
+
+        // Corners
+        glm::vec2 topLeft{x, y};
+        glm::vec2 topRight{x + size.x, y};
+        glm::vec2 bottomLeft{x, y + size.y};
+        glm::vec2 bottomRight{x + size.x, y + size.y};
+
+        if(rotation)
+        {
+            const float cosTheta = std::cosf(glm::radians(rotation));
+            const float sinTheta = std::sinf(glm::radians(rotation));
+
+            const float dx = -localOrigin.x;
+            const float dy = -localOrigin.y;
+
+            // Translate local origin to the global origin, apply rotation, and translate it back
+
+            topLeft.x = dx * cosTheta - dy * sinTheta - dx + x;
+            topLeft.y = dx * sinTheta + dy * cosTheta - dy + y;
+
+            topRight.x = (dx + size.x) * cosTheta - dy * sinTheta - dx + x;
+            topRight.y = (dx + size.x) * sinTheta + dy * cosTheta - dy + y;
+
+            bottomLeft.x = dx * cosTheta - (dy + size.y) * sinTheta - dx + x;
+            bottomLeft.y = dx * sinTheta + (dy + size.y) * cosTheta - dy + y;
+
+            bottomRight.x = (dx + size.x) * cosTheta - (dy + size.y) * sinTheta - dx + x;
+            bottomRight.y = (dx + size.x) * sinTheta + (dy + size.y) * cosTheta - dy + y;
+        }
+
+        rlBegin(RL_TRIANGLES);
+            rlColor4f(color.r, color.g, color.b, color.a);
+
+            rlVertex3f(topLeft.x, topLeft.y, z);
+            rlVertex3f(bottomLeft.x, bottomLeft.y, z);
+            rlVertex3f(topRight.x, topRight.y, z);
+
+            rlVertex3f(topRight.x, topRight.y, z);
+            rlVertex3f(bottomLeft.x, bottomLeft.y, z);
+            rlVertex3f(bottomRight.x, bottomRight.y, z);
+        rlEnd();
+    }
+
+    void OpenGLRenderer::drawRectangle(glm::vec2 topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation)
+    {
+        drawRectangle(glm::vec3{topLeftPos, rlGetCurrentDrawDepth()}, size, localOrigin, color, rotation);
     }
 }

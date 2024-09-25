@@ -2,6 +2,8 @@
 
 #include "Core/BasicTypes.h"
 
+#include <glm/fwd.hpp>
+
 namespace mirras
 {
     class Camera2D;
@@ -23,6 +25,10 @@ namespace mirras
         void beginMode2D(const Camera2D& camera);
         void endMode2D();
 
-        void drawTriangle(); // Temp, used for testing the camera
+        void drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color);
+        void drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color);
+
+        void drawRectangle(const glm::vec3& topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation);
+        void drawRectangle(glm::vec2 topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation);
     };
 }

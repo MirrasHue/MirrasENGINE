@@ -2,6 +2,8 @@
 
 #include "Backends/OpenGL/OpenGLRenderer.h"
 
+#include <glm/vec2.hpp>
+
 namespace mirras
 {
     OpenGLRenderer Renderer::renderer;
@@ -52,8 +54,23 @@ namespace mirras
         renderer.endMode2D();
     }
 
-    void Renderer::drawTriangle()
+    void Renderer::drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color)
     {
-        renderer.drawTriangle();
+        renderer.drawTriangle(p1, p2, p3, color);
+    }
+
+    void Renderer::drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color)
+    {
+        renderer.drawTriangle(p1, p2, p3, color);
+    }
+
+    void Renderer::drawRectangle(const glm::vec3& topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation)
+    {
+        renderer.drawRectangle(topLeft, size, localOrigin, color, rotation);
+    }
+
+    void Renderer::drawRectangle(glm::vec2 topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation)
+    {
+        renderer.drawRectangle(topLeft, size, localOrigin, color, rotation);
     }
 }
