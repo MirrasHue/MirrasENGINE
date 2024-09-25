@@ -73,6 +73,7 @@ namespace mirras
 
         resizing.wait(true); // Wait until we are notified that 'resizing' was set to false
 
+        switchContext = false;
         window.makeContextCurrent(true);
     }
 
@@ -150,9 +151,6 @@ namespace mirras
             OSWindow::setVSync(false);
         
         window.makeContextCurrent(false);
-        
-        // Set it back to false, otherwise, 'switchContext.wait(false)' will not wait on subsequent resizes
-        switchContext = false;
 
         resizing = false;
         resizing.notify_one();
