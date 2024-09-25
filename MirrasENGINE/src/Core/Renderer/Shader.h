@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <span>
 
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 
 #include "Core/BasicTypes.h"
 
@@ -25,8 +25,8 @@ namespace mirras
         virtual void setFloat(std::string_view name, float value) = 0;
         virtual void setFloat(int32 location, float value) = 0;
 
-        virtual void setVec2(std::string_view name, const glm::vec2& vec) = 0;
-        virtual void setVec2(int32 location, const glm::vec2& vec) = 0;
+        virtual void setVec2(std::string_view name, glm::vec2 vec) = 0;
+        virtual void setVec2(int32 location, glm::vec2 vec) = 0;
 
         virtual void setVec3(std::string_view name, const glm::vec3& vec) = 0;
         virtual void setVec3(int32 location, const glm::vec3& vec) = 0;

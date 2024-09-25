@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <raylib/rlgl.h>
 
+//#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mirras
@@ -92,7 +93,7 @@ namespace mirras
             return false;
         }
         
-        rlEnableShader(id);
+        rlEnableShader(id); // Enable the shader program before uploading uniform data
         return true;
     }
 
@@ -121,14 +122,14 @@ namespace mirras
             glUniform1f(location, value);
     }
 
-    void OpenGLShader::setVec2(std::string_view name, const glm::vec2& vec)
+    void OpenGLShader::setVec2(std::string_view name, glm::vec2 vec)
     {
         int loc{};
         if(findUniform(name, loc))
             glUniform2f(loc, vec.x, vec.y);
     }
 
-    void OpenGLShader::setVec2(int32 location, const glm::vec2& vec)
+    void OpenGLShader::setVec2(int32 location, glm::vec2 vec)
     {
         if(isValid(location))
             glUniform2f(location, vec.x, vec.y);
