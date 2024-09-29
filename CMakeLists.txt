@@ -19,6 +19,7 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}/MirrasENGINE/src
         MirrasENGINE/3rdParty/raylib/include
         MirrasENGINE/3rdParty/Glad/include
+        MirrasENGINE/3rdParty/stb/include
 )
 
 # GLFW Flags
