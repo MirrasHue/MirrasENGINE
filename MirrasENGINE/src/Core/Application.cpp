@@ -86,18 +86,18 @@ namespace mirras
         {
             float frameTime = timer.elapsed();
 
-            if(resizing)
-            {
-                synchronizeResize();
-                continue;
-            }
-
             {
                 std::lock_guard lock{layersMutex};
 
                 updateLayers(frameTime);
 
                 renderLayers();
+            }
+
+            if(resizing)
+            {
+                synchronizeResize();
+                continue;
             }
 
             window.swapBuffers();
