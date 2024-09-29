@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Core/BasicTypes.h"
+
 #include <glm/fwd.hpp>
+#include <glm/vec4.hpp>
 
 namespace mirras
 {
     class Camera2D;
+    class Texture;
 
     class Renderer
     {
@@ -38,6 +41,14 @@ namespace mirras
 
         static void drawRectangle(const glm::vec3& topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
         static void drawRectangle(glm::vec2 topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
+        // End 2D shapes
+
+        // Pass {} as the second parameter if you want to use the whole texture, not just part of it
+        static void drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
+                                glm::vec2 targetOrigin, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
+        
+        static void drawTexture(const Texture& texture, rect4i texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
+                                glm::vec2 targetOrigin, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
 
         static Backend getBackend() { return currentBackend; }
     

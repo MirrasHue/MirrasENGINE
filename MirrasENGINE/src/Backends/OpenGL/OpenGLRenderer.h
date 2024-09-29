@@ -7,6 +7,7 @@
 namespace mirras
 {
     class Camera2D;
+    class Texture;
 
     class OpenGLRenderer
     {
@@ -30,5 +31,11 @@ namespace mirras
 
         void drawRectangle(const glm::vec3& topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation);
         void drawRectangle(glm::vec2 topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation);
+
+        void drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
+                         glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
+        
+        void drawTexture(const Texture& texture, rect4i texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
+                         glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
     };
 }

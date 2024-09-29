@@ -73,4 +73,14 @@ namespace mirras
     {
         renderer.drawRectangle(topLeft, size, localOrigin, color, rotation);
     }
+
+    void Renderer::drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    {
+        renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
+    }
+
+    void Renderer::drawTexture(const Texture& texture, rect4i texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    {
+        renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
+    }
 }
