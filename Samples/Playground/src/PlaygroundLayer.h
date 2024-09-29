@@ -4,6 +4,7 @@
 
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Renderer/Shader.h"
+#include "Core/Renderer/Texture.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -19,6 +20,7 @@ public:
 
 public:
     mirras::Camera2D camera;
+    mirras::single_ref<mirras::Texture> texture;
     float rotation{};
     std::string_view vertexSrc, fragmentSrc;
     mirras::single_ref<mirras::Shader> shader;

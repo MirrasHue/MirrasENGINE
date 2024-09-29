@@ -12,7 +12,7 @@ namespace mirras
         OpenGLShader(std::string_view vertexSrc, std::string_view fragmentSrc);
         OpenGLShader(const fs::path& vertexFilepath, const fs::path& fragmentFilepath);
 
-        virtual void makeActive() override;
+        virtual void makeActive()   override;
         virtual void makeInactive() override;
 
         virtual int32 getUniformLocation(std::string_view uniformName) const override;
