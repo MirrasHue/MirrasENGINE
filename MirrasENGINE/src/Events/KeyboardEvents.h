@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events/Event.h"
+
 #include "Input/DeviceCodes.h"
 
 namespace mirras
@@ -52,4 +53,4 @@ namespace mirras
 
         uint32 unicode{};
     };
-}
+} // namespace mirras

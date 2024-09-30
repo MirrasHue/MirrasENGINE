@@ -12,4 +12,4 @@ namespace mirras
         virtual void makeActive()   const override;
         virtual void makeInactive() const override;
     };
-}
+} // namespace mirras

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events/Event.h"
+
 #include "Input/DeviceCodes.h"
 
 namespace mirras
@@ -61,4 +62,4 @@ namespace mirras
 
         vec2f mouseWheelOffset;
     };
-}
+} // namespace mirras

@@ -1,11 +1,13 @@
 #include "Core/Application.h"
+
 #include "Core/Timer.h"
+#include "Core/Log.h"
 #include "Core/Asserts.h"
 
-#include "UI/ImGui.h"
-#include "Input/Input.h"
+#include "Events/WindowEvents.h"
 
-#include <thread>
+#include "UI/ImGui.h"
+
 #include <ranges>
 
 namespace mirras
@@ -213,4 +215,4 @@ namespace mirras
         imgui::shutdown();
         Renderer::shutdown();
     }
-}
+} // namespace mirras

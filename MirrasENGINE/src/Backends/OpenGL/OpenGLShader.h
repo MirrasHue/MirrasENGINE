@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/Shader.h"
+#include "Core/Fwd.h"
 
 #include <vector>
 
@@ -48,4 +49,4 @@ namespace mirras
         uint32 id;
         std::vector<int32> locs;
     };
-}
+} // namespace mirras

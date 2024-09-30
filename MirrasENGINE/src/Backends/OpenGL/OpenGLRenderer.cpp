@@ -250,4 +250,4 @@ namespace mirras
     {
         drawTexture(texture, texSampleArea, glm::vec3{targetTopLeft, rlGetCurrentDrawDepth()}, targetSize, targetOrigin, rotation, tintColor);
     }
-}
+} // namespace mirras

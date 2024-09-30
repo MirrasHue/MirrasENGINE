@@ -1,16 +1,16 @@
 #pragma once
 
+#include "Core/BasicTypes.h"
+#include "Core/Fwd.h"
+
 #include <filesystem>
+#include <string_view>
 #include <span>
 
 #include <glm/fwd.hpp>
 
-#include "Core/BasicTypes.h"
-
 namespace mirras
 {
-    namespace fs = std::filesystem;
-
     class Shader
     {
     public:
@@ -47,4 +47,4 @@ namespace mirras
         static single_ref<Shader> loadFrom(const fs::path& vertexFilepath, const fs::path& fragmentFilepath);
         //static single_ref<Shader> loadFrom(const fs::path& shaderFilepath);
     };
-}
+} // namespace mirras

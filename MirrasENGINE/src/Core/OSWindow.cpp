@@ -1,4 +1,5 @@
 #include "Core/OSWindow.h"
+
 #include "Core/Log.h"
 #include "Core/Asserts.h"
 #include "Core/Utils.h"
@@ -6,6 +7,8 @@
 #include "Events/WindowEvents.h"
 #include "Events/KeyboardEvents.h"
 #include "Events/MouseEvents.h"
+
+#include <cstdlib>
 
 namespace mirras
 {
@@ -209,4 +212,4 @@ namespace mirras
                 throw glfw_error(what);
         }
     }
-}
+} // namespace mirras

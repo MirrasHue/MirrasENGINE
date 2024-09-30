@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events/Event.h"
+
 #include "Core/BasicTypes.h"
 
 namespace mirras
@@ -46,4 +47,4 @@ namespace mirras
     public:
         Event_Runtime_Identification(EventType::WindowFocusLost, EventCategory::Window)
     };
-}
+} // namespace mirras

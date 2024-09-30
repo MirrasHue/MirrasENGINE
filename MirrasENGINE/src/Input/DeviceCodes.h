@@ -186,4 +186,4 @@ namespace mirras
         //CapsLock = 1 << 4,
         //NumLock  = 1 << 5
     };
-}
+} // namespace mirras

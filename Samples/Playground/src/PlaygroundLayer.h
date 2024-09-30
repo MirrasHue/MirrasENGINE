@@ -2,10 +2,6 @@
 
 #include "MirrasENGINE.h"
 
-#include "Core/Renderer/Camera2D.h"
-#include "Core/Renderer/Shader.h"
-#include "Core/Renderer/Texture.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 
 class PlaygroundLayer : public mirras::Layer

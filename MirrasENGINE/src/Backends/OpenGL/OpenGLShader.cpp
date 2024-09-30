@@ -1,12 +1,12 @@
 #include "Backends/OpenGL/OpenGLShader.h"
 
-#include "Utilities/FileIO.h"
 #include "Core/Log.h"
+
+#include "Utilities/FileIO.h"
 
 #include <glad/glad.h>
 #include <raylib/rlgl.h>
 
-//#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace mirras
@@ -199,4 +199,4 @@ namespace mirras
         if(isValid(location))
             glUniform1iv(location, values.size(), values.data());
     }
-}
+} // namespace mirras

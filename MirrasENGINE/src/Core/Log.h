@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "BasicTypes.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -33,7 +33,7 @@ namespace mirras
         { }
     #endif
 	};
-}
+} // namespace mirras
 
 #ifndef DISTRIBUTION_BUILD
 

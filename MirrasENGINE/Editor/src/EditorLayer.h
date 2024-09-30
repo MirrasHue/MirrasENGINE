@@ -14,5 +14,4 @@ namespace mirras
         virtual void drawImGui() override;
         virtual void unload() {}
     };
-}
-    
+} // namespace mirras

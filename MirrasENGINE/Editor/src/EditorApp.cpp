@@ -27,4 +27,4 @@ namespace mirras
 
         return instantiate<EditorApp>(appSpecs, windowSpecs);
     }
-}
+} // namespace mirras

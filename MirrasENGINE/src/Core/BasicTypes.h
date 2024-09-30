@@ -61,4 +61,4 @@ namespace mirras
     // The 4 is redundant, I know, but it looks nicer and avoids using capital letters or _
     using rect4i = Rect<int32>;
     using rect4f = Rect<float>;
-}
+} // namespace mirras

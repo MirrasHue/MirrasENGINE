@@ -1,12 +1,11 @@
 #pragma once
 
+#include "Core/Asserts.h"
 #include "Core/BasicTypes.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <fmt/printf.h>
-
-#include "Core/Asserts.h"
 
 // Adapted from rlgl.h, instead of including the header just for the rlTraceLogLevel enum
 enum class rlLogLevel
@@ -68,7 +67,7 @@ namespace mirras
         { }
     #endif
 	};
-}
+} // namespace mirras
 
 #ifndef DISTRIBUTION_BUILD
 

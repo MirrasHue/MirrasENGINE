@@ -1,4 +1,5 @@
 #include "Core/AppLayers.h"
+
 #include "Core/Asserts.h"
 
 namespace mirras
@@ -19,4 +20,4 @@ namespace mirras
         layer->load();
         layers.emplace_back(std::move(layer));
     }
-}
+} // namespace mirras

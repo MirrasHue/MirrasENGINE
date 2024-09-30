@@ -1,14 +1,14 @@
 #pragma once
 
+#include "Core/BasicTypes.h"
+#include "Core/Fwd.h"
+
 // So that it doesn't include GL/gl.h (which defines __gl_h_, making Glad complain)
 #define GLFW_INCLUDE_NONE
 #include <glfw/glfw3.h>
 
 #include <string_view>
-#include <cstdlib>
-
-#include "Events/Event.h"
-#include "Core/BasicTypes.h"
+#include <functional>
 
 namespace mirras
 {
@@ -68,4 +68,4 @@ namespace mirras
 
         inline static bool VSyncEnabled = false;
     };
-}
+} // namespace mirras

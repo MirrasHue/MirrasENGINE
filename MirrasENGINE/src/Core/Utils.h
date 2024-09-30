@@ -10,5 +10,4 @@ namespace mirras
     {
         throw std::runtime_error(what);
     }
-}
-
+} // namespace mirras

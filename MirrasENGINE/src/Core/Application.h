@@ -1,19 +1,14 @@
 #pragma once
 
-#include <memory>
+#include "Core/OSWindow.h"
+#include "Core/AppLayers.h"
+#include "Core/Renderer/Renderer.h"
+#include "Core/Fwd.h"
+
+#include <thread>
 #include <string_view>
 #include <mutex>
 #include <atomic>
-
-#include "Core/OSWindow.h"
-#include "Core/AppLayers.h"
-#include "Core/Log.h"
-
-#include "Events/WindowEvents.h"
-#include "Events/KeyboardEvents.h"
-#include "Events/MouseEvents.h"
-
-#include "Core/Renderer/Renderer.h"
 
 namespace mirras
 {
@@ -66,4 +61,4 @@ namespace mirras
         std::atomic_bool switchContext = false;
         std::atomic_bool running = true;
     };
-}
+} // namespace mirras

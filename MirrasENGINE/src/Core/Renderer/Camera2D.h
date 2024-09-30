@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/BasicTypes.h"
+#include "Core/Fwd.h"
 
 namespace mirras
 {
@@ -16,7 +17,7 @@ namespace mirras
 
         vec2f getOffset() const { return offset; }
 
-        void onWindowResize(class Event& event);
+        void onWindowResize(Event& event);
 
     public:
         vec2f position; // Aligns with the center of the screen (when the offset is 0,0)
@@ -29,4 +30,4 @@ namespace mirras
         vec2f offset; // that's why offset is not accessed directly
         vec2f offsetRatio; // With respect to the initial window size
     };
-}
+} // namespace mirras

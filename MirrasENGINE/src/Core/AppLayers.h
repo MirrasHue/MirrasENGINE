@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-
 #include "Core/Layer.h"
 #include "Core/BasicTypes.h"
+
+#include <vector>
+#include <memory>
 
 namespace mirras
 {
@@ -27,4 +27,4 @@ namespace mirras
         std::vector<single_ref<Layer>> layers;
         uint32 layerInsertionIdx{};
     };
-}
+} // namespace mirras

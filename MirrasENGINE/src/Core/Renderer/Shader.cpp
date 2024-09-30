@@ -23,4 +23,4 @@ namespace mirras
     {
         return instantiate<OpenGLShader>(vertexFilepath, fragmentFilepath);
     }
-}
+} // namespace mirras

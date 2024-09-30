@@ -1,10 +1,12 @@
 #include "UI/ImGui.h"
 
+#include "Core/Application.h"
+
+#include "Events/Event.h"
+
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
-
-#include "Core/Application.h"
 
 namespace mirras::imgui
 {
@@ -60,4 +62,4 @@ namespace mirras::imgui
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
-}
+} // namespace mirras::imgui

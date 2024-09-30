@@ -8,4 +8,4 @@ namespace mirras
     {
         return instantiate<OpenGLTexture>(imageFilepath);
     }
-}
+} // namespace mirras

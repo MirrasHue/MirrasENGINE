@@ -1,13 +1,12 @@
 #pragma once
 
-#include <filesystem>
-
 #include "Core/BasicTypes.h"
+#include "Core/Fwd.h"
+
+#include <filesystem>
 
 namespace mirras
 {
-    namespace fs = std::filesystem;
-
     class Texture
     {
     public:
@@ -25,4 +24,4 @@ namespace mirras
     };
 
     using Texture2D = Texture;
-}
+} // namespace mirras

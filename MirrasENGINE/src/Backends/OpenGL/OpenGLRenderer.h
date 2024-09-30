@@ -1,14 +1,12 @@
 #pragma once
 
 #include "Core/BasicTypes.h"
+#include "Core/Fwd.h"
 
 #include <glm/fwd.hpp>
 
 namespace mirras
 {
-    class Camera2D;
-    class Texture;
-
     class OpenGLRenderer
     {
     public:
@@ -38,4 +36,4 @@ namespace mirras
         void drawTexture(const Texture& texture, rect4i texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
                          glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
     };
-}
+} // namespace mirras

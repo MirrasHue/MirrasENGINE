@@ -1,11 +1,13 @@
 #include "Backends/OpenGL/OpenGLTexture.h"
 
+#include "Core/Log.h"
+
+#include "Utilities/FileIO.h"
+
 #include <raylib/rlgl.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/image.h>
-
-#include "Utilities/FileIO.h"
 
 namespace mirras
 {
@@ -42,4 +44,4 @@ namespace mirras
     {
         rlSetTexture(0);
     }
-}
+} // namespace mirras

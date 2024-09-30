@@ -7,7 +7,7 @@ namespace mirras
     class Input
     {
     public:
-        static bool  isKeyDown(Key key);
-        static bool  isMouseButtonDown(Mouse button);
+        static bool isKeyDown(Key key);
+        static bool isMouseButtonDown(Mouse button);
     };
-}
+} // namespace mirras

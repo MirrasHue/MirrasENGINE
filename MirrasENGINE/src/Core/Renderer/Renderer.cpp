@@ -83,4 +83,4 @@ namespace mirras
     {
         renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
     }
-}
+} // namespace mirras

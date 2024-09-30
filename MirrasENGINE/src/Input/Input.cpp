@@ -15,4 +15,4 @@ namespace mirras
         int32 state = glfwGetMouseButton(App::getOSWindow(), static_cast<int32>(button));
         return MouseButtonState{state} == MouseButtonState::Pressed;
     }
-}
+} // namespace mirras

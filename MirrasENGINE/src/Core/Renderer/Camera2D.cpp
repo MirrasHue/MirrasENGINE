@@ -2,6 +2,8 @@
 
 #include "Core/Application.h"
 
+#include "Events/WindowEvents.h"
+
 namespace mirras
 {
     Camera2D::Camera2D(vec2f _position, vec2f _offset, float _rotation, float _zoom)
@@ -46,4 +48,4 @@ namespace mirras
         offset.x = offsetRatio.x * currentWidth;
         offset.y = offsetRatio.y * currentHeight;
     }
-}
+} // namespace mirras

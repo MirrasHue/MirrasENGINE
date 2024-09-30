@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Events/Event.h"
+#include "Core/Fwd.h"
 
 namespace mirras::imgui
 {
@@ -9,4 +9,4 @@ namespace mirras::imgui
     void endFrame();
     void onEvent(Event& event);
     void shutdown();
-}
+} // namespace mirras::imgui

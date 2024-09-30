@@ -82,4 +82,4 @@ namespace mirras
         virtual EventType getEventType() const { return event_type; } \
         static EventType getEventTypeStatic()  { return event_type; } \
         virtual EventCategory getEventCategory() const { return event_category; }
-}
+} // namespace mirras
