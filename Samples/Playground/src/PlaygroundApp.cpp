@@ -24,7 +24,7 @@ mirras::single_ref<mirras::App> mirras::createClientApp()
     };
 
     mirras::WindowSpecs windowSpecs {
-        .title = "MirrasENGINE Editor",
+        .title = "MirrasENGINE Playground",
         .width = 1366,
         .height = 768,
         .minWidth = 900,
