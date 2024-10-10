@@ -812,6 +812,9 @@ RLAPI void rlSetUniformMatrix(int locIndex, Matrix mat);                        
 RLAPI void rlSetUniformSampler(int locIndex, unsigned int textureId);           // Set shader value sampler
 RLAPI void rlSetShader(unsigned int id, int *locs);                             // Set shader currently active (id and locations)
 
+RLAPI unsigned int rlGetCurrentShaderId();
+RLAPI int* rlGetCurrentShaderLocs();
+
 // Compute shader management
 RLAPI unsigned int rlLoadComputeShaderProgram(unsigned int shaderId);           // Load compute shader program
 RLAPI void rlComputeShaderDispatch(unsigned int groupX, unsigned int groupY, unsigned int groupZ); // Dispatch compute shader (equivalent to *draw* for graphics pipeline)
@@ -2941,7 +2944,7 @@ void rlDrawRenderBatch(rlRenderBatch *batch)
         if (RLGL.State.vertexCounter > 0)
         {
             // Set current shader and upload current MVP matrix
-            glUseProgram(RLGL.State.currentShaderId);
+            rlEnableShader(RLGL.State.currentShaderId);
 
             // Create modelview-projection matrix and upload to shader
             Matrix matMVP = rlMatrixMultiply(RLGL.State.modelview, RLGL.State.projection);
@@ -3048,7 +3051,7 @@ void rlDrawRenderBatch(rlRenderBatch *batch)
 
         if (RLGL.ExtSupported.vao) glBindVertexArray(0); // Unbind VAO
 
-        glUseProgram(0);    // Unbind shader program
+        rlEnableShader(0);    // Unbind shader program
     }
 
     // Restore viewport to default measures
@@ -4342,6 +4345,24 @@ void rlSetShader(unsigned int id, int *locs)
 #endif
 }
 
+unsigned int rlGetCurrentShaderId()
+{
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+    return RLGL.State.currentShaderId;
+#else
+    return 0;
+#endif
+}
+
+int* rlGetCurrentShaderLocs()
+{
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+    return RLGL.State.currentShaderLocs;
+#else
+    return NULL;
+#endif
+}
+
 // Load compute shader program
 unsigned int rlLoadComputeShaderProgram(unsigned int shaderId)
 {
@@ -4912,7 +4933,7 @@ static void rlLoadShaderDefault(void)
 // NOTE: Unloads: RLGL.State.defaultShaderId, RLGL.State.defaultShaderLocs
 static void rlUnloadShaderDefault(void)
 {
-    glUseProgram(0);
+    rlEnableShader(0);
 
     glDetachShader(RLGL.State.defaultShaderId, RLGL.State.defaultVShaderId);
     glDetachShader(RLGL.State.defaultShaderId, RLGL.State.defaultFShaderId);
