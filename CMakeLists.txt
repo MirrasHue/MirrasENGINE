@@ -36,6 +36,19 @@ add_subdirectory(MirrasENGINE/3rdParty/glm)
 
 target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog glm)
 
+# Define a location for the generated binaries, separated by build type.
+# Also simplify the specification of relative paths within the project structure,
+# since we can easily go to its root directory and specify the desired path from there.
+if(DEFINED PRESET_NAME)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${PRESET_NAME})
+
+elseif(DEFINED CMAKE_BUILD_TYPE) # Single-config generator
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+    
+else(DEFINED CMAKE_CONFIGURATION_TYPES) # Multi-config generator
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_CONFIGURATION_TYPES})
+endif()
+
 ##################################################################
 
 project(Editor)
