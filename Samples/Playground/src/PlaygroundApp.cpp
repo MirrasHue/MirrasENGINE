@@ -19,6 +19,7 @@ mirras::single_ref<mirras::App> mirras::createClientApp()
 {
     mirras::AppSpecs appSpecs {
         .name = "Playground",
+        .workingDirectory = "../../Samples/Playground",
         .backend = Renderer::Backend::OpenGL,
         .updateRate = 60
     };

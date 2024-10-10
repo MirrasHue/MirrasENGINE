@@ -54,7 +54,9 @@ void PlaygroundLayer::load()
     points[1] = {triangleCenter.x + 100, triangleCenter.y + 100, 0.f};
     points[2] = {triangleCenter.x, triangleCenter.y - 100, 0.f};
 
-    texture = mirras::Texture::loadFrom("sprites.png"); //Temp
+    texture = mirras::Texture::loadFrom("assets/GuadagniniModel.png");
+
+    mirras::Renderer::setLineWidth(4.f);
 }
 
 void PlaygroundLayer::onEvent(mirras::Event& event)
@@ -67,21 +69,30 @@ void PlaygroundLayer::draw()
     mirras::rect4i sampleArea = {0, 0, texture->width, texture->height};
 
     mirras::Renderer::beginMode2D(camera);
-        mirras::Renderer::drawTexture(*texture, {}, {400, 300, 0}, {texture->width, texture->height}, {0,0}, rotation);
+        mirras::Renderer::drawCircle({600, 400, 0}, 50, {1,1,1,1});
+
+        mirras::Renderer::drawLine({0, 300}, {2000, 300}, {1,1,1,1});
+
+        mirras::Renderer::drawTexture(*texture, sampleArea, {400, 300, 0}, {texture->width, texture->height}, {0,0}, rotation);
+        mirras::Renderer::drawShaderCircle({200, 300, 1}, 100, {1,0,0.5,1});
 
         shader->makeActive();
+            mirras::Renderer::drawCircle({400, 300}, 100, {1,0,1,1});
             mirras::Renderer::drawTriangle(points[0], points[1], points[2], {0,0,0,1});
 
             mirras::Renderer::drawRectangle({300, 400, 1}, {200, 200}, {100, 100}, {0,0,0,1}, rotation);
         shader->makeInactive();
 
+        mirras::Renderer::drawShaderCircle({300, 600, 0}, 200, {1,1,0.5,1}, 0.5, 1.f);
+
         mirras::Renderer::drawTriangle({300, 400, 0}, {700, 400, 0}, {500, 100, 0}, {0,0,0,0.5});
+
     mirras::Renderer::endMode2D();
 }
 
 void PlaygroundLayer::update(float dt)
 {
-    rotation += 30 * dt;
+    rotation += 30 * dt; // Temp, rotation should be capped
 
     if(mirras::Input::isKeyDown(mirras::Key::D))
     {
