@@ -3,11 +3,12 @@
 
 #include "Backends/OpenGL/OpenGLRenderer.h"
 
+#include "Backends/OpenGL/OpenGLShader.h"
+#include "Backends/OpenGL/OpenGLTexture.h"
 #include "Backends/OpenGL/OpenGLLog.h"
 
 #include "Core/Application.h"
 #include "Core/Renderer/Camera2D.h"
-#include "Core/Renderer/Texture.h"
 #include "Core/Utils.h"
 #include "Core/BasicTypes.h"
 
@@ -21,6 +22,8 @@
 //#define GLM_FORCE_INTRINSICS
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <numbers>
 
 // Using raylib's core as a reference on how to use rlgl.h
 
@@ -123,10 +126,31 @@ namespace mirras
         rlLoadIdentity();
     }
 
+    void OpenGLRenderer::setLineWidth(float width)
+    {
+        glLineWidth(width);
+    }
+
+    void OpenGLRenderer::drawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color)
+    {
+        rlBegin(RL_LINES);
+            rlColor4f(color.r, color.g, color.b, color.a);
+
+            rlVertex3f(start.x, start.y, start.z);
+            rlVertex3f(end.x, end.y, end.z);
+        rlEnd();
+    }
+
+    void OpenGLRenderer::drawLine(glm::vec2 start, glm::vec2 end, const glm::vec4& color)
+    {
+        drawLine(glm::vec3{start, rlGetCurrentDrawDepth()}, glm::vec3{end, rlGetCurrentDrawDepth()}, color);
+    }
+
     void OpenGLRenderer::drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color)
     {
         rlBegin(RL_TRIANGLES);
             rlColor4f(color.r, color.g, color.b, color.a);
+
             rlVertex3f(p1.x, p1.y, p1.z);
             rlVertex3f(p2.x, p2.y, p2.z);
             rlVertex3f(p3.x, p3.y, p3.z);
@@ -139,7 +163,7 @@ namespace mirras
         drawTriangle(glm::vec3{p1, drawDepth}, glm::vec3{p2, drawDepth}, glm::vec3{p3, drawDepth}, color);
     }
 
-    std::array<glm::vec2, 4> calculateVertexPositions(const rect4f& rectangle, glm::vec2 localOrigin, float rotation)
+    static std::array<glm::vec2, 4> calculateVertexPositions(const rect4f& rectangle, glm::vec2 localOrigin, float rotation)
     {
         const float x = rectangle.x;
         const float y = rectangle.y;
@@ -202,11 +226,114 @@ namespace mirras
         drawRectangle(glm::vec3{topLeftPos, rlGetCurrentDrawDepth()}, size, localOrigin, color, rotation);
     }
 
+    void OpenGLRenderer::drawCircle(const glm::vec3& center, float radius, const glm::vec4& color, int32 segments)
+    {
+        if(segments < 3)
+        {
+            ENGINE_LOG_WARN("Trying to draw circle with less than 3 segments");
+            return;
+        }
+
+        float angleStep = 2.f * std::numbers::pi / segments; // In radians
+
+        rlBegin(RL_TRIANGLES);
+            rlColor4f(color.r, color.g, color.b, color.a);
+
+            for(int i = 0; i < segments; ++i)
+            {
+                float angle = angleStep * i;
+
+                rlVertex3f(center.x, center.y, center.z);
+                rlVertex3f(center.x + cosf(angle + angleStep) * radius, center.y + sinf(angle + angleStep) * radius, center.z);
+                rlVertex3f(center.x + cosf(angle) * radius, center.y + sinf(angle) * radius, center.z);
+            }
+        rlEnd();
+    }
+
+    void OpenGLRenderer::drawCircle(glm::vec2 center, float radius, const glm::vec4& color, int32 segments)
+    {
+        drawCircle(glm::vec3{center, rlGetCurrentDrawDepth()}, radius, color, segments);
+    }
+
+    void OpenGLRenderer::drawShaderCircle(const glm::vec3& center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor)
+    {
+        if(fillFactor <= 0.f || fadeFactor <= 0.f)
+        {
+            ENGINE_LOG_WARN("Fill and fade factors must be greater than 0");
+            return;
+        }
+
+        // Embed fragment source here, it seemed overkill to load it from a file in disk
+        static const std::string_view circleFragSrc = R"(
+            #version 330 core
+
+            in vec2 fragTexCoord;
+            in vec4 fragColor;
+
+            out vec4 finalColor;
+
+            uniform float fillFactor;
+            uniform float fadeFactor;
+
+            void main()
+            {
+                // Adapted from Cherno's circle shader
+                float distance = 1.f - length(fragTexCoord);
+                float alpha = smoothstep(0.f, fadeFactor, distance);
+                alpha *= smoothstep(fillFactor + fadeFactor, fillFactor, distance);
+
+                if(alpha == 0.f)
+                    discard;
+
+                finalColor = fragColor;
+                finalColor.a *= alpha;
+            }
+        )";
+        
+        static OpenGLShader circleShader{{}, circleFragSrc};
+        
+        static int32 fillFactorLoc = circleShader.getUniformLocation("fillFactor");
+        static int32 fadeFactorLoc = circleShader.getUniformLocation("fadeFactor");
+        
+        // Save the current shader and restore it at the end, just in case
+        // this function is being called while another custom shader is active
+        uint32 priorShaderId = rlGetCurrentShaderId();
+        int32* priorShaderLocs = rlGetCurrentShaderLocs();
+
+        circleShader.setFloat(fillFactorLoc, fillFactor);
+        circleShader.setFloat(fadeFactorLoc, fadeFactor);
+        circleShader.makeActive();
+
+        rlBegin(RL_QUADS);
+            rlColor4f(color.r, color.g, color.b, color.a);
+            rlNormal3f(0.f, 0.f, -1.f); // Normal vector pointing towards viewer
+
+            rlTexCoord2f(-1.f, -1.f); // Top left
+            rlVertex3f(center.x - radius, center.y - radius, center.z);
+
+            rlTexCoord2f(-1.f, 1.f); // Bottom left
+            rlVertex3f(center.x - radius, center.y + radius, center.z);
+
+            rlTexCoord2f(1.f, 1.f); // Bottom right
+            rlVertex3f(center.x + radius, center.y + radius, center.z);
+
+            rlTexCoord2f(1.f, -1.f); // Top right
+            rlVertex3f(center.x + radius, center.y - radius, center.z);
+        rlEnd();
+
+        rlSetShader(priorShaderId, priorShaderLocs);
+    }
+
+    void OpenGLRenderer::drawShaderCircle(glm::vec2 center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor)
+    {
+        drawShaderCircle(glm::vec3{center, rlGetCurrentDrawDepth()}, radius, color, fillFactor, fadeFactor);
+    }
+
     void OpenGLRenderer::drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize, glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         if(texture.id == 0)
         {
-            ENGINE_LOG_ERROR("Not possible to draw texture with id 0");
+            ENGINE_LOG_WARN("Not possible to draw texture with id 0");
             return;
         }
 
@@ -228,7 +355,7 @@ namespace mirras
 
         rlBegin(RL_QUADS);
             rlColor4f(tintColor.r, tintColor.g, tintColor.b, tintColor.a);
-            rlNormal3f(0.f, 0.f, -1.f); // Normal vector pointing towards viewer
+            rlNormal3f(0.f, 0.f, -1.f);
 
             rlTexCoord2f(texSampleArea.x / texWidth, texSampleArea.y / texHeight);
             rlVertex3f(topLeft.x, topLeft.y, z);

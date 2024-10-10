@@ -33,13 +33,27 @@ namespace mirras
         static void beginMode2D(const Camera2D& camera);
         static void endMode2D();
 
-        // 2D shapes
+        static void setLineWidth(float width);
+
+        // 2D primitives
+        static void drawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color);
+        static void drawLine(glm::vec2 start, glm::vec2 end, const glm::vec4& color);
+
+        // Points should be provided in counter clockwise order
         static void drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color);
         static void drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color);
 
         static void drawRectangle(const glm::vec3& topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
         static void drawRectangle(glm::vec2 topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
-        // End 2D shapes
+
+        static void drawCircle(const glm::vec3& center, float radius, const glm::vec4& color, int32 segments = 36);
+        static void drawCircle(glm::vec2 center, float radius, const glm::vec4& color, int32 segments = 36);
+
+        // Draws a circle with controllable fill and fade factors, without relying on segments. Limited to flat colors,
+        // because internally, a dedicated shader is used to draw the circle, so it is not affected by external shaders
+        static void drawShaderCircle(const glm::vec3& center, float radius, const glm::vec4& color, float fillFactor = 1.f, float fadeFactor = 0.007f);
+        static void drawShaderCircle(glm::vec2 center, float radius, const glm::vec4& color, float fillFactor = 1.f, float fadeFactor = 0.007f);
+        // End 2D primitives
 
         // Pass {} as the second parameter if you want to use the whole texture, not just part of it
         static void drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,

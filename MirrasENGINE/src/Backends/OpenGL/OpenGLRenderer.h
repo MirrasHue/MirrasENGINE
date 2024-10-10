@@ -24,11 +24,22 @@ namespace mirras
         void beginMode2D(const Camera2D& camera);
         void endMode2D();
 
+        void setLineWidth(float width);
+
+        void drawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color);
+        void drawLine(glm::vec2 start, glm::vec2 end, const glm::vec4& color);
+
         void drawTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec4& color);
         void drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color);
 
         void drawRectangle(const glm::vec3& topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation);
         void drawRectangle(glm::vec2 topLeftPos, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation);
+
+        void drawCircle(const glm::vec3& center, float radius, const glm::vec4& color, int32 segments);
+        void drawCircle(glm::vec2 center, float radius, const glm::vec4& color, int32 segments);
+
+        void drawShaderCircle(const glm::vec3& center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor);
+        void drawShaderCircle(glm::vec2 center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor);
 
         void drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
                          glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
