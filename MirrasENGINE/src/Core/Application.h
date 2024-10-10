@@ -18,6 +18,7 @@ namespace mirras
     struct AppSpecs
     {
         std::string_view name = "MirrasENGINE";
+        std::string_view workingDirectory;
         Renderer::Backend backend = Renderer::Backend::OpenGL;
         uint16 updateRate = 60;
     };

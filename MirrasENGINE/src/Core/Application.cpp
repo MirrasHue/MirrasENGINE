@@ -9,6 +9,7 @@
 #include "UI/ImGui.h"
 
 #include <ranges>
+#include <filesystem>
 
 namespace mirras
 {
@@ -29,6 +30,9 @@ namespace mirras
         {
             App::onEvent(event);
         });
+
+        if(!appSpecs.workingDirectory.empty())
+            fs::current_path(appSpecs.workingDirectory);
 
         fixedTimestep = 1.f / appSpecs.updateRate;
     }
