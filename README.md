@@ -18,16 +18,31 @@ Clone the repository with:
 
     git clone --recursive https://github.com/MirrasHue/MirrasENGINE.git
 
-The easiest way to compile the engine, is to simply run these two commands at the root directory ([Ninja](https://github.com/ninja-build/ninja) generator required):
+The easiest and recommended way to compile the engine, is to simply run these two commands at the project's root directory ([Ninja](https://github.com/ninja-build/ninja) generator required):
 
     cmake --preset <debug|release|distribution>
     cmake --build --preset <debug|release|distribution>
 
-It's also possible to use another generator of your choice (`cmake --help` for the available options). By omiting `-G <generator-name>`, CMake will choose a default generator, that could end up not working (like _NMake Makefiles_, in my case). 
+---
+
+It's also possible to use another generator of your choice (run `cmake --help` for the available options), with the drawback of not being able to use the out-of-the-box `distribution` build, provided only with the CMake presets.
+
+By omiting `-G <generator-name>`, CMake will choose a default generator, that could end up not working (like _NMake Makefiles_, in my case).
+
+For single-configuration generators (e.g., Ninja and Unix Makefiles):
+
+    mkdir build
+    cd build
+    cmake [-G <generator-name>] [-DCMAKE_BUILD_TYPE=<Debug|Release>] ..
+    cmake --build .
+
+For multi-configuration generators (e.g., Visual Studio and Xcode):
 
     mkdir build
     cd build
     cmake [-G <generator-name>] ..
-    cmake --build . [--config Debug|Release]
+    cmake --build . [--config <Debug|Release>]
 
-After the compilation is done, the location of the generated executables may vary depending on the generator, they're only specific if using the CMake presets
+---
+
+After the compilation is done, the generated executables will be located in the `/bin` folder
