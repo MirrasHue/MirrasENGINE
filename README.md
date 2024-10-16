@@ -45,4 +45,9 @@ For multi-configuration generators (e.g., Visual Studio and Xcode):
 
 ---
 
-After the compilation is done, the generated executables will be located in the `/bin` folder
+_After the compilation is done, the generated executables will be located in the `/bin` folder_
+
+
+## Considerations
+
+So far, the engine has only been tested on Windows, with GCC (MinGW-w64) and MSVC. It probably runs on Linux as well, but I will be able to test that only after dual booting my PC.

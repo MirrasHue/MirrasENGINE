@@ -170,8 +170,8 @@ namespace mirras
 
     void App::onEvent(Event& event)
     {
-        Event::dispatch_to_member<WindowResized, App::onWindowResize>(event, this);
-        Event::dispatch_to_member<WindowClosed, App::onWindowClose>(event, this);
+        Event::dispatch_to_member<WindowResized, &App::onWindowResize>(event, this);
+        Event::dispatch_to_member<WindowClosed, &App::onWindowClose>(event, this);
 
         imgui::onEvent(event);
 

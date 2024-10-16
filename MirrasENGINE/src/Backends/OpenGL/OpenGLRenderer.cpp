@@ -18,9 +18,8 @@
 #define GLFW_INCLUDE_NONE
 #include <glfw/glfw3.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
 //#define GLM_FORCE_INTRINSICS
-#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <numbers>
@@ -65,10 +64,12 @@ namespace mirras
 
     glm::mat4 getCameraMatrix(const Camera2D& camera)
     {
-        return glm::translate(glm::vec3{windowFbWidth/2.f - camera.getOffset().x, windowFbHeight/2.f - camera.getOffset().y, 0.f}) *
-               glm::rotate(glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
-               glm::scale(glm::vec3{camera.zoom, camera.zoom, 1.f}) *
-               glm::translate(glm::vec3{-camera.position.x, -camera.position.y, 0.f});
+        glm::mat4 identity = glm::mat4(1.f);
+        
+        return glm::translate(identity, glm::vec3{windowFbWidth/2.f - camera.getOffset().x, windowFbHeight/2.f - camera.getOffset().y, 0.f}) *
+               glm::rotate(identity, glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
+               glm::scale(identity, glm::vec3{camera.zoom, camera.zoom, 1.f}) *
+               glm::translate(identity, glm::vec3{-camera.position.x, -camera.position.y, 0.f});
     }
 
     void resetViewport(int32 x, int32 y, int32 width, int32 height)

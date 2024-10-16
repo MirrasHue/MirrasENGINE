@@ -39,14 +39,23 @@ target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog glm)
 # Define a location for the generated binaries, separated by build type.
 # Also simplify the specification of relative paths within the project structure,
 # since we can easily go to its root directory and specify the desired path from there.
-if(DEFINED PRESET_NAME)
+if(DEFINED PRESET_NAME) # Defined in the CMakePresets.json file
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${PRESET_NAME})
 
 elseif(DEFINED CMAKE_BUILD_TYPE) # Single-config generator
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
-    
+
 else(DEFINED CMAKE_CONFIGURATION_TYPES) # Multi-config generator
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_CONFIGURATION_TYPES})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+endif()
+
+# For the distribution build on Windows, disable the console window
+if(WIN32 AND PRESET_NAME STREQUAL "distribution")
+    if(MSVC)
+        target_link_options(${PROJECT_NAME} INTERFACE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
+    else()
+        target_link_options(${PROJECT_NAME} INTERFACE -mwindows)
+    endif()
 endif()
 
 ##################################################################
