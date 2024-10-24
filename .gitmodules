@@ -12,3 +12,6 @@
 [submodule "MirrasENGINE/3rdParty/GLM"]
 	path = MirrasENGINE/3rdParty/GLM
 	url = https://github.com/g-truc/glm.git
+[submodule "MirrasENGINE/3rdParty/MSDF-Atlas-Gen"]
+	path = MirrasENGINE/3rdParty/MSDF-Atlas-Gen
+	url = https://github.com/MirrasHue/MSDF-Atlas-Gen.git

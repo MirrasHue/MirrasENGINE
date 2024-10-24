@@ -2,11 +2,16 @@ cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_CXX_STANDARD 23)
 
-option(BUILD_SAMPLES "Build samples" ON)
+set(BUILD_SAMPLES ON)
+
+# Whether to dynamically link to the C++ runtime or not
+set(DYNAMIC_RUNTIME OFF)
 
 ##################################################################
 
 project(MirrasENGINE)
+
+include(cmake/runtime-selection.cmake)
 
 # Fetch source files
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS MirrasENGINE/src/*.cpp)
@@ -32,9 +37,11 @@ add_subdirectory(MirrasENGINE/3rdParty/ImGui)
 
 add_subdirectory(MirrasENGINE/3rdParty/spdlog)
 
-add_subdirectory(MirrasENGINE/3rdParty/glm)
+add_subdirectory(MirrasENGINE/3rdParty/GLM)
 
-target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog glm)
+add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
+
+target_link_libraries(${PROJECT_NAME} glfw ImGui spdlog glm msdf-atlas-gen)
 
 # Define a location for the generated binaries, separated by build type.
 # Also simplify the specification of relative paths within the project structure,
@@ -57,6 +64,8 @@ if(WIN32 AND PRESET_NAME STREQUAL "distribution")
         target_link_options(${PROJECT_NAME} INTERFACE -mwindows)
     endif()
 endif()
+
+
 
 ##################################################################
 
