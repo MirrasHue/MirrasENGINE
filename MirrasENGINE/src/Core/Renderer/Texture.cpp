@@ -8,4 +8,9 @@ namespace mirras
     {
         return instantiate<OpenGLTexture>(imageFilepath);
     }
+
+    single_ref<Texture> Texture::createFrom(const TextureSpecs& specs)
+    {
+        return instantiate<OpenGLTexture>(specs);
+    }
 } // namespace mirras

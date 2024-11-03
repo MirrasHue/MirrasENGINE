@@ -7,6 +7,20 @@
 
 namespace mirras
 {
+    struct TextureSpecs
+    {
+        const uint8* data = nullptr;
+        int32 width  = 1;
+        int32 height = 1;
+        // Number of channels encodes the format
+        // 1 - Grayscale no alpha
+        // 2 - Grayscale with alpha
+        // 3 - RGB  8 bits per component
+        // 4 - RGBA 8 bits per component
+        int32 channels = 4;
+        int32 mipmaps = 1;
+    };
+
     class Texture
     {
     public:
@@ -14,12 +28,12 @@ namespace mirras
         virtual void makeInactive() const = 0;
 
         static single_ref<Texture> loadFrom(const fs::path& imageFilepath);
+        static single_ref<Texture> createFrom(const TextureSpecs& specs);
 
     public:
         uint32 id{};
         int32 width{}, height{};
         int32 channels{};
-        int32 format{};
         int32 mipmaps{};
     };
 
