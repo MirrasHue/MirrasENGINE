@@ -65,8 +65,6 @@ if(WIN32 AND PRESET_NAME STREQUAL "distribution")
     endif()
 endif()
 
-
-
 ##################################################################
 
 project(Editor)
