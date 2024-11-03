@@ -9,6 +9,7 @@
 
 #include "Core/Application.h"
 #include "Core/Renderer/Camera2D.h"
+#include "Core/Renderer/Font.h"
 #include "Core/Utils.h"
 #include "Core/BasicTypes.h"
 
@@ -21,6 +22,8 @@
 //#define GLM_FORCE_INTRINSICS
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <msdf/msdf-atlas-gen.h> // For font rendering
 
 #include <numbers>
 
@@ -64,11 +67,12 @@ namespace mirras
 
     glm::mat4 getCameraMatrix(const Camera2D& camera)
     {
-        glm::mat4 identity = glm::mat4(1.f);
+        static const glm::mat4 identity = glm::mat4(1.f);
+        const float zoom = camera.zoom * camera.zoomScale;
         
-        return glm::translate(identity, glm::vec3{windowFbWidth/2.f - camera.getOffset().x, windowFbHeight/2.f - camera.getOffset().y, 0.f}) *
+        return glm::translate(identity, glm::vec3{windowFbWidth/2.f - camera.offset.x, windowFbHeight/2.f - camera.offset.y, 0.f}) *
                glm::rotate(identity, glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
-               glm::scale(identity, glm::vec3{camera.zoom, camera.zoom, 1.f}) *
+               glm::scale(identity, glm::vec3{zoom, zoom, 1.f}) *
                glm::translate(identity, glm::vec3{-camera.position.x, -camera.position.y, 0.f});
     }
 
@@ -264,7 +268,9 @@ namespace mirras
             return;
         }
 
-        // Embed fragment source here, it seemed overkill to load it from a file in disk
+        // Embed fragment source here, it seemed overkill to load it from a file in disk (it would also complicate things
+        // because it depends on the working directory, which is defined by the client, or where the executable is located)
+        // TODO: use #embed when it gets widely supported
         static const std::string_view circleFragSrc = R"(
             #version 330 core
 
@@ -330,7 +336,7 @@ namespace mirras
         drawShaderCircle(glm::vec3{center, rlGetCurrentDrawDepth()}, radius, color, fillFactor, fadeFactor);
     }
 
-    void OpenGLRenderer::drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize, glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void OpenGLRenderer::drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize, glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         if(texture.id == 0)
         {
@@ -338,7 +344,7 @@ namespace mirras
             return;
         }
 
-        if(texSampleArea == rect4i{}) // Make use of the entire texture
+        if(texSampleArea == rect4f{}) // Make use of the entire texture
         {
             texSampleArea.width = texture.width;
             texSampleArea.height = texture.height;
@@ -374,8 +380,162 @@ namespace mirras
         rlSetTexture(0);
     }
 
-    void OpenGLRenderer::drawTexture(const Texture& texture, rect4i texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void OpenGLRenderer::drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         drawTexture(texture, texSampleArea, glm::vec3{targetTopLeft, rlGetCurrentDrawDepth()}, targetSize, targetOrigin, rotation, tintColor);
+    }
+
+    void OpenGLRenderer::drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeftPos, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    {
+        if(!font.geometry || !font.atlasTexture)
+        {
+            ENGINE_LOG_ERROR("Font was not properly initialized, unable to render text with it");
+            return;
+        }
+
+        static const std::string_view msdfFragSrc = R"(
+            #version 330 core
+
+            in vec2 fragTexCoord;
+            in vec4 fragColor;
+
+            out vec4 finalColor;
+
+            uniform sampler2D msdfFontAtlas;
+
+            float screenPxRange()
+            {
+                const float pxRange = 2.0; // Set to the same pixel range value used in TightAtlasPacker
+                vec2 unitRange = vec2(pxRange) / vec2(textureSize(msdfFontAtlas, 0));
+                vec2 screenTexSize = vec2(1.0) / fwidth(fragTexCoord);
+                return max(0.5 * dot(unitRange, screenTexSize), 1.0);
+            }
+
+            float median(float r, float g, float b)
+            {
+                return max(min(r, g), min(max(r, g), b));
+            }
+
+            void main()
+            {
+                vec3 msd = texture(msdfFontAtlas, fragTexCoord).rgb;
+                float sd = median(msd.r, msd.g, msd.b);
+                float screenPxDistance = screenPxRange() * (sd - 0.5);
+                float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+                
+                vec4 bgColor = vec4(0.0);
+
+                finalColor = mix(bgColor, fragColor, opacity);
+            }
+        )";
+        
+        static OpenGLShader msdfTextShader{{}, msdfFragSrc};
+
+        const auto& fontGeometry = *font.geometry;
+		const auto& metrics = fontGeometry.getMetrics();
+		const auto& fontAtlas = *font.atlasTexture;
+
+		float x = 0.f;
+		float y = metrics.ascenderY + metrics.descenderY;
+        
+		const float fontSizeScale = 1.f / (metrics.ascenderY - metrics.descenderY);
+        const float scaleFactor = fontSize / metrics.emSize;
+
+		const float emptySpaceAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+
+        const float atlasWidth = fontAtlas.width;
+        const float atlasHeight = fontAtlas.height;
+        const float drawDepth = topLeftPos.z;
+
+        msdfTextShader.makeActive();
+        rlSetTexture(fontAtlas.id);
+		
+		for(size_t i = 0; i < text.size(); ++i)
+		{
+			wchar_t character = text[i];
+            
+			if(character == '\r')
+				continue;
+
+			if(character == '\n')
+			{
+				x = 0.f;
+				y += fontSizeScale * metrics.lineHeight + lineSpacing;
+				continue;
+			}
+
+			if(character == '\t') // Using 4 spaces for tab character
+			{
+				x += 4.f * (fontSizeScale * emptySpaceAdvance + kerning);
+				continue;
+			}
+
+			auto glyph = fontGeometry.getGlyph(character);
+            
+			if(!glyph)
+                glyph = fontGeometry.getGlyph('?');
+
+			if(!glyph)
+            {
+                ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters might be missing");
+            }
+
+            if(!glyph->isWhitespace())
+            {
+                double left{}, bottom{}, right{}, top{};
+
+                glyph->getQuadAtlasBounds(left, bottom, right, top);
+                rect4f texSampleArea(left, bottom, right - left, top - bottom);
+
+                glyph->getQuadPlaneBounds(left, bottom, right, top);
+                glm::vec4 glyphQuad{left, -top, right - left, top - bottom};
+                
+                glyphQuad *= fontSizeScale;
+                glyphQuad += glm::vec4(x, y, 0.f, 0.f);
+
+                // Multiplying by lineHeight approximates the height of the tallest glyph box to the specified fontSize (When zoom is unchanged)
+                glyphQuad *= scaleFactor * metrics.lineHeight;
+
+                glyphQuad += glm::vec4(topLeftPos.x, topLeftPos.y, 0.f, 0.f);
+
+                auto[topLeft,    topRight,
+                     bottomLeft, bottomRight] = calculateVertexPositions((const rect4f&)glyphQuad, {}, 0.f);                
+
+                rlBegin(RL_QUADS);
+                    rlColor4f(color.r, color.g, color.b, color.a);
+                    rlNormal3f(0.f, 0.f, -1.f);
+
+                    rlTexCoord2f(texSampleArea.x / atlasWidth, texSampleArea.y / atlasHeight);
+                    rlVertex3f(topLeft.x, topLeft.y, drawDepth);
+
+                    rlTexCoord2f(texSampleArea.x / atlasWidth, (texSampleArea.y + texSampleArea.height) / atlasHeight);
+                    rlVertex3f(bottomLeft.x, bottomLeft.y, drawDepth);
+
+                    rlTexCoord2f((texSampleArea.x + texSampleArea.width) / atlasWidth, (texSampleArea.y + texSampleArea.height) / atlasHeight);
+                    rlVertex3f(bottomRight.x, bottomRight.y, drawDepth);
+
+                    rlTexCoord2f((texSampleArea.x + texSampleArea.width) / atlasWidth, texSampleArea.y / atlasHeight);
+                    rlVertex3f(topRight.x, topRight.y, drawDepth);
+                rlEnd();
+            }
+
+			if(i < text.size() - 1)
+			{
+				double advance = glyph->getAdvance();
+				wchar_t nextCharacter = text[i + 1];
+
+				fontGeometry.getAdvance(advance, character, nextCharacter);
+
+				x += fontSizeScale * advance + kerning;
+			}
+		}
+
+        rlSetTexture(0);
+        msdfTextShader.makeInactive();
+    }
+
+    void OpenGLRenderer::drawText(std::wstring_view text, const Font& font, glm::vec2 topLeftPos, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    {
+        drawText(text, font, glm::vec3{topLeftPos, rlGetCurrentDrawDepth()}, fontSize, color, kerning, lineSpacing);
     }
 } // namespace mirras

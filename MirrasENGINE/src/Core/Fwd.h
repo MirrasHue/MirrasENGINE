@@ -9,6 +9,7 @@ namespace mirras
     class Camera2D;
     class Texture;
     using Texture2D = Texture;
+    class Font;
 
 } // namespace mirras
 

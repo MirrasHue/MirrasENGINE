@@ -109,13 +109,23 @@ namespace mirras
         renderer.drawShaderCircle(center, radius, color, fillFactor, fadeFactor);
     }
 
-    void Renderer::drawTexture(const Texture& texture, rect4i texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void Renderer::drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
     }
 
-    void Renderer::drawTexture(const Texture& texture, rect4i texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void Renderer::drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
+    }
+
+    void Renderer::drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeft, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    {
+        renderer.drawText(text, font, topLeft, fontSize, color, kerning, lineSpacing);
+    }
+
+    void Renderer::drawText(std::wstring_view text, const Font& font, glm::vec2 topLeft, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    {
+        renderer.drawText(text, font, topLeft, fontSize, color, kerning, lineSpacing);
     }
 } // namespace mirras
