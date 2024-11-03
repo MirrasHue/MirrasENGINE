@@ -6,7 +6,7 @@
 
 namespace mirras
 {
-    Camera2D::Camera2D(vec2f _position, vec2f _offset, float _rotation, float _zoom)
+    Camera2D::Camera2D(glm::vec2 _position, glm::vec2 _offset, float _rotation, float _zoom)
         : position{_position}, rotation{_rotation}, zoom{_zoom}
     {
         setOffset(_offset.x, _offset.y);
@@ -43,7 +43,7 @@ namespace mirras
 
         static int32 initialFbHeight = App::getOSWindow().getInitialFbSize().y;
 
-        zoom = (float)currentHeight / initialFbHeight;
+        zoomScale = (float)currentHeight / initialFbHeight;
 
         offset.x = offsetRatio.x * currentWidth;
         offset.y = offsetRatio.y * currentHeight;
