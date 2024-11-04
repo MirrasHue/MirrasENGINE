@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MirrasENGINE.h"
+#include "Core/Renderer/Font.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -22,4 +23,5 @@ public:
     mirras::single_ref<mirras::Shader> shader;
     glm::vec2 triangleCenter{400, 300};
     std::array<glm::vec3, 3> points;
+    mirras::Font font{"assets/fonts/consolas.ttf"};
 };
