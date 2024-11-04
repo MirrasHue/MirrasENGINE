@@ -435,13 +435,13 @@ namespace mirras
 		const auto& metrics = fontGeometry.getMetrics();
 		const auto& fontAtlas = *font.atlasTexture;
 
-		float x = 0.f;
-		float y = metrics.ascenderY + metrics.descenderY;
-        
 		const float fontSizeScale = 1.f / (metrics.ascenderY - metrics.descenderY);
-        const float scaleFactor = fontSize / metrics.emSize;
+        const float scaleFactor = fontSize / fontSizeScale;
+        
+        const float emptySpaceAdvance = fontGeometry.getGlyph(' ')->getAdvance();
 
-		const float emptySpaceAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+		float x = 0.f;
+		float y = fontSizeScale * metrics.ascenderY;
 
         const float atlasWidth = fontAtlas.width;
         const float atlasHeight = fontAtlas.height;
@@ -477,7 +477,8 @@ namespace mirras
 
 			if(!glyph)
             {
-                ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters might be missing");
+                ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters are missing");
+                return;
             }
 
             if(!glyph->isWhitespace())
@@ -493,8 +494,7 @@ namespace mirras
                 glyphQuad *= fontSizeScale;
                 glyphQuad += glm::vec4(x, y, 0.f, 0.f);
 
-                // Multiplying by lineHeight approximates the height of the tallest glyph box to the specified fontSize (When zoom is unchanged)
-                glyphQuad *= scaleFactor * metrics.lineHeight;
+                glyphQuad *= scaleFactor;
 
                 glyphQuad += glm::vec4(topLeftPos.x, topLeftPos.y, 0.f, 0.f);
 
