@@ -90,7 +90,9 @@ void PlaygroundLayer::draw()
         if(font.atlasTexture)
             mirras::Renderer::drawTexture(*font.atlasTexture, {}, {0, 100, 0}, {330,330}, {0,0});
         else
+        {
             LOG_ERROR("font atlas is null");
+        }
 
         // To visualize how the rendered glyphs are aligning with the specified top left position
         mirras::Renderer::drawLine({0,450,0}, {0,600,0}, {1,1,1,1});

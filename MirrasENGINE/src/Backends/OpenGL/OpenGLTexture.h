@@ -7,7 +7,7 @@ namespace mirras
     class OpenGLTexture : public Texture
     {
     public:
-        OpenGLTexture(const fs::path& imageFilepath);
+        OpenGLTexture(const fs::path& imageFilepath, TextureFilter filter);
         OpenGLTexture(const TextureSpecs& specs);
 
         virtual void makeActive()   const override;

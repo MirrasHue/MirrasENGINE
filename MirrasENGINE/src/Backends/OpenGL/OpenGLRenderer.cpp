@@ -432,16 +432,16 @@ namespace mirras
         static OpenGLShader msdfTextShader{{}, msdfFragSrc};
 
         const auto& fontGeometry = *font.geometry;
-		const auto& metrics = fontGeometry.getMetrics();
-		const auto& fontAtlas = *font.atlasTexture;
+        const auto& metrics = fontGeometry.getMetrics();
+        const auto& fontAtlas = *font.atlasTexture;
 
-		const float fontSizeScale = 1.f / (metrics.ascenderY - metrics.descenderY);
+        const float fontSizeScale = 1.f / (metrics.ascenderY - metrics.descenderY);
         const float scaleFactor = fontSize / fontSizeScale;
         
         const float emptySpaceAdvance = fontGeometry.getGlyph(' ')->getAdvance();
 
-		float x = 0.f;
-		float y = fontSizeScale * metrics.ascenderY;
+        float x = 0.f;
+        float y = fontSizeScale * metrics.ascenderY;
 
         const float atlasWidth = fontAtlas.width;
         const float atlasHeight = fontAtlas.height;
@@ -450,32 +450,32 @@ namespace mirras
         msdfTextShader.makeActive();
         rlSetTexture(fontAtlas.id);
 		
-		for(size_t i = 0; i < text.size(); ++i)
-		{
-			wchar_t character = text[i];
+        for(size_t i = 0; i < text.size(); ++i)
+        {
+            wchar_t character = text[i];
+
+            if(character == '\r')
+                continue;
+
+            if(character == '\n')
+            {
+                x = 0.f;
+                y += fontSizeScale * metrics.lineHeight + lineSpacing;
+                continue;
+            }
+
+            if(character == '\t') // Using 4 spaces for tab character
+            {
+                x += 4.f * (fontSizeScale * emptySpaceAdvance + kerning);
+                continue;
+            }
+
+            auto glyph = fontGeometry.getGlyph(character);
             
-			if(character == '\r')
-				continue;
-
-			if(character == '\n')
-			{
-				x = 0.f;
-				y += fontSizeScale * metrics.lineHeight + lineSpacing;
-				continue;
-			}
-
-			if(character == '\t') // Using 4 spaces for tab character
-			{
-				x += 4.f * (fontSizeScale * emptySpaceAdvance + kerning);
-				continue;
-			}
-
-			auto glyph = fontGeometry.getGlyph(character);
-            
-			if(!glyph)
+            if(!glyph)
                 glyph = fontGeometry.getGlyph('?');
 
-			if(!glyph)
+            if(!glyph)
             {
                 ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters are missing");
                 return;
@@ -519,16 +519,16 @@ namespace mirras
                 rlEnd();
             }
 
-			if(i < text.size() - 1)
-			{
-				double advance = glyph->getAdvance();
-				wchar_t nextCharacter = text[i + 1];
+            if(i < text.size() - 1)
+            {
+                double advance = glyph->getAdvance();
+                wchar_t nextCharacter = text[i + 1];
 
-				fontGeometry.getAdvance(advance, character, nextCharacter);
+                fontGeometry.getAdvance(advance, character, nextCharacter);
 
-				x += fontSizeScale * advance + kerning;
-			}
-		}
+                x += fontSizeScale * advance + kerning;
+            }
+        }
 
         rlSetTexture(0);
         msdfTextShader.makeInactive();

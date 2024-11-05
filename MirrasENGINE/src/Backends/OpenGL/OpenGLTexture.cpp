@@ -23,7 +23,19 @@ namespace mirras
         return format;
     }
 
-    OpenGLTexture::OpenGLTexture(const fs::path& imageFilepath)
+    static void applyTextureFilter(uint32 id, TextureFilter filter)
+    {
+        // rlgl already uses Nearest when loading the texture
+        switch(filter)
+        {
+        case TextureFilter::Linear:
+            rlTextureParameters(id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_LINEAR);
+            rlTextureParameters(id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_LINEAR);
+            break;
+        }
+    }
+
+    OpenGLTexture::OpenGLTexture(const fs::path& imageFilepath, TextureFilter filter)
     {
         auto* image = stbi_load(imageFilepath.string().c_str(), &width, &height, &channels, 0);
 
@@ -37,12 +49,15 @@ namespace mirras
 
         id = rlLoadTexture(image, width, height, channelsToRaylibFormat(channels), mipmaps);
 
+        stbi_image_free(image);
+
         if(id == 0)
         {
             ENGINE_LOG_ERROR("Failed to load OpenGL texture");
+            return;
         }
 
-        stbi_image_free(image);
+        applyTextureFilter(id, filter);
     }
 
     OpenGLTexture::OpenGLTexture(const TextureSpecs& specs) 
@@ -50,7 +65,7 @@ namespace mirras
         width = specs.width;
         height = specs.height;
         channels = specs.channels;
-        mipmaps= specs.mipmaps;
+        mipmaps = specs.mipmaps;
 
         if(!specs.data)
         {
@@ -59,14 +74,13 @@ namespace mirras
 
         id = rlLoadTexture(specs.data, width, height, channelsToRaylibFormat(channels), mipmaps);
 
-        // TODO: add an option to choose the filter in TextureSpecs
-        rlTextureParameters(id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_LINEAR);
-        rlTextureParameters(id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_LINEAR);
-
         if(id == 0)
         {
             ENGINE_LOG_ERROR("Failed to load OpenGL texture");
+            return;
         }
+
+        applyTextureFilter(id, specs.filter);
     }
 
     void OpenGLTexture::makeActive() const

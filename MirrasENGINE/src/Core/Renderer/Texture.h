@@ -7,6 +7,12 @@
 
 namespace mirras
 {
+    enum class TextureFilter
+    {
+        Nearest,
+        Linear
+    };
+
     struct TextureSpecs
     {
         const uint8* data = nullptr;
@@ -19,6 +25,7 @@ namespace mirras
         // 4 - RGBA 8 bits per component
         int32 channels = 4;
         int32 mipmaps = 1;
+        TextureFilter filter = TextureFilter::Linear;
     };
 
     class Texture
@@ -27,7 +34,7 @@ namespace mirras
         virtual void makeActive()   const = 0;
         virtual void makeInactive() const = 0;
 
-        static single_ref<Texture> loadFrom(const fs::path& imageFilepath);
+        static single_ref<Texture> loadFrom(const fs::path& imageFilepath, TextureFilter filter = TextureFilter::Linear);
         static single_ref<Texture> createFrom(const TextureSpecs& specs);
 
     public:
