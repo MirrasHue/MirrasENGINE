@@ -6,6 +6,8 @@
 #include <glm/fwd.hpp>
 #include <glm/vec4.hpp>
 
+#include <string_view>
+
 namespace mirras
 {
     class Renderer

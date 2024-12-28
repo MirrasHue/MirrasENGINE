@@ -5,6 +5,8 @@
 
 #include <glm/fwd.hpp>
 
+#include <string_view>
+
 namespace mirras
 {
     class OpenGLRenderer
