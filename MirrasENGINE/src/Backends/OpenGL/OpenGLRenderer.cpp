@@ -477,8 +477,8 @@ namespace mirras
 
             if(!glyph)
             {
-                ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters are missing");
-                return;
+                ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters are missing. Unable to draw the requested text");
+                break;
             }
 
             if(!glyph->isWhitespace())
