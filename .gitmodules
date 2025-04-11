@@ -15,3 +15,6 @@
 [submodule "MirrasENGINE/3rdParty/MSDF-Atlas-Gen"]
 	path = MirrasENGINE/3rdParty/MSDF-Atlas-Gen
 	url = https://github.com/MirrasHue/MSDF-Atlas-Gen.git
+[submodule "MirrasENGINE/3rdParty/EnTT"]
+	path = MirrasENGINE/3rdParty/EnTT
+	url = https://github.com/skypjack/entt.git
