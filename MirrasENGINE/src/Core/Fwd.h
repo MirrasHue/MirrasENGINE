@@ -11,6 +11,9 @@ namespace mirras
     using Texture2D = Texture;
     class Font;
 
+    class Entity;
+    class EntityScript;
+
 } // namespace mirras
 
 namespace std::filesystem { }

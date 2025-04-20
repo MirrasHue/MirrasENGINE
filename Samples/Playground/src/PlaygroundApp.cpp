@@ -2,6 +2,7 @@
 #include "MirrasENGINE/MainEntryPoint.h"
 
 #include "PlaygroundLayer.h"
+#include "SceneExample.h"
 
 //using namespace mirras;
 
@@ -11,7 +12,8 @@ public:
     PlaygroundApp(const mirras::AppSpecs& appSpecs, const mirras::WindowSpecs& windowSpecs) :
         App{appSpecs, windowSpecs}
     {
-        addLayer(mirras::instantiate<PlaygroundLayer>());
+        //addLayer(mirras::instantiate<PlaygroundLayer>());
+        addLayer(mirras::instantiate<SceneExample>());
     }
 };
 
