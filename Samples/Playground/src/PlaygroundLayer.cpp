@@ -55,6 +55,7 @@ void PlaygroundLayer::load()
     points[2] = {triangleCenter.x, triangleCenter.y - 100, 0.f};
 
     texture = mirras::Texture::loadFrom("assets/textures/GuadagniniModel.png");
+    font = mirras::instantiate<mirras::Font>("assets/fonts/consolas.ttf");
 
     mirras::Renderer::setLineWidth(1.f);
 }
@@ -62,6 +63,7 @@ void PlaygroundLayer::load()
 void PlaygroundLayer::onEvent(mirras::Event& event)
 {
     camera.onWindowResize(event);
+    cameraController.onMouseWheelScroll(event);
 }
 
 void PlaygroundLayer::draw()
@@ -87,8 +89,8 @@ void PlaygroundLayer::draw()
 
         mirras::Renderer::drawTriangle({300, 400, 0}, {700, 400, 0}, {500, 100, 0}, {0,0,0,0.5});
 
-        if(font.atlasTexture)
-            mirras::Renderer::drawTexture(*font.atlasTexture, {}, {0, 100, 0}, {330,330}, {0,0});
+        if(font->atlasTexture)
+            mirras::Renderer::drawTexture(*font->atlasTexture, {}, {0, 100, 0}, {330,330}, {0,0});
         else
         {
             LOG_ERROR("font atlas is null");
@@ -97,7 +99,7 @@ void PlaygroundLayer::draw()
         // To visualize how the rendered glyphs are aligning with the specified top left position
         mirras::Renderer::drawLine({0,450,0}, {0,600,0}, {1,1,1,1});
         mirras::Renderer::drawLine({0,450,0}, {150,450,0}, {1,1,1,1});
-        mirras::Renderer::drawText(L"Hello World!\nNow we have text rendering", font, {0,450,0});
+        mirras::Renderer::drawText(L"Hello World!\nNow we have text rendering", *font, {0,450,0});
 
     mirras::Renderer::endMode2D();
 }
@@ -106,22 +108,7 @@ void PlaygroundLayer::update(float dt)
 {
     rotation += 30 * dt; // Temp, rotation should be capped
 
-    if(mirras::Input::isKeyDown(mirras::Key::Z))
-        camera.zoom += 1.f;
-    if(mirras::Input::isKeyDown(mirras::Key::X))
-        camera.zoom -= 1.f;
-
-    if(camera.zoom <= 0.f)
-        camera.zoom = 0.5;
-
-    if(mirras::Input::isKeyDown(mirras::Key::D))
-        camera.position.x += 1;
-    if(mirras::Input::isKeyDown(mirras::Key::A))
-        camera.position.x -= 1;
-    if(mirras::Input::isKeyDown(mirras::Key::W))
-        camera.position.y -= 1;
-    if(mirras::Input::isKeyDown(mirras::Key::S))
-        camera.position.y += 1;
+    cameraController.update(dt);
 }
 
 void PlaygroundLayer::drawImGui()

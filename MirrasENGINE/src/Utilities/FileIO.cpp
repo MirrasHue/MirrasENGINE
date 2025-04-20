@@ -1,7 +1,7 @@
 #include "Utilities/FileIO.h"
 
 #include "Core/Log.h"
-#include "Core/BasicTypes.h"
+#include "Core/Types/Integer.h"
 
 #include <fstream>
 

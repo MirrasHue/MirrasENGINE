@@ -140,7 +140,7 @@ namespace mirras
 
         bool reDisableVSync = false;
         
-        // ImGui widgets start to flicker on resize when VSync is disabled, and the fps is very high
+        // ImGui widgets start to flicker on resize when VSync is disabled and the fps is very high
         // Waiting at the buffer swap eases the flickering considerably
         if(!OSWindow::isVSynced())
         {

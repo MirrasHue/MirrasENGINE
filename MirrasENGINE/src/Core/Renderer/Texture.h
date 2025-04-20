@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core/BasicTypes.h"
+#include "Core/Types/Integer.h"
+#include "Core/Types/Reference.h"
 #include "Core/Fwd.h"
 
 #include <filesystem>

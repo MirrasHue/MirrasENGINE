@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicTypes.h"
+#include "Core/Types/Reference.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>

@@ -2,7 +2,7 @@
 
 #include "Events/Event.h"
 
-#include "Core/BasicTypes.h"
+#include "Core/Types/Basic.h"
 
 namespace mirras
 {

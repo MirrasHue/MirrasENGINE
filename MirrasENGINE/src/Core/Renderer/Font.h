@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/BasicTypes.h"
+#include "Core/Types/Reference.h"
 #include "Core/Fwd.h"
 
 #include <filesystem>
@@ -18,6 +18,7 @@ namespace mirras
         Font(const fs::path& fontFilepath);
         ~Font();
 
+    public:
         single_ref<msdf_atlas::FontGeometry> geometry;
         single_ref<Texture> atlasTexture;
     };

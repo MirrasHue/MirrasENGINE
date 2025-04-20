@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Asserts.h"
-#include "Core/BasicTypes.h"
+#include "Core/Types/Reference.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>

@@ -10,8 +10,8 @@
 #include "Core/Application.h"
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Renderer/Font.h"
+#include "Core/Types/Basic.h"
 #include "Core/Utils.h"
-#include "Core/BasicTypes.h"
 
 #define RLGL_IMPLEMENTATION
 #include <raylib/rlgl.h>

@@ -2,6 +2,8 @@
 
 #include "Events/Event.h"
 
+#include "Core/Types/Basic.h"
+
 #include "Input/DeviceCodes.h"
 
 namespace mirras

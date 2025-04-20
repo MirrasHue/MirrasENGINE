@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/BasicTypes.h"
+#include "Core/Types/Basic.h"
 #include "Core/Fwd.h"
 
 // So that it doesn't include GL/gl.h (which defines __gl_h_, making Glad complain)

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Core/BasicTypes.h"
+#include "Core/Types/Integer.h"
+#include "Core/Types/Reference.h"
 
 #include <vector>
 #include <memory>

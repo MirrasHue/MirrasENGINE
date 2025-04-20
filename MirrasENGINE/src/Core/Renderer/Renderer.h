@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/BasicTypes.h"
+#include "Core/Types/Basic.h"
 #include "Core/Fwd.h"
 
 #include <glm/fwd.hpp>

@@ -62,6 +62,7 @@ namespace mirras
     {
         vec2i size;
         glfwGetFramebufferSize(windowHandle, &size.x, &size.y);
+        
         return size;
     }
 
