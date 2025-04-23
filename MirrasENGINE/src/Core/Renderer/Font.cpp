@@ -7,8 +7,15 @@
 
 namespace mirras
 {
+    Font::Font() = default;
+
+    Font::Font(const fs::path& fontFilepath)
+    {
+        loadFrom(fontFilepath);
+    }
+
     template <typename T, int N>
-    static single_ref<Texture> createAtlasTexture(msdfgen::BitmapConstRef<T, N> bitmap)
+    static single_ref<Texture> createAtlasTexture(const msdfgen::BitmapConstRef<T, N>& bitmap)
     {
         TextureSpecs specs {
             .data = bitmap.pixels,
@@ -21,22 +28,42 @@ namespace mirras
         return Texture::createFrom(specs);
     }
 
-    Font::Font(const fs::path& fontFilepath)
+    struct FreetypeHandleDeleter
     {
-        msdfgen::FreetypeHandle* ftHandle = msdfgen::initializeFreetype();
+        void operator()(msdfgen::FreetypeHandle* handle) const
+        {
+            msdfgen::deinitializeFreetype(handle);
+        }
+    };
+
+    struct FontHandleDeleter
+    {
+        void operator()(msdfgen::FontHandle* handle) const
+        {
+            msdfgen::destroyFont(handle);
+        }
+    };
+
+    // Use std::unique_ptr instead of single_ref when a custom deleter is needed
+    using FreetypeHandle = std::unique_ptr<msdfgen::FreetypeHandle, FreetypeHandleDeleter>;
+    using FontHandle     = std::unique_ptr<msdfgen::FontHandle, FontHandleDeleter>;
+
+    bool Font::loadFrom(const fs::path& fontFilepath)
+    {
+        FreetypeHandle ftHandle{msdfgen::initializeFreetype()};
 
         if(!ftHandle) // Not critical to the engine, so we don't need to terminate
         {
             ENGINE_LOG_ERROR("Could not initialize FreeType");
-            return;
+            return false;
         }
 
-        msdfgen::FontHandle* font = msdfgen::loadFont(ftHandle, fontFilepath.string().c_str());
+        FontHandle fontHandle{msdfgen::loadFont(ftHandle.get(), fontFilepath.string().c_str())};
 
-        if(!font)
+        if(!fontHandle)
         {
             ENGINE_LOG_ERROR("Failed to load font: {}", fontFilepath.string());
-            return;
+            return false;
         }
 
         // Unicode blocks can be found at https://en.wikipedia.org/wiki/Unicode_block#List_of_blocks
@@ -55,11 +82,21 @@ namespace mirras
         }
 
         geometry = instantiate<msdf_atlas::FontGeometry>();
+        atlasTexture.reset();
 
         const double fontScale = 1.0;
         const double maxCornerAngle = 3.0;
 
-        geometry->loadCharset(font, fontScale, charset);
+        int32 loadedGlyphs = geometry->loadCharset(fontHandle.get(), fontScale, charset);
+
+        if(loadedGlyphs <= 0) // -1 is a valid return value
+        {
+            ENGINE_LOG_ERROR("Failed to load glyphs specified in the charset");
+            geometry.reset();
+
+            return false;
+        }
+
         auto& glyphs = geometry->getGlyphStorage();
 
         // Apply MSDF edge coloring
@@ -75,19 +112,37 @@ namespace mirras
         //packer.setMinimumScale(24.0);
         packer.setPixelRange(2.0);
         packer.setMiterLimit(1.0);
-        
+
         int32 result = packer.pack(glyphs.data(), glyphs.size()); // Compute atlas layout and pack glyphs
 
-        int32 width{}, height{}; // Before the bugfix in the FontGeometry constructor, sometimes result was equal 0 (success),
-        packer.getDimensions(width, height); // but width and height were still 0, so we do this extra check just in case
+        int32 width{}, height{};
+        packer.getDimensions(width, height);
 
-        if(result != 0 || !(width > 0 && height > 0))
+        // Before the bugfix in the FontGeometry constructor, sometimes result was equal 0 (success), but width and
+        if(result != 0 || !(width > 0 && height > 0)) // height were still 0, so we do this extra check just in case
         {
-            ENGINE_LOG_ERROR("Failed to compute the font atlas layout and pack the glyphs");
+            ENGINE_LOG_ERROR("Failed to compute the font atlas layout when packing the glyphs");
             geometry.reset();
-            return;
+
+            return false;
         }
 
+        auto atlasPath = fontFilepath;
+        atlasPath.replace_extension();
+        atlasPath += fmt::format("-{}glyphs-atlas.png", loadedGlyphs);
+
+        if(fs::exists(atlasPath))
+        {
+            atlasTexture = Texture::loadFrom(atlasPath);
+
+            if(atlasTexture->id)
+                return true;
+            else
+            {
+                ENGINE_LOG_ERROR("Failed to load existing font atlas texture from {}. Generating a new one...", atlasPath.string());
+            }
+        }
+        
         constexpr int32 channels = 3; // MSDF atlas type has 3 channels
 
         msdf_atlas::ImmediateAtlasGenerator<float, channels,
@@ -107,11 +162,21 @@ namespace mirras
 
         atlasTexture = createAtlasTexture<msdfgen::byte, channels>(generator.atlasStorage());
 
-        // TODO: save atlas with the font file name, and load it if available, instead of regenerating it all over
-        msdfgen::savePng(generator.atlasStorage(), "fontAtlas.png");
+        if(atlasTexture->id == 0)
+        {
+            ENGINE_LOG_ERROR("Failed to create font atlas texture from the generated bitmap");
+            geometry.reset();
+            atlasTexture.reset();
 
-        msdfgen::destroyFont(font);
-        msdfgen::deinitializeFreetype(ftHandle);
+            return false;
+        }
+
+        if(!msdfgen::savePng(generator.atlasStorage(), atlasPath.string().c_str(), /*flipVertically =*/ true))
+        {
+            ENGINE_LOG_ERROR("Failed to save the font atlas texture to {}", atlasPath.string());
+        }
+
+        return true;
     }
 
     Font::~Font() = default;

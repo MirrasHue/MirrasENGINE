@@ -42,6 +42,8 @@ namespace mirras
         if(!image)
         {
             ENGINE_LOG_ERROR("Could not load image from: {}", imageFilepath.string());
+            width = height = channels = 0;
+
             return;
         }
 
@@ -54,6 +56,8 @@ namespace mirras
         if(id == 0)
         {
             ENGINE_LOG_ERROR("Failed to load OpenGL texture");
+            width = height = channels = mipmaps = 0;
+
             return;
         }
 
@@ -62,23 +66,23 @@ namespace mirras
 
     OpenGLTexture::OpenGLTexture(const TextureSpecs& specs) 
     {
-        width = specs.width;
-        height = specs.height;
-        channels = specs.channels;
-        mipmaps = specs.mipmaps;
-
         if(!specs.data)
         {
             ENGINE_LOG_WARN("Creating texture with no pixel data");
         }
 
-        id = rlLoadTexture(specs.data, width, height, channelsToRaylibFormat(channels), mipmaps);
+        id = rlLoadTexture(specs.data, specs.width, specs.height, channelsToRaylibFormat(specs.channels), specs.mipmaps);
 
         if(id == 0)
         {
             ENGINE_LOG_ERROR("Failed to load OpenGL texture");
             return;
         }
+
+        width = specs.width;
+        height = specs.height;
+        channels = specs.channels;
+        mipmaps = specs.mipmaps;
 
         applyTextureFilter(id, specs.filter);
     }

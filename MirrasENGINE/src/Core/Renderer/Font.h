@@ -15,7 +15,11 @@ namespace mirras
     class Font
     {
     public:
+        Font();
         Font(const fs::path& fontFilepath);
+
+        bool loadFrom(const fs::path& fontFilepath);
+
         ~Font();
 
     public:
