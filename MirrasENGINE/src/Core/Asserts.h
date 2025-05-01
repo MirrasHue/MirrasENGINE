@@ -1,4 +1,4 @@
-#include "Core/Log.h"
+#pragma once
 
 #ifdef DEBUG_BUILD
 
@@ -17,6 +17,8 @@
 #endif
 
 #ifndef DISTRIBUTION_BUILD
+
+    #include "Core/Log.h"
 
     #define MIRR_ASSERT_CORE(expr, msg)                                         \
         do{                                                                     \

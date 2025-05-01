@@ -12,6 +12,7 @@
 #include "Core/Renderer/Font.h"
 #include "Core/Types/Basic.h"
 #include "Core/Utils.h"
+#include "Core/Log.h"
 
 #define RLGL_IMPLEMENTATION
 #include <raylib/rlgl.h>

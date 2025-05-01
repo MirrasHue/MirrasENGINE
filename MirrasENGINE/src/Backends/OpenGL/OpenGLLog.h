@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Core/Asserts.h"
-#include "Core/Types/Reference.h"
+#ifndef DISTRIBUTION_BUILD
+    #include "Core/Asserts.h"
+    #include "Core/Types/Reference.h"
 
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <fmt/printf.h>
+    #include <fmt/printf.h>
+#endif
 
 // Adapted from rlgl.h, instead of including the header just for the rlTraceLogLevel enum
 enum class rlLogLevel

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Core/Types/Reference.h"
+#ifndef DISTRIBUTION_BUILD
+    #include "Core/Types/Reference.h"
 
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
+    #include <spdlog/spdlog.h>
+    #include <spdlog/sinks/stdout_color_sinks.h>
+#endif
 
 namespace mirras
 {

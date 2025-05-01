@@ -39,7 +39,7 @@ namespace mirras
         if(!Event::is_a<WindowResized>(event))
             return;
 
-        auto[currentWidth, currentHeight] = static_cast<WindowResized&>(event).windowSize;
+        auto [currentWidth, currentHeight] = static_cast<WindowResized&>(event).windowSize;
 
         static int32 initialFbHeight = App::getOSWindow().getInitialFbSize().y;
 

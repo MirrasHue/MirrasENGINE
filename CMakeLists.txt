@@ -23,7 +23,6 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/MirrasENGINE/src
         MirrasENGINE/3rdParty/raylib/include
-        MirrasENGINE/3rdParty/spdlog/include
         MirrasENGINE/3rdParty/Glad/include
         MirrasENGINE/3rdParty/stb/include
 )
@@ -38,13 +37,17 @@ add_subdirectory(MirrasENGINE/3rdParty/ImGui)
 
 add_subdirectory(MirrasENGINE/3rdParty/EnTT)
 
-add_subdirectory(MirrasENGINE/3rdParty/spdlog)
-
 add_subdirectory(MirrasENGINE/3rdParty/GLM)
 
 add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
 
-target_link_libraries(${PROJECT_NAME} glfw ImGui EnTT spdlog glm msdf-atlas-gen)
+target_link_libraries(${PROJECT_NAME} glfw ImGui EnTT glm msdf-atlas-gen)
+
+# Don't include spdlog in the distribution build
+if(NOT DEFINED PRESET_NAME OR NOT PRESET_NAME STREQUAL "distribution")
+    add_subdirectory(MirrasENGINE/3rdParty/spdlog)
+    target_link_libraries(${PROJECT_NAME} spdlog)
+endif()
 
 # Define a location for the generated binaries, separated by build type.
 # Also simplify the specification of relative paths within the project structure,
