@@ -103,6 +103,12 @@ namespace mirras
             if(resizing)
             {
                 synchronizeResize();
+
+                // Because of the way we do multithreading, ImGui widgets start to flicker on resize when VSync is disabled
+                // Waiting here for atleast 4ms seems to eliminate the flickering for the most part (have to test elsewhere)
+                if(!OSWindow::isVSynced())
+                    wait(4_ms);
+
                 continue;
             }
 
@@ -137,25 +143,12 @@ namespace mirras
         window.makeContextCurrent(true);
 
         Renderer::setViewport(0, 0, width, height);
-
-        bool reDisableVSync = false;
-        
-        // ImGui widgets start to flicker on resize when VSync is disabled and the fps is very high
-        // Waiting at the buffer swap eases the flickering considerably
-        if(!OSWindow::isVSynced())
-        {
-            reDisableVSync = true;
-            OSWindow::setVSync(true);
-        }
         
         // Keep rendering on window resize
         renderLayers();
 
         window.swapBuffers();
 
-        if(reDisableVSync)
-            OSWindow::setVSync(false);
-        
         window.makeContextCurrent(false);
 
         resizing = false;
