@@ -10,11 +10,13 @@
 
 #include <cstdlib>
 
+#include <stb/image.h>
+
 namespace mirras
 {
     static void glfwErrorCallback(int32 errorCode, const char* what);
 
-    OSWindow::OSWindow(const WindowSpecs& windowSpecs)
+    void OSWindow::init(const WindowSpecs& windowSpecs)
     {
         glfwSetErrorCallback(glfwErrorCallback);
 
@@ -37,7 +39,9 @@ namespace mirras
             height = videoMode->height;
         }
 
-        windowHandle = glfwCreateWindow(width, height, windowSpecs.title.data(), monitor, nullptr);
+        auto title = windowSpecs.title;
+
+        windowHandle = glfwCreateWindow(width, height, title.empty() ? " " : title.data(), monitor, nullptr);
 
         // We don't use the size in the specs, because the created window can't always match the requested size
         initialFbSize = getFramebufferSize();
@@ -56,6 +60,22 @@ namespace mirras
         glfwSetWindowUserPointer(windowHandle, &appCallbacks);
 
         setGLFWCallbacks();
+
+        if(windowSpecs.iconFilepath.empty())
+            return;
+
+        GLFWimage icon;
+        int channels{};
+
+        icon.pixels = stbi_load(windowSpecs.iconFilepath.data(), &icon.width, &icon.height, &channels, 0);
+
+        if(!icon.pixels)
+        {
+            ENGINE_LOG_ERROR("Unable to load window icon: {}", windowSpecs.iconFilepath);
+            return;
+        }
+        
+        glfwSetWindowIcon(windowHandle, 1, &icon);
     }
 
     vec2i OSWindow::getFramebufferSize() const

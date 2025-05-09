@@ -13,11 +13,15 @@
 
 namespace mirras
 {
-    App::App(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs) :
-        window{windowSpecs}
+    App::App(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs)
     {
         MIRR_ASSERT_CORE(appInstance == nullptr, "One instance of application already exists");
         appInstance = this;
+
+        if(!appSpecs.workingDirectory.empty())
+            fs::current_path(appSpecs.workingDirectory);
+
+        window.init(windowSpecs);
 
         Log::initAppLog(appSpecs.name);
 
@@ -30,9 +34,6 @@ namespace mirras
         {
             App::onEvent(event);
         });
-
-        if(!appSpecs.workingDirectory.empty())
-            fs::current_path(appSpecs.workingDirectory);
 
         fixedTimestep = 1.f / appSpecs.updateRate;
     }

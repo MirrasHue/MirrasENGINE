@@ -28,11 +28,11 @@ mirras::single_ref<mirras::App> mirras::createClientApp()
 
     mirras::WindowSpecs windowSpecs {
         .title = "MirrasENGINE Playground",
+        .iconFilepath = "assets/icon.png",
         .width = 1366,
         .height = 768,
         .minWidth = 900,
-        .minHeight = 500,
-        .VSync = false
+        .minHeight = 500
     };
 
     return instantiate<PlaygroundApp>(appSpecs, windowSpecs);

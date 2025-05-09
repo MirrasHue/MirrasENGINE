@@ -15,6 +15,7 @@ namespace mirras
     struct WindowSpecs
     {
         std::string_view title;
+        std::string_view iconFilepath;
         int32 width  = 1280;
         int32 height = 720;
         int32 minWidth  = -1; // Both need to be set in
@@ -29,7 +30,7 @@ namespace mirras
     public:
         using EventCallback = std::function<void(Event&)>;
 
-        OSWindow(const WindowSpecs& windowSpecs);
+        void init(const WindowSpecs& windowSpecs);
 
         void setOnEventCallback(const EventCallback& callback) { appCallbacks.onEvent = callback; }
 
