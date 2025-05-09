@@ -5,7 +5,8 @@
 ## Features
 
 * OpenGL renderer (shapes, textures, shaders)
-* On Windows, main loop does not block upon window events
+* On Windows, main loop does not block upon window events (resizing or dragging, e.g.)
+* Sharp text rendering with _msdfgen_
 * ImGui rendering
 
 And more to come...
@@ -27,7 +28,7 @@ The easiest and recommended way to compile the engine, is to simply run these tw
 
 It's also possible to use another generator of your choice (run `cmake --help` for the available options), with the drawback of not being able to use the out-of-the-box `distribution` build, provided only with the CMake presets.
 
-By omiting `-G <generator-name>`, CMake will choose a default generator, that could end up not working (like _NMake Makefiles_, in my case).
+By omiting `-G <generator-name>`, CMake will choose a default generator, that could end up not working (like _NMake Makefiles_ on Windows, if Visual Studio Build Tools is not installed).
 
 For single-configuration generators (e.g., Ninja and Unix Makefiles):
 
@@ -50,4 +51,4 @@ _After the compilation is done, the generated executables will be located in the
 
 ## Considerations
 
-So far, the engine has only been tested on Windows, with GCC (MinGW-w64) and MSVC. It probably runs on Linux as well, but I will be able to test that only after dual booting my PC.
+So far, the engine has only been tested on Windows, with GCC (MinGW-w64) and MSVC. It probably runs on Linux as well, but I will only be able to test that once I have access to a PC running Ubuntu or another distro.
