@@ -40,6 +40,8 @@ namespace mirras
         virtual void setIntArray(std::string_view name, std::span<int> values) override;
         virtual void setIntArray(int32 location, std::span<int> values) override;
 
+        virtual ~OpenGLShader();
+
     private:
         void init(std::string_view vertexSrc, std::string_view fragmentSrc);
         bool findUniform(std::string_view name, int32& outLocation) const;

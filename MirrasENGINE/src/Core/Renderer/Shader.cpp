@@ -15,8 +15,7 @@ namespace mirras
                 return instantiate<OpenGLShader>(vertexSrc, fragmentSrc);
         }
 
-        MIRR_ASSERT_CORE(false, "Unexpected renderer backend!");
-        return {};
+        MIRR_ASSERT_CORE_RETURN_VALUE(false, {}, "Unexpected renderer backend");
     }
 
     single_ref<Shader> Shader::loadFrom(const fs::path& vertexFilepath, const fs::path& fragmentFilepath)

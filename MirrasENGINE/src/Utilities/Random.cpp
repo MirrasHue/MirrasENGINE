@@ -29,7 +29,7 @@ namespace mirras
     template<typename T>
     T Rand::range(T min, T max)
     {
-        MIRR_ASSERT(min < max, "Invalid range, Max must be greater than Min");
+        MIRR_ASSERT_RETURN_VALUE(min < max, {}, "Invalid range, Max must be greater than Min");
         
         if constexpr(std::is_integral_v<T>)
         {
@@ -47,7 +47,7 @@ namespace mirras
 
     void Rand::seed(uint64 value)
     {
-        MIRR_ASSERT(value != 0, "Seed cannot be zero");
+        MIRR_ASSERT_RETURN(value != 0, "Seed cannot be zero");
 
         state = value;
     }

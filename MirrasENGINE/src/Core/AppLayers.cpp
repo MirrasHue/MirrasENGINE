@@ -6,7 +6,7 @@ namespace mirras
 {
     void AppLayers::addLayer(single_ref<Layer> layer)
     {
-        MIRR_ASSERT_CORE(layer, "Can't add a null layer");
+        MIRR_ASSERT_CORE_RETURN(layer, "A null layer cannot be added");
 
         layer->load();
         layers.emplace(layers.begin() + layerInsertionIdx, std::move(layer));
@@ -15,7 +15,7 @@ namespace mirras
 
     void AppLayers::addOverlay(single_ref<Layer> layer)
     {
-        MIRR_ASSERT_CORE(layer, "Can't add a null layer");
+        MIRR_ASSERT_CORE_RETURN(layer, "A null layer cannot be added");
         
         layer->load();
         layers.emplace_back(std::move(layer));

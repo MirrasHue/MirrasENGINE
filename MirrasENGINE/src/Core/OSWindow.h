@@ -5,7 +5,7 @@
 
 // So that it doesn't include GL/gl.h (which defines __gl_h_, making Glad complain)
 #define GLFW_INCLUDE_NONE
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include <string_view>
 #include <functional>

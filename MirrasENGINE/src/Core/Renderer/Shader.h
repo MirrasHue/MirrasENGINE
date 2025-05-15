@@ -15,8 +15,6 @@ namespace mirras
     class Shader
     {
     public:
-        virtual ~Shader() = default;
-
         virtual void makeActive()   = 0;
         virtual void makeInactive() = 0;
 
@@ -47,5 +45,7 @@ namespace mirras
         static single_ref<Shader> loadFrom(std::string_view vertexSrc, std::string_view fragmentSrc);
         static single_ref<Shader> loadFrom(const fs::path& vertexFilepath, const fs::path& fragmentFilepath);
         //static single_ref<Shader> loadFrom(const fs::path& shaderFilepath);
+        
+        virtual ~Shader() = default;
     };
 } // namespace mirras

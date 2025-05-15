@@ -38,6 +38,8 @@ namespace mirras
         static single_ref<Texture> loadFrom(const fs::path& imageFilepath, TextureFilter filter = TextureFilter::Linear);
         static single_ref<Texture> createFrom(const TextureSpecs& specs);
 
+        virtual ~Texture() = default;
+
     public:
         uint32 id{};
         int32 width{}, height{};
@@ -45,5 +47,25 @@ namespace mirras
         int32 mipmaps{};
     };
 
+    class RenderTexture
+    {
+    public:
+        RenderTexture() = default;
+        RenderTexture(int32 width, int32 height);
+
+        RenderTexture(RenderTexture&& rhs);
+        RenderTexture& operator=(RenderTexture&& rhs);
+
+        void resize(int32 width, int32 height);
+
+        ~RenderTexture();
+
+    public:
+        uint32 id{};
+        single_ref<Texture> color;
+        single_ref<Texture> depth;
+    };
+
     using Texture2D = Texture;
+    using RenderTexture2D = RenderTexture;
 } // namespace mirras

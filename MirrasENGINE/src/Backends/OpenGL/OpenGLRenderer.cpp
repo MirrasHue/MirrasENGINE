@@ -18,7 +18,7 @@
 #include <raylib/rlgl.h>
 
 #define GLFW_INCLUDE_NONE
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 //#define GLM_FORCE_INTRINSICS
 #include <glm/gtc/matrix_transform.hpp>
@@ -117,6 +117,26 @@ namespace mirras
     void OpenGLRenderer::endDrawing()
     {
         rlDrawRenderBatchActive();
+    }
+
+    void OpenGLRenderer::beginTextureDrawing(const RenderTexture2D& texture)
+    {
+        MIRR_ASSERT_CORE_RETURN(texture.id > 0 && texture.color,
+            "Invalid render texture, first initialize it by calling Renderer::createRenderTexture");
+
+        rlDrawRenderBatchActive();
+        rlEnableFramebuffer(texture.id);
+
+        resetViewport(0, 0, texture.color->width, texture.color->height);
+    }
+
+    void OpenGLRenderer::endTextureDrawing()
+    {
+        rlDrawRenderBatchActive();
+
+        rlDisableFramebuffer();
+
+        resetViewport(0, 0, windowFbWidth, windowFbHeight);
     }
 
     void OpenGLRenderer::beginMode2D(const Camera2D& camera)
@@ -341,7 +361,7 @@ namespace mirras
     {
         if(texture.id == 0)
         {
-            ENGINE_LOG_WARN("Not possible to draw texture with id 0");
+            ENGINE_LOG_WARN("Not possible to draw texture with ID: 0");
             return;
         }
 

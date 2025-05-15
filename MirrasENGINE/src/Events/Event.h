@@ -21,8 +21,6 @@ namespace mirras
     class Event
     {
     public:
-        virtual ~Event() = default;
-
         template<typename EventClass>
         static bool is_a(Event& event); // This doesn't take the parent class into consideration
 
@@ -36,6 +34,8 @@ namespace mirras
         virtual EventCategory getEventCategory() const = 0;
 
         bool isInCategory(EventCategory category) { return getEventCategory() == category; }
+
+        virtual ~Event() = default;
 
         bool propagable = true;
     };

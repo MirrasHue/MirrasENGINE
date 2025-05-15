@@ -199,4 +199,10 @@ namespace mirras
         if(isValid(location))
             glUniform1iv(location, values.size(), values.data());
     }
+
+    OpenGLShader::~OpenGLShader()
+    {
+        if(id != rlGetDefaultShaderId() && id > 0)
+            rlUnloadShaderProgram(id);
+    }
 } // namespace mirras

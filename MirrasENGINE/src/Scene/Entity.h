@@ -50,8 +50,6 @@ namespace mirras
     class EntityScript
     {
     public:
-        virtual ~EntityScript() = default;
-
         virtual void onInit() {};
         virtual void onUpdate(float dt) {};
         virtual void onCleanup() {};
@@ -61,6 +59,8 @@ namespace mirras
         {
             return entity.get<T>();
         }
+
+        virtual ~EntityScript() = default;
 
     private:
         Entity entity;
