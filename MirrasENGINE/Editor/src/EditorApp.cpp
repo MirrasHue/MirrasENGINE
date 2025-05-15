@@ -17,13 +17,21 @@ namespace mirras
 
     single_ref<App> createClientApp()
     {
-        AppSpecs appSpecs {.name = "Editor",
-                           .backend = Renderer::Backend::OpenGL,
-                           .updateRate = 60};
+        AppSpecs appSpecs {
+            .name = "Editor",
+            .workingDirectory = "../../MirrasENGINE/Editor",
+            .backend = Renderer::Backend::OpenGL,
+            .updateRate = 60
+        };
 
-        WindowSpecs windowSpecs {.title = "MirrasENGINE Editor",
-                                 .minWidth = 600,
-                                 .minHeight = 400};
+        WindowSpecs windowSpecs {
+            .title = "MirrasENGINE Editor",
+            .iconFilepath = "Assets/Icons/icon.png",
+            .width = 1600,
+            .height = 900,
+            .minWidth = 1280,
+            .minHeight = 720
+        };
 
         return instantiate<EditorApp>(appSpecs, windowSpecs);
     }
