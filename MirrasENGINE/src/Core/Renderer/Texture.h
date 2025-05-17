@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Types/Basic.h"
 #include "Core/Types/Integer.h"
 #include "Core/Types/Reference.h"
 #include "Core/Fwd.h"
@@ -64,6 +65,10 @@ namespace mirras
         uint32 id{};
         single_ref<Texture> color;
         single_ref<Texture> depth;
+
+        // Used by Camera2D in order to calculate offsets and zoom scale correctly
+        // Initialized in the constructor once
+        vec2i initialSize;
     };
 
     using Texture2D = Texture;

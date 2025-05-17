@@ -10,6 +10,8 @@
 
 namespace mirras::imgui
 {
+    static bool eventsBlocked = false;
+
     void init()
     {
         // Setup Dear ImGui context
@@ -47,8 +49,16 @@ namespace mirras::imgui
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
+    void blockEvents(bool block)
+    {
+        eventsBlocked = block;
+    }
+
     void onEvent(Event& event)
     {
+        if(eventsBlocked)
+            return;
+
         ImGuiIO& io = ImGui::GetIO();
         bool capturedByImGui = event.isInCategory(EventCategory::Mouse)    && io.WantCaptureMouse ||
                                event.isInCategory(EventCategory::Keyboard) && io.WantCaptureKeyboard;

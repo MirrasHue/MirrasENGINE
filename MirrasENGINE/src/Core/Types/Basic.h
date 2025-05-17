@@ -8,6 +8,8 @@ namespace mirras
     struct Vec2
     {
         T x{}, y{};
+
+        bool operator ==(const Vec2<T>& rhs) const = default;
     };
 
     using vec2i = Vec2<int32>;

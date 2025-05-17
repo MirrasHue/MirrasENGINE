@@ -16,9 +16,13 @@ namespace mirras
 
     private:
         Camera2D editorCamera;
-        RenderTexture2D canvas{800, 450};
-        glm::vec2 viewportSize{800, 450};
+        CameraController cameraController{editorCamera};
+        RenderTexture2D canvas{1280, 720};
+        glm::vec2 viewportSize{1280, 720};
 
         float fontSize = 17.f; // Used by ImGui text
+
+        bool viewportFocused;
+        bool viewportHovered;
     };
 } // namespace mirras

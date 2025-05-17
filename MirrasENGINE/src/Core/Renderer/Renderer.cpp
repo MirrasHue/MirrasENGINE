@@ -19,9 +19,9 @@ namespace mirras
         renderer.shutdown();
     }
 
-    void Renderer::setViewport(int32 x, int32 y, int32 width, int32 height)
+    void Renderer::setWindowViewport(int32 x, int32 y, int32 width, int32 height)
     {
-        renderer.setViewport(x, y, width, height);
+        renderer.setWindowViewport(x, y, width, height);
     }
 
     void Renderer::clearBackBuffers()
@@ -54,7 +54,7 @@ namespace mirras
         renderer.endTextureDrawing();
     }
 
-    void Renderer::beginMode2D(const Camera2D& camera)
+    void Renderer::beginMode2D(Camera2D& camera)
     {
         renderer.beginMode2D(camera);
     }

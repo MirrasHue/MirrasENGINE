@@ -62,7 +62,6 @@ void PlaygroundLayer::load()
 
 void PlaygroundLayer::onEvent(mirras::Event& event)
 {
-    camera.onWindowResize(event);
     cameraController.onMouseWheelScroll(event);
 }
 

@@ -50,9 +50,10 @@ namespace mirras
     class EntityScript
     {
     public:
-        virtual void onInit() {};
-        virtual void onUpdate(float dt) {};
-        virtual void onCleanup() {};
+        virtual void onInit() {}
+        virtual void onUpdate(float dt) {}
+        virtual void onFixedUpdate(float dt) {}
+        virtual void onCleanup() {}
 
         template<typename T>
         T& getComponent()

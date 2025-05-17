@@ -1,51 +1,25 @@
 #include "Core/Renderer/Camera2D.h"
 
 #include "Core/Application.h"
+#include "Core/Asserts.h"
 
 #include "Events/WindowEvents.h"
 
 namespace mirras
 {
     Camera2D::Camera2D(glm::vec2 _position, glm::vec2 _offset, float _rotation, float _zoom)
-        : position{_position}, rotation{_rotation}, zoom{_zoom}
+        : position{_position}, offset{_offset}, rotation{_rotation}, zoom{_zoom} {}
+
+    void Camera2D::targetSize(int32 framebufferWidth, int32 framebufferHeight)
     {
-        setOffset(_offset.x, _offset.y);
-    }
+        MIRR_ASSERT_CORE(framebufferWidth > 0 && framebufferHeight > 0,
+            "Invalid framebuffer size: {} x {}", framebufferWidth, framebufferHeight);
 
-    void Camera2D::setOffset(float xOffset, float yOffset)
-    {
-        auto [currentWidth, currentHeight] = App::getOSWindow().getFramebufferSize();
-        static auto [initialWidth, initialHeight] = App::getOSWindow().getInitialFbSize();
+        auto [initialFbW, initialFbH] = Camera2D::currentFbInitialSize;
 
-        offsetRatio.x = xOffset / initialWidth;
-        offsetRatio.y = yOffset / initialHeight;
+        zoomScale = (float)framebufferHeight / initialFbH;
 
-        offset.x = offsetRatio.x * currentWidth;
-        offset.y = offsetRatio.y * currentHeight;
-    }
-
-    void Camera2D::setOffsetX(float xOffset)
-    {
-        setOffset(xOffset, offset.y);
-    }
-
-    void Camera2D::setOffsetY(float yOffset)
-    {
-        setOffset(offset.x, yOffset);
-    }
-
-    void Camera2D::onWindowResize(Event& event)
-    {
-        if(!Event::is_a<WindowResized>(event))
-            return;
-
-        auto [currentWidth, currentHeight] = static_cast<WindowResized&>(event).windowSize;
-
-        static int32 initialFbHeight = App::getOSWindow().getInitialFbSize().y;
-
-        zoomScale = (float)currentHeight / initialFbHeight;
-
-        offset.x = offsetRatio.x * currentWidth;
-        offset.y = offsetRatio.y * currentHeight;
+        offsetX = offset.x / initialFbW * framebufferWidth;
+        offsetY = offset.y / initialFbH * framebufferHeight;
     }
 } // namespace mirras

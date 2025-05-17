@@ -1,7 +1,5 @@
 #include "Utilities/CameraController.h"
 
-#include "Core/Renderer/Camera2D.h"
-
 #include "Events/MouseEvents.h"
 
 #include "Input/Input.h"

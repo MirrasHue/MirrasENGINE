@@ -15,7 +15,7 @@ namespace mirras
         void init();
         void shutdown();
 
-        void setViewport(int32 x, int32 y, int32 width, int32 height);
+        void setWindowViewport(int32 x, int32 y, int32 width, int32 height);
         
         void clearBackBuffers();
         void setClearColor(float r, float g, float b, float a = 1.f);
@@ -26,7 +26,7 @@ namespace mirras
         void beginTextureDrawing(const RenderTexture2D& texture);
         void endTextureDrawing();
 
-        void beginMode2D(const Camera2D& camera);
+        void beginMode2D(Camera2D& camera);
         void endMode2D();
 
         void setLineWidth(float width);

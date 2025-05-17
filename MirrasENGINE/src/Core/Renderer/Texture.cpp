@@ -24,11 +24,15 @@ namespace mirras
     {
         // As RenderTexture is not an abstract class, we do this in order to have a nicer API
         initRenderTextureOpenGL(*this, width, height);
+
+        if(initialSize == vec2i{})
+            initialSize = {width, height};
     }
 
     RenderTexture::RenderTexture(RenderTexture&& rhs)
     {
         *this = std::move(rhs);
+        initialSize = rhs.initialSize;
     }
 
     RenderTexture& RenderTexture::operator=(RenderTexture&& rhs)

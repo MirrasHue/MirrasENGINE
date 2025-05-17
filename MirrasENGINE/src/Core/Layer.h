@@ -9,6 +9,7 @@ namespace mirras
     public:
         virtual void load() {}
         virtual void update(float dt) {}
+        virtual void fixedUpdate(float dt) {}
         virtual void onEvent(Event& event) {}
         virtual void draw() {}
         virtual void drawImGui() {}

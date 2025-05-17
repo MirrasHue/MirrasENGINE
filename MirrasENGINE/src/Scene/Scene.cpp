@@ -88,9 +88,6 @@ namespace mirras
 
     void Scene::onEvent(Event& event)
     {
-        registry.view<CameraComponent>().each([&event](auto entity, CameraComponent& cameraComp)
-        {
-            cameraComp.camera.onWindowResize(event);
-        });
+        
     }
 } // namespace mirras

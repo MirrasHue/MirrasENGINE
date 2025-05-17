@@ -46,10 +46,13 @@ namespace mirras
         while(frameTimeAccumulator >= fixedTimestep)
         {
             for(auto& layer : layers)
-                layer->update(fixedTimestep);
+                layer->fixedUpdate(fixedTimestep);
 
             frameTimeAccumulator -= fixedTimestep;
         }
+
+        for(auto& layer : layers)
+            layer->update(frameTime);
     }
 
     void App::renderLayers()
@@ -143,7 +146,7 @@ namespace mirras
 
         window.makeContextCurrent(true);
 
-        Renderer::setViewport(0, 0, width, height);
+        Renderer::setWindowViewport(0, 0, width, height);
         
         // Keep rendering on window resize
         renderLayers();

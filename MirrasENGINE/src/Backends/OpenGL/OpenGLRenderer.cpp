@@ -35,8 +35,9 @@ namespace mirras
     // Setup viewport and internal projection/modelview matrices
     static void resetViewport(int32 x, int32 y, int32 width, int32 height);
 
-    static int32 windowFbWidth{};
-    static int32 windowFbHeight{};
+    static vec2i windowFbSize;
+    static vec2i initialWindowFbSize;
+    static vec2i framebufferSize;
 
     void OpenGLRenderer::init()
     {
@@ -47,14 +48,16 @@ namespace mirras
             
         rlLoadExtensions();
 
+        // Just in case the window changed size between its creation and now
         auto [width, height] = App::getOSWindow().getFramebufferSize();
         
         rlglInit(width, height);
 
         resetViewport(0, 0, width, height);
 
-        windowFbWidth = width;
-        windowFbHeight = height;
+        windowFbSize = {width , height};
+        initialWindowFbSize = App::getOSWindow().getInitialFbSize();
+        Camera2D::currentFbInitialSize = initialWindowFbSize;
 
         // So that we can use the Z axis to determine the draw order
         // independent of the draw call order (for different Z values)
@@ -71,7 +74,7 @@ namespace mirras
         static const glm::mat4 identity = glm::mat4(1.f);
         const float zoom = camera.zoom * camera.zoomScale;
         
-        return glm::translate(identity, glm::vec3{windowFbWidth/2.f - camera.offset.x, windowFbHeight/2.f - camera.offset.y, 0.f}) *
+        return glm::translate(identity, glm::vec3{framebufferSize.x/2.f - camera.offsetX, framebufferSize.y/2.f - camera.offsetY, 0.f}) *
                glm::rotate(identity, glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
                glm::scale(identity, glm::vec3{zoom, zoom, 1.f}) *
                glm::translate(identity, glm::vec3{-camera.position.x, -camera.position.y, 0.f});
@@ -80,8 +83,9 @@ namespace mirras
     void resetViewport(int32 x, int32 y, int32 width, int32 height)
     {
         glViewport(x, y, width, height);
-        rlSetFramebufferWidth(width);
-        rlSetFramebufferHeight(height);
+
+        framebufferSize.x = width;
+        framebufferSize.y = height;
 
         rlMatrixMode(RL_PROJECTION);
         rlLoadIdentity();
@@ -92,11 +96,11 @@ namespace mirras
         rlLoadIdentity();
     }
 
-    void OpenGLRenderer::setViewport(int32 x, int32 y, int32 width, int32 height)
+    void OpenGLRenderer::setWindowViewport(int32 x, int32 y, int32 width, int32 height)
     {
         resetViewport(x, y, width, height);
-        windowFbWidth = width;
-        windowFbHeight = height;
+        windowFbSize.x = width;
+        windowFbSize.y = height;
     }
 
     void OpenGLRenderer::clearBackBuffers()
@@ -122,12 +126,14 @@ namespace mirras
     void OpenGLRenderer::beginTextureDrawing(const RenderTexture2D& texture)
     {
         MIRR_ASSERT_CORE_RETURN(texture.id > 0 && texture.color,
-            "Invalid render texture, first initialize it by calling Renderer::createRenderTexture");
+            "Invalid render texture. ID: {}, null color: {}", texture.id, !(bool)texture.color);
 
         rlDrawRenderBatchActive();
         rlEnableFramebuffer(texture.id);
 
         resetViewport(0, 0, texture.color->width, texture.color->height);
+
+        Camera2D::currentFbInitialSize = texture.initialSize;
     }
 
     void OpenGLRenderer::endTextureDrawing()
@@ -136,11 +142,15 @@ namespace mirras
 
         rlDisableFramebuffer();
 
-        resetViewport(0, 0, windowFbWidth, windowFbHeight);
+        resetViewport(0, 0, windowFbSize.x, windowFbSize.y);
+
+        Camera2D::currentFbInitialSize = initialWindowFbSize;
     }
 
-    void OpenGLRenderer::beginMode2D(const Camera2D& camera)
+    void OpenGLRenderer::beginMode2D(Camera2D& camera)
     {
+        camera.targetSize(framebufferSize.x, framebufferSize.y);
+
         rlDrawRenderBatchActive();
         rlLoadIdentity();
         rlMultMatrixf(glm::value_ptr(getCameraMatrix(camera)));

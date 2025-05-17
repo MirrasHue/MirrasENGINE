@@ -24,7 +24,7 @@ namespace mirras
         static void init(Backend backend);
         static void shutdown();
         
-        static void setViewport(int32 x, int32 y, int32 width, int32 height);
+        static void setWindowViewport(int32 x, int32 y, int32 width, int32 height);
         
         static void clearBackBuffers();
         static void setClearColor(float r, float g, float b, float a = 1.f);
@@ -36,7 +36,7 @@ namespace mirras
         static void beginTextureDrawing(const RenderTexture2D& texture);
         static void endTextureDrawing();
 
-        static void beginMode2D(const Camera2D& camera);
+        static void beginMode2D(Camera2D& camera);
         static void endMode2D();
 
         static void setLineWidth(float width);

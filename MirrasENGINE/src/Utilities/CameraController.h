@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Renderer/Camera2D.h"
+
 #include "Core/Fwd.h"
 
 namespace mirras
@@ -9,10 +11,11 @@ namespace mirras
     {
     public:
         CameraController() = default;
-        CameraController(Camera2D& camera2D) :
-            camera(camera2D) {}
+        CameraController(Camera2D& _camera) :
+            camera(_camera) {}
 
         void update(float dt);
+        void setCamera(Camera2D& cam) { camera = cam; }
         void onMouseWheelScroll(Event& event);
 
     public:
