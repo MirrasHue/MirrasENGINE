@@ -21,8 +21,11 @@ namespace mirras
 
         if(viewportFocused)
             cameraController.update(dt);
+        else
+        if(viewportHovered)
+            cameraController.updateZoom();
 
-        imgui::blockEvents(viewportHovered);
+        imgui::ignoreEventCapturing(viewportFocused || viewportHovered);
     }
 
     void EditorLayer::draw()
@@ -38,6 +41,9 @@ namespace mirras
             Renderer::endMode2D();
 
         Renderer::endTextureDrawing();
+
+        /*glm::vec2 texSize = {canvas.color->width, canvas.color->height};
+        Renderer::drawTexture(*canvas.color, {0, texSize.y, texSize.x, -texSize.y}, {0,0}, {canvas.color->width, canvas.color->height});*/
     }
 
     void EditorLayer::drawImGui()
@@ -58,6 +64,7 @@ namespace mirras
 
         ImGui::End();
 
+        //ImGui::SetNextWindowSizeConstraints({800, 450}, {FLT_MAX, FLT_MAX});
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
         ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoTitleBar);
@@ -68,7 +75,7 @@ namespace mirras
             viewportFocused = ImGui::IsWindowFocused();
             viewportHovered = ImGui::IsWindowHovered();
 
-            ImGui::Image(canvas.color->id, {viewportSize.x, viewportSize.y}, {0,1}, {1,0});
+            ImGui::Image(canvas.color->id, {viewportSize.x, viewportSize.y}, {0, 1}, {1, 0});
         }
         ImGui::End();
         ImGui::PopStyleVar();
@@ -83,6 +90,6 @@ namespace mirras
 
     void EditorLayer::onEvent(Event& event)
     {
-        cameraController.onMouseWheelScroll(event);
+        
     }
 } // namespace mirras

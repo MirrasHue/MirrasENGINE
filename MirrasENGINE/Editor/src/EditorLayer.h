@@ -22,7 +22,7 @@ namespace mirras
 
         float fontSize = 17.f; // Used by ImGui text
 
-        bool viewportFocused;
-        bool viewportHovered;
+        bool viewportFocused = false;
+        bool viewportHovered = false;
     };
 } // namespace mirras

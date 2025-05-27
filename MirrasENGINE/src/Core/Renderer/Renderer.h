@@ -3,8 +3,9 @@
 #include "Core/Types/Basic.h"
 #include "Core/Fwd.h"
 
+#include <glm/detail/type_vec2.hpp>
+#include <glm/detail/type_vec4.hpp>
 #include <glm/fwd.hpp>
-#include <glm/vec4.hpp>
 
 #include <string_view>
 
@@ -63,10 +64,10 @@ namespace mirras
 
         // Pass {} as the second parameter if you want to use the whole texture, not just part of it
         static void drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
-                                glm::vec2 targetOrigin, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
+                                glm::vec2 targetOrigin = {}, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
         
         static void drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
-                                glm::vec2 targetOrigin, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
+                                glm::vec2 targetOrigin = {}, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
 
         static void drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeft, float fontSize = 40.f,
                              const glm::vec4& color = glm::vec4{1.f}, float kerning = 0.f, float lineSpacing = 0.f);

@@ -24,16 +24,13 @@ namespace mirras
             camera.rotation -= rotationSpeed * dt;
         if(Input::isKeyDown(Key::E))
             camera.rotation += rotationSpeed * dt;
+
+        updateZoom();
     }
 
-    void CameraController::onMouseWheelScroll(Event& event)
+    void CameraController::updateZoom()
     {
-        if(!Event::is_a<MouseWheelScrolled>(event))
-            return;
-
-        auto[xOffset, yOffset] = static_cast<MouseWheelScrolled&>(event).mouseWheelOffset;
-
-        camera.zoom += yOffset * zoomStep;
+        camera.zoom += Input::mouseWheelScroll.y * zoomStep;
         camera.zoom = std::max(camera.zoom, 0.5f);
     }
 } // namespace mirras

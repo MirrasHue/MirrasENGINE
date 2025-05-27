@@ -10,7 +10,7 @@
 
 namespace mirras::imgui
 {
-    static bool eventsBlocked = false;
+    static bool ignoreCapturing = false;
 
     void init()
     {
@@ -30,6 +30,10 @@ namespace mirras::imgui
         ImGuiStyle& style = ImGui::GetStyle();
         style.WindowRounding = 5.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        style.Colors[ImGuiCol_Tab] = ImVec4{0.15f, 0.15f, 0.3f, 1.f};
+        style.FramePadding = ImVec2{4.f, 5.f};
+        style.TabBarOverlineSize = 0.f;
+        style.TabRounding = 3.f;
 
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(App::getOSWindow(), true);
@@ -49,14 +53,14 @@ namespace mirras::imgui
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void blockEvents(bool block)
+    void ignoreEventCapturing(bool ignore)
     {
-        eventsBlocked = block;
+        ignoreCapturing = ignore;
     }
 
     void onEvent(Event& event)
     {
-        if(eventsBlocked)
+        if(ignoreCapturing)
             return;
 
         ImGuiIO& io = ImGui::GetIO();

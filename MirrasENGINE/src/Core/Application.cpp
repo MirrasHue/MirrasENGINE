@@ -5,6 +5,9 @@
 #include "Core/Asserts.h"
 
 #include "Events/WindowEvents.h"
+#include "Events/MouseEvents.h"
+
+#include "Input/Input.h"
 
 #include "UI/ImGui.h"
 
@@ -102,6 +105,8 @@ namespace mirras
                 updateLayers(frameTime);
 
                 renderLayers();
+
+                Input::mouseWheelScroll = vec2f{};
             }
 
             if(resizing)
@@ -165,20 +170,29 @@ namespace mirras
         running = false;
     }
 
+    static void updateMouseScrollInput(MouseWheelScrolled& event)
+    {
+        Input::mouseWheelScroll = event.mouseWheelOffset;
+    }
+
     void App::onEvent(Event& event)
     {
-        Event::dispatch_to_member<WindowResized, &App::onWindowResize>(event, this);
         Event::dispatch_to_member<WindowClosed, &App::onWindowClose>(event, this);
+        Event::dispatch_to_member<WindowResized, &App::onWindowResize>(event, this);
 
         imgui::onEvent(event);
 
-        std::lock_guard lock{layersMutex};
-
-        for(auto& layer : layers | std::views::reverse)
         {
-            if(!event.propagable)
-                break;
-            layer->onEvent(event);
+            std::lock_guard lock{layersMutex};
+
+            Event::dispatch<MouseWheelScrolled, &updateMouseScrollInput>(event);
+
+            for(auto& layer : layers | std::views::reverse)
+            {
+                if(!event.propagable)
+                    break;
+                layer->onEvent(event);
+            }
         }
 
         // Another way to dispatch events, not limited to functions with only an event as argument

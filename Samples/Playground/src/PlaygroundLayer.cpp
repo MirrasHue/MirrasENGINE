@@ -62,7 +62,7 @@ void PlaygroundLayer::load()
 
 void PlaygroundLayer::onEvent(mirras::Event& event)
 {
-    cameraController.onMouseWheelScroll(event);
+    
 }
 
 void PlaygroundLayer::draw()
@@ -89,7 +89,7 @@ void PlaygroundLayer::draw()
         mirras::Renderer::drawTriangle({300, 400, 0}, {700, 400, 0}, {500, 100, 0}, {0,0,0,0.5});
 
         if(font->atlasTexture)
-            mirras::Renderer::drawTexture(*font->atlasTexture, {}, {0, 100, 0}, {330,330}, {0,0});
+            mirras::Renderer::drawTexture(*font->atlasTexture, {}, {0, 100, 0}, {330,330});
         else
         {
             LOG_ERROR("font atlas is null");

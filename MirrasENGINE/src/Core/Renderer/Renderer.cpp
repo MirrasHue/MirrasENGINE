@@ -2,8 +2,6 @@
 
 #include "Backends/OpenGL/OpenGLRenderer.h"
 
-#include <glm/vec2.hpp>
-
 namespace mirras
 {
     OpenGLRenderer Renderer::renderer;

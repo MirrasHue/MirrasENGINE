@@ -2,9 +2,9 @@
 
 #include "Core/Fwd.h"
 
-#include <string>
-
 #include <entt/entity/registry.hpp>
+
+#include <string>
 
 namespace mirras
 {

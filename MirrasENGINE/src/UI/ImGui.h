@@ -7,7 +7,8 @@ namespace mirras::imgui
     void init();
     void beginFrame();
     void endFrame();
-    void blockEvents(bool block = true);
+    // Allow the propagation of events even when ImGui wants to capture them
+    void ignoreEventCapturing(bool ignore = true);
     void onEvent(Event& event);
     void shutdown();
 } // namespace mirras::imgui
