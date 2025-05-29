@@ -5,10 +5,19 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Fwd.h"
 
-#include <thread>
 #include <string_view>
-#include <mutex>
-#include <atomic>
+
+#ifdef RUN_UPDATE_THREAD
+    #include <thread>
+    #include <mutex>
+    #include <atomic>
+
+    #define ASYNC_UPDATE(...) __VA_ARGS__
+    #define NO_ASYNC_UPDATE(...) // For when we need branching
+#else
+    #define ASYNC_UPDATE(...)
+    #define NO_ASYNC_UPDATE(...) __VA_ARGS__
+#endif
 
 namespace mirras
 {
@@ -29,7 +38,6 @@ namespace mirras
         App(const AppSpecs& AppSpecs, const WindowSpecs& windowSpecs);
 
         void run();
-        void update();
 
         static App& getInstance();
         static OSWindow& getOSWindow() { return App::getInstance().window; }
@@ -42,7 +50,13 @@ namespace mirras
     private:
         void updateLayers(float frameTime);
         void renderLayers();
-        void synchronizeResize();
+
+        ASYNC_UPDATE
+        (
+            void update();
+            void synchronizeResize();
+            void handleResize(int32 width, int32 height);
+        )
 
         void onEvent(Event& event);
         void onWindowResize(WindowResized& event);
@@ -50,16 +64,23 @@ namespace mirras
 
     private:
         OSWindow window;
-        std::mutex layersMutex;
         AppLayers layers;
-        std::thread updateThread;
 
         inline static App* appInstance = nullptr;
 
-        float fixedTimestep{};
+        ASYNC_UPDATE
+        (
+            std::mutex layersMutex;
+            std::thread updateThread;
+            std::atomic_bool switchContext = false;
+            std::atomic_bool resizing = false;
+            std::atomic_bool running = true;
+        )
 
-        std::atomic_bool resizing = false;
-        std::atomic_bool switchContext = false;
-        std::atomic_bool running = true;
+        NO_ASYNC_UPDATE (
+            bool running = true;
+        )
+        
+        float fixedTimestep{};
     };
 } // namespace mirras

@@ -1,6 +1,5 @@
 #include "Core/Renderer/Camera2D.h"
 
-#include "Core/Application.h"
 #include "Core/Asserts.h"
 
 #include "Events/WindowEvents.h"

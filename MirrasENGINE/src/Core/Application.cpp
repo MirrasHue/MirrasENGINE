@@ -41,6 +41,39 @@ namespace mirras
         fixedTimestep = 1.f / appSpecs.updateRate;
     }
 
+    void App::run()
+    {
+        ASYNC_UPDATE
+        (
+            window.makeContextCurrent(false);
+            updateThread = std::thread{&App::update, this};
+        )
+        
+        Timer timer;
+    
+        while(running)
+        {
+            ASYNC_UPDATE (
+                window.waitEvents();
+            )
+
+            NO_ASYNC_UPDATE
+            (
+                float frameTime = timer.elapsed();
+
+                window.pollEvents();
+
+                updateLayers(frameTime);
+
+                renderLayers();
+
+                window.swapBuffers();
+
+                Input::mouseWheelScroll = vec2f{};
+            )
+        }
+    }
+
     void App::updateLayers(float frameTime)
     {
         static float frameTimeAccumulator{};
@@ -68,75 +101,86 @@ namespace mirras
                 layer->draw();
 
         Renderer::endDrawing();
-        
+
         imgui::beginFrame();
 
             for(auto& layer : layers)
                 layer->drawImGui();
-                
+
         imgui::endFrame();
     }
 
-    void App::synchronizeResize()
-    {
-        window.makeContextCurrent(false);
-
-        switchContext = true;
-        switchContext.notify_one();
-
-        resizing.wait(true); // Wait until we are notified that 'resizing' was set to false
-
-        switchContext = false;
-        window.makeContextCurrent(true);
-    }
-
-    void App::update()
-    {
-        window.makeContextCurrent(true);
-        Timer timer;
-
-        while(running)
+    ASYNC_UPDATE
+    (
+        void App::synchronizeResize()
         {
-            float frameTime = timer.elapsed();
+            window.makeContextCurrent(false);
 
+            switchContext = true;
+            switchContext.notify_one();
+
+            resizing.wait(true); // Wait until we are notified that 'resizing' was set to false
+
+            switchContext = false;
+            window.makeContextCurrent(true);
+        }
+        
+        void App::update()
+        {
+            window.makeContextCurrent(true);
+            Timer timer;
+
+            while(running)
             {
-                std::lock_guard lock{layersMutex};
+                float frameTime = timer.elapsed();
 
-                updateLayers(frameTime);
+                {
+                    std::lock_guard lock{layersMutex};
 
-                renderLayers();
+                    updateLayers(frameTime);
 
-                Input::mouseWheelScroll = vec2f{};
+                    renderLayers();
+
+                    Input::mouseWheelScroll = vec2f{};
+                }
+
+                if(resizing)
+                {
+                    synchronizeResize();
+
+                    // Because of the way we do multithreading, ImGui widgets start to flicker on resize when VSync is disabled
+                    // Waiting here for atleast 4ms seems to eliminate the flickering for the most part (have to test elsewhere)
+                    if(!OSWindow::isVSynced())
+                        wait(4_ms);
+
+                    continue;
+                }
+
+                window.swapBuffers();
             }
+        }
 
-            if(resizing)
-            {
-                synchronizeResize();
+        void App::handleResize(int32 width, int32 height)
+        {
+            resizing = true;
 
-                // Because of the way we do multithreading, ImGui widgets start to flicker on resize when VSync is disabled
-                // Waiting here for atleast 4ms seems to eliminate the flickering for the most part (have to test elsewhere)
-                if(!OSWindow::isVSynced())
-                    wait(4_ms);
+            switchContext.wait(false); // Wait until we are notified that 'switchContext' was set to true
 
-                continue;
-            }
+            window.makeContextCurrent(true);
+
+            Renderer::setWindowViewport(0, 0, width, height);
+            
+            // Keep rendering on window resize
+            renderLayers();
 
             window.swapBuffers();
-        }
-    }
-    
-    void App::run()
-    {
-        window.makeContextCurrent(false);
-        
-        updateThread = std::thread{&App::update, this};
 
-        while(running)
-        {
-            window.waitEvents();
+            window.makeContextCurrent(false);
 
+            resizing = false;
+            resizing.notify_one();
         }
-    }
+    )
 
     void App::onWindowResize(WindowResized& event)
     {
@@ -144,24 +188,14 @@ namespace mirras
 
         if(width == 0 || height == 0)
             return;
-        
-        resizing = true;
 
-        switchContext.wait(false); // Wait until we are notified that 'switchContext' was set to true
+        ASYNC_UPDATE (
+            handleResize(width, height);
+        )
 
-        window.makeContextCurrent(true);
-
-        Renderer::setWindowViewport(0, 0, width, height);
-        
-        // Keep rendering on window resize
-        renderLayers();
-
-        window.swapBuffers();
-
-        window.makeContextCurrent(false);
-
-        resizing = false;
-        resizing.notify_one();
+        NO_ASYNC_UPDATE (
+            Renderer::setWindowViewport(0, 0, width, height);
+        )
     }
 
     void App::onWindowClose(WindowClosed& event)
@@ -183,7 +217,9 @@ namespace mirras
         imgui::onEvent(event);
 
         {
-            std::lock_guard lock{layersMutex};
+            ASYNC_UPDATE (
+                std::lock_guard lock{layersMutex};
+            )
 
             Event::dispatch<MouseWheelScrolled, &updateMouseScrollInput>(event);
 
@@ -191,6 +227,7 @@ namespace mirras
             {
                 if(!event.propagable)
                     break;
+
                 layer->onEvent(event);
             }
         }
@@ -211,21 +248,31 @@ namespace mirras
 
     void App::addLayer(single_ref<Layer> layer)
     {
-        std::lock_guard lock{layersMutex};
+        ASYNC_UPDATE (
+            std::lock_guard lock{layersMutex};
+        )
+
         layers.addLayer(std::move(layer));
     }
 
     void App::addOverlay(single_ref<Layer> layer)
     {
-        std::lock_guard lock{layersMutex};
+        ASYNC_UPDATE (
+            std::lock_guard lock{layersMutex};
+        )
+    
         layers.addOverlay(std::move(layer));
     }
 
     App::~App()
     {
         running = false;
-        if(updateThread.joinable())
-            updateThread.join();
+
+        ASYNC_UPDATE
+        (
+            if(updateThread.joinable())
+                updateThread.join();
+        )
 
         imgui::shutdown();
         Renderer::shutdown();

@@ -3,6 +3,7 @@
 #include "Core/Types/Integer.h"
 
 #include <chrono>
+#include <thread>
 
 namespace mirras
 {

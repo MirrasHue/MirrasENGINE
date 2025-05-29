@@ -5,7 +5,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(BUILD_SAMPLES ON)
 
 # Whether to dynamically link to the C++ runtime or not
-set(DYNAMIC_RUNTIME OFF)
+# (Static linking didn't work on Ubuntu, because of some GLFW dependency)
+set(DYNAMIC_RUNTIME ON)
+
+set(RUN_UPDATE_THREAD_WIN32 ON)
+set(RUN_UPDATE_THREAD_LINUX OFF)
 
 ##################################################################
 
@@ -69,6 +73,14 @@ if(WIN32 AND PRESET_NAME STREQUAL "distribution")
     else()
         target_link_options(${PROJECT_NAME} INTERFACE -mwindows)
     endif()
+endif()
+
+if(WIN32 AND RUN_UPDATE_THREAD_WIN32)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
+endif()
+
+if(LINUX AND RUN_UPDATE_THREAD_LINUX)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
 endif()
 
 ##################################################################
