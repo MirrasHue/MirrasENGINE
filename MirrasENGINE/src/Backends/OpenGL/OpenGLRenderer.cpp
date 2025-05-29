@@ -11,6 +11,7 @@
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Renderer/Font.h"
 #include "Core/Types/Basic.h"
+#include "Core/Asserts.h"
 #include "Core/Utils.h"
 #include "Core/Log.h"
 
@@ -27,6 +28,7 @@
 #include <msdf/msdf-atlas-gen.h> // For font rendering
 
 #include <numbers>
+#include <cmath>
 
 // Using raylib's core as a reference on how to use rlgl.h
 
@@ -213,8 +215,8 @@ namespace mirras
 
         if(rotation)
         {
-            const float cosTheta = std::cosf(glm::radians(rotation));
-            const float sinTheta = std::sinf(glm::radians(rotation));
+            const float cosTheta = std::cos(glm::radians(rotation));
+            const float sinTheta = std::sin(glm::radians(rotation));
 
             const float dx = -localOrigin.x;
             const float dy = -localOrigin.y;

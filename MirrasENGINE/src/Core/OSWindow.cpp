@@ -63,6 +63,12 @@ namespace mirras
 
         if(windowSpecs.iconFilepath.empty())
             return;
+        
+        if(glfwPlatformSupported(GLFW_PLATFORM_WAYLAND) || glfwPlatformSupported(GLFW_PLATFORM_COCOA))
+        {
+            ENGINE_LOG_INFO("GLFW doesn't support setting window icons on Wayland or macOS");
+            return;
+        }
 
         GLFWimage icon;
         int channels{};

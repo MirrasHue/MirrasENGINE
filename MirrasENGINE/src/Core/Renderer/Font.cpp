@@ -5,6 +5,8 @@
 
 #include <msdf/msdf-atlas-gen.h>
 
+#include <format>
+
 namespace mirras
 {
     Font::Font() = default;
