@@ -4,10 +4,13 @@
 
 ## Features
 
+* Cross-platform (Windows and Linux)
 * OpenGL renderer (shapes, textures, shaders)
-* On Windows, main loop does not block upon window events (resizing or dragging, e.g.)
+* On Windows, the application does not block upon window events (resizing, dragging or holding window buttons/borders)
 * Sharp text rendering with _msdfgen_
 * ImGui rendering
+* Scene management with ECS (WIP)
+* Editor (WIP)
 
 And more to come...
 
@@ -51,4 +54,4 @@ _After the compilation is done, the generated executables will be located in the
 
 ## Considerations
 
-So far, the engine has only been tested on Windows, with GCC (MinGW-w64) and MSVC. It probably runs on Linux as well, but I will only be able to test that once I have access to a PC running Ubuntu or another distro.
+So far, the engine has been tested on Windows (with GCC/MSVC) and Ubuntu (version 22.04 with GCC 13). It probably runs on macOS as well, but I will only be able to test that once I have access to that OS.
