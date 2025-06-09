@@ -5,6 +5,7 @@
 #include "UI/ImGui.h"
 
 #include <imgui/imgui.h>
+//#include <imgui/imgui_internal.h>
 
 namespace mirras
 {
@@ -13,42 +14,86 @@ namespace mirras
         ImGuiIO& io = ImGui::GetIO();
 
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/consolas.ttf", fontSize);
+
+        auto scene1 = instantiate_shared<Scene>("Scene1");
+        auto scene2 = instantiate_shared<Scene>("Scene2");
+
+        auto cameraEntity = scene1->createEntity();
+        auto& camera = cameraEntity.add<CameraComponent>();
+
+        auto textEntity = scene1->createEntity();
+        auto& text = textEntity.add<TextComponent>();
+        text.font = instantiate<Font>("Assets/Fonts/consolas.ttf");
+        text.text = L"Hello World!";
+
+        auto rectEntity = scene1->createEntity();
+        auto& rect = rectEntity.add<RectangleComponent>();
+        rect.size  = {200, 200};
+        rect.color = {0, 0, 1, 1};
+
+        scenes.emplace_back(scene1);
+        scenes.emplace_back(scene2);
+
+        activeScene = scene1;
     }
 
     void EditorLayer::update(float dt)
     {
-        canvas.resize(viewportSize.x, viewportSize.y);
+        std::erase_if(scenes, [](const auto& scene){ return !scene.open; });
 
-        if(viewportFocused)
-            cameraController.update(dt);
-        else
-        if(viewportHovered)
-            cameraController.updateZoom();
+        for(auto& editorScene : scenes)
+        {
+            editorScene.canvas.resize(editorScene.size.x, editorScene.size.y);
 
-        imgui::ignoreEventCapturing(viewportFocused || viewportHovered);
+            switch(editorScene.state)
+            {
+                case SceneState::Editing:
+                {
+                    if(editorScene.focused)
+                        cameraController.update(dt);
+
+                    if(editorScene.hovered)
+                        camControllerHovered.updateZoom();
+
+                    break;
+                }
+
+                case SceneState::Playing:
+                {
+                    editorScene.scene->update(dt);
+                    break;
+                }
+            }
+        }
+
+        //imgui::ignoreEventCapturing(viewportFocused || viewportHovered);
     }
 
     void EditorLayer::draw()
     {
-        Renderer::beginTextureDrawing(canvas);
-            Renderer::clearBackBuffers();
+        for(auto& editorScene : scenes)
+        {
+            Renderer::beginTextureDrawing(editorScene.canvas);
+                Renderer::clearBackBuffers();
 
-            Renderer::beginMode2D(editorCamera);
-                Renderer::drawCircle({600, 400, 1}, 50, {1,1,1,1});
-                Renderer::drawRectangle({0, 0, 1}, {200, 200}, {100, 100}, {0,0,1,1});
-                Renderer::drawTriangle({0, 400, 0}, {500, 400, 1}, {250, 0, 1}, {0,1,0,1});
-                Renderer::drawShaderCircle({0, 0, 1}, 100, {1,0,0.5,1});
-            Renderer::endMode2D();
+                switch(editorScene.state)
+                {
+                    case SceneState::Editing:
+                        editorScene.scene->draw(editorScene.camera);
+                        break;
 
-        Renderer::endTextureDrawing();
+                    case SceneState::Playing:
+                        editorScene.scene->draw();
+                        break;
+                }
 
-        /*glm::vec2 texSize = {canvas.color->width, canvas.color->height};
-        Renderer::drawTexture(*canvas.color, {0, texSize.y, texSize.x, -texSize.y}, {0,0}, {canvas.color->width, canvas.color->height});*/
+            Renderer::endTextureDrawing();
+        }
     }
 
     void EditorLayer::drawImGui()
     {
-        ImGui::DockSpaceOverViewport();
+        auto mainDockID = ImGui::DockSpaceOverViewport();
 
         if(ImGui::BeginMainMenuBar())
         {
@@ -65,26 +110,47 @@ namespace mirras
         ImGui::End();
 
         //ImGui::SetNextWindowSizeConstraints({800, 450}, {FLT_MAX, FLT_MAX});
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-        ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoTitleBar);
+        for(auto& editorScene : scenes)
         {
-            auto [width, height] = ImGui::GetContentRegionAvail();
-            viewportSize = {width, height};
+            if(!editorScene.open)
+                continue;
 
-            viewportFocused = ImGui::IsWindowFocused();
-            viewportHovered = ImGui::IsWindowHovered();
+            ImGui::SetNextWindowDockID(mainDockID, ImGuiCond_FirstUseEver);
 
-            ImGui::Image(canvas.color->id, {viewportSize.x, viewportSize.y}, {0, 1}, {1, 0});
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+            ImGui::Begin(editorScene.scene->name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
+            {
+                // ImGui::GetCurrentWindow()->Hidden
+                editorScene.focused = false;
+
+                if(ImGui::IsWindowFocused())
+                {
+                    activeScene = editorScene.scene;
+                    cameraController.setCamera(&editorScene.camera);
+                    editorScene.focused = true;
+                }
+
+                editorScene.hovered = false;
+
+                if(ImGui::IsWindowHovered())
+                {
+                    camControllerHovered.setCamera(&editorScene.camera);
+                    editorScene.hovered = true;
+                }
+
+                auto [width, height] = ImGui::GetContentRegionAvail();
+                editorScene.size = {width, height};
+
+                ImGui::Image(editorScene.canvas.color->id, {width, height}, {0, 1}, {1, 0});
+            }
+            ImGui::End();
+            ImGui::PopStyleVar();
         }
-        ImGui::End();
-        ImGui::PopStyleVar();
-
 
         ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_NoTitleBar);
 
         ImGui::End();
-        
+
         ImGui::ShowDemoWindow();
     }
 

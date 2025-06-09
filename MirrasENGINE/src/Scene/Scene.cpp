@@ -41,10 +41,13 @@ namespace mirras
             camera = &cameraComp.camera;
         });
 
-        if(!camera)
-            return;
+        if(camera)
+            draw(*camera);
+    }
 
-        Renderer::beginMode2D(*camera);
+    void Scene::draw(Camera2D& camera)
+    {
+        Renderer::beginMode2D(camera);
 
         // Sprites
         registry.view<TransformComponent, SpriteComponent>().each([](auto entity, auto& transform, auto& sprite)

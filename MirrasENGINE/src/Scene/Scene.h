@@ -18,12 +18,15 @@ namespace mirras
         Entity createEntity();
 
         void update(float dt);
+        void draw(Camera2D& camera);
         void draw();
         void onEvent(Event& event);
         
+    public:
+        std::string name;
+
     private:
         entt::registry registry;
-        std::string name;
     };
 
 } // namespace mirras
