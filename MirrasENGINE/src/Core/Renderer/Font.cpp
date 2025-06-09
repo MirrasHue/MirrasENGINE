@@ -144,6 +144,8 @@ namespace mirras
                 ENGINE_LOG_ERROR("Failed to load existing font atlas texture from {}. Generating a new one...", atlasPath.string());
             }
         }
+
+        ENGINE_LOG_INFO("Generating font atlas texture...");
         
         constexpr int32 channels = 3; // MSDF atlas type has 3 channels
 

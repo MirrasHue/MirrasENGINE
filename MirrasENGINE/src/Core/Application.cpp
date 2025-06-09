@@ -43,6 +43,8 @@ namespace mirras
 
     void App::run()
     {
+        window.makeVisible(true);
+
         ASYNC_UPDATE
         (
             window.makeContextCurrent(false);

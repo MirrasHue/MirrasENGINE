@@ -7,7 +7,6 @@
 #include "Core/Log.h"
 #include "Core/Asserts.h"
 #include "Core/Layer.h"
-#include "Input/Input.h"
 
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Renderer/Shader.h"
@@ -18,4 +17,5 @@
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
 
-#include "Utilities/CameraController.h"
+#include "Input/Input.h"
+#include "Input/CameraController.h"

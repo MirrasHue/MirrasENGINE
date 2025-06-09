@@ -8,9 +8,13 @@
 #include "Events/KeyboardEvents.h"
 #include "Events/MouseEvents.h"
 
-#include <cstdlib>
+// So that it doesn't include GL/gl.h (which defines __gl_h_, making Glad complain)
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 #include <stb/image.h>
+
+#include <cstdlib>
 
 namespace mirras
 {
@@ -40,11 +44,12 @@ namespace mirras
         }
 
         auto title = windowSpecs.title;
+        glfwWindowHint(GLFW_VISIBLE, false); // Delay showing the window to avoid seeing a white filled one on Windows
 
         windowHandle = glfwCreateWindow(width, height, title.empty() ? " " : title.data(), monitor, nullptr);
 
         // We don't use the size in the specs, because the created window can't always match the requested size
-        initialFbSize = getFramebufferSize();
+        OSWindow::initialFbSize = getFramebufferSize();
 
         // GLFW only applies the limits if both minimum/maximum values are different from -1
         glfwSetWindowSizeLimits(windowHandle, windowSpecs.minWidth, windowSpecs.minHeight, -1, -1); // -1 here indicates there's no limits
@@ -82,6 +87,42 @@ namespace mirras
         }
         
         glfwSetWindowIcon(windowHandle, 1, &icon);
+    }
+
+    void OSWindow::makeContextCurrent(bool makeCurrent) const
+    {
+        makeCurrent ? glfwMakeContextCurrent(windowHandle) : glfwMakeContextCurrent(nullptr);
+    }
+
+    void OSWindow::makeVisible(bool visible) const
+    {
+        visible ? glfwShowWindow(windowHandle) : glfwHideWindow(windowHandle);
+    }
+
+    bool OSWindow::shouldClose() const
+    {
+        return glfwWindowShouldClose(windowHandle);
+    }
+
+    void OSWindow::swapBuffers() const
+    {
+        glfwSwapBuffers(windowHandle);
+    }
+
+    void OSWindow::waitEvents() const
+    {
+        glfwWaitEvents();
+    }
+
+    void OSWindow::pollEvents() const
+    {
+        glfwPollEvents();
+    }
+
+    void OSWindow::setVSync(bool VSync)
+    {
+        glfwSwapInterval(VSync);
+        OSWindow::VSyncEnabled = VSync;
     }
 
     vec2i OSWindow::getFramebufferSize() const
@@ -124,19 +165,21 @@ namespace mirras
 
             switch(KeyState{state})
             {
-            case KeyState::Pressed:
+                case KeyState::Pressed:
                 {
                     KeyPressed event{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}};
                     appCallbacks->onEvent(event);
                     break;
                 }
-            case KeyState::Released:
+
+                case KeyState::Released:
                 {
                     KeyReleased event{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}};
                     appCallbacks->onEvent(event);
                     break;
                 }
-            case KeyState::Repeated:
+
+                case KeyState::Repeated:
                 {
                     KeyPressed event{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}, true};
                     appCallbacks->onEvent(event);
@@ -164,13 +207,14 @@ namespace mirras
 
             switch(MouseButtonState{state})
             {
-            case MouseButtonState::Pressed:
+                case MouseButtonState::Pressed:
                 {
                     MouseButtonPressed event{Mouse{button}, ModifierKeyFlag{(uint8)modifierFlags}};
                     appCallbacks->onEvent(event);
                     break;
                 }
-            case MouseButtonState::Released:
+                
+                case MouseButtonState::Released:
                 {
                     MouseButtonReleased event{Mouse{button}, ModifierKeyFlag{(uint8)modifierFlags}};
                     appCallbacks->onEvent(event);

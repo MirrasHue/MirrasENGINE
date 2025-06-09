@@ -16,7 +16,7 @@ public:
 
 public:
     mirras::Camera2D camera;
-    mirras::CameraController cameraController{camera};
+    mirras::CameraController cameraController{&camera};
     mirras::single_ref<mirras::Texture> texture;
     float rotation{};
     std::string_view vertexSrc, fragmentSrc;

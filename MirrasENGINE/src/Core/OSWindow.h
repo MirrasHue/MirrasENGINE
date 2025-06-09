@@ -3,12 +3,10 @@
 #include "Core/Types/Basic.h"
 #include "Core/Fwd.h"
 
-// So that it doesn't include GL/gl.h (which defines __gl_h_, making Glad complain)
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
 #include <string_view>
 #include <functional>
+
+struct GLFWwindow;
 
 namespace mirras
 {
@@ -34,21 +32,22 @@ namespace mirras
 
         void setOnEventCallback(const EventCallback& callback) { appCallbacks.onEvent = callback; }
 
-        void makeContextCurrent(bool makeCurrent) const { makeCurrent ? glfwMakeContextCurrent(windowHandle) : glfwMakeContextCurrent(nullptr); }
+        void makeContextCurrent(bool makeCurrent) const;
+
+        void makeVisible(bool visible) const;
 
         vec2i getFramebufferSize() const;
-        vec2i getInitialFbSize() const { return initialFbSize; }
+        static vec2i getInitialFbSize() { return OSWindow::initialFbSize; }
 
-        bool shouldClose() const { return glfwWindowShouldClose(windowHandle); }
+        bool shouldClose() const;
 
-        void swapBuffers() const { glfwSwapBuffers(windowHandle); }
+        void swapBuffers() const;
 
-        void waitEvents()  const { glfwWaitEvents(); }
+        void waitEvents() const;
+        void pollEvents() const;
 
-        void pollEvents()  const { glfwPollEvents(); }
-
-        static void setVSync(bool VSync) { glfwSwapInterval(VSync); VSyncEnabled = VSync; }
-        static bool isVSynced() { return VSyncEnabled; }
+        static void setVSync(bool VSync);
+        static bool isVSynced() { return OSWindow::VSyncEnabled; }
 
         operator GLFWwindow*() const { return windowHandle; }
 
@@ -65,8 +64,9 @@ namespace mirras
         appCallbacks;
 
         GLFWwindow* windowHandle = nullptr;
-        vec2i initialFbSize; // Used by Camera2D
 
+        // There's only one window per application lifecycle, otherwise these wouldn't be static
+        inline static vec2i initialFbSize; // Needed by Camera2D
         inline static bool VSyncEnabled = false;
     };
 } // namespace mirras

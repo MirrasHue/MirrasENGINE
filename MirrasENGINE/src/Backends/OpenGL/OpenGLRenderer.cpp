@@ -7,7 +7,7 @@
 #include "Backends/OpenGL/OpenGLTexture.h"
 #include "Backends/OpenGL/OpenGLLog.h"
 
-#include "Core/Application.h"
+#include "Core/OSWindow.h"
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Renderer/Font.h"
 #include "Core/Types/Basic.h"
@@ -47,18 +47,17 @@ namespace mirras
 
         if(!gladLoadGL(glfwGetProcAddress))
             external_adversity("Could not initialize GLAD\n");
-            
+
         rlLoadExtensions();
 
-        // Just in case the window changed size between its creation and now
-        auto [width, height] = App::getOSWindow().getFramebufferSize();
-        
+        auto [width, height] = OSWindow::getInitialFbSize();
+
         rlglInit(width, height);
 
         resetViewport(0, 0, width, height);
 
-        windowFbSize = {width , height};
-        initialWindowFbSize = App::getOSWindow().getInitialFbSize();
+        initialWindowFbSize = {width , height};
+        windowFbSize = initialWindowFbSize;
         Camera2D::currentFbInitialSize = initialWindowFbSize;
 
         // So that we can use the Z axis to determine the draw order
@@ -75,7 +74,7 @@ namespace mirras
     {
         static const glm::mat4 identity = glm::mat4(1.f);
         const float zoom = camera.zoom * camera.zoomScale;
-        
+
         return glm::translate(identity, glm::vec3{framebufferSize.x/2.f - camera.offsetX, framebufferSize.y/2.f - camera.offsetY, 0.f}) *
                glm::rotate(identity, glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
                glm::scale(identity, glm::vec3{zoom, zoom, 1.f}) *

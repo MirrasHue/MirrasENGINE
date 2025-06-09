@@ -2,6 +2,9 @@
 
 #include "Core/Application.h"
 
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
+
 namespace mirras
 {
     bool Input::isKeyDown(Key key)

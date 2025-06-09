@@ -20,7 +20,13 @@ _You will need **CMake (3.20+)** and a compiler that supports **C++23**_
 
 Clone the repository with:
 
-    git clone --recursive https://github.com/MirrasHue/MirrasENGINE.git
+    git clone https://github.com/MirrasHue/MirrasENGINE.git
+    cd MirrasENGINE
+    git submodule update --init --recursive --depth 1
+
+_Or if you don't want the full commit history of the engine, clone with this instead:_
+
+    git clone --recursive --depth 1 --shallow-submodules https://github.com/MirrasHue/MirrasENGINE.git
 
 The easiest and recommended way to compile the engine, is to simply run these two commands at the project's root directory ([Ninja](https://github.com/ninja-build/ninja) generator required):
 
@@ -54,4 +60,4 @@ _After the compilation is done, the generated executables will be located in the
 
 ## Considerations
 
-So far, the engine has been tested on Windows (with GCC/MSVC) and Ubuntu (version 22.04 with GCC 13). It probably runs on macOS as well, but I will only be able to test that once I have access to that OS.
+So far, the engine has been tested on Windows 10 / 11 (with GCC/MSVC) and Ubuntu (version 22.04 with GCC 13). It probably runs on macOS as well with some minor tweaks, but I will only be able to test that once I have access to that OS.

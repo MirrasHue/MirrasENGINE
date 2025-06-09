@@ -1,22 +1,20 @@
 #pragma once
 
-#include "Core/Renderer/Camera2D.h"
 #include "Core/Fwd.h"
 
 namespace mirras
 {
-    // TODO: find a better place for this class
     class CameraController
     {
     public:
         CameraController() = default;
-        CameraController(Camera2D& _camera) :
+        CameraController(Camera2D* _camera) :
             camera(_camera) {}
 
         void update(float dt);
-        // Already called by update (Useful to apply zoom in the editor when the viewport is hovered but not focused)
-        void updateZoom();
-        void setCamera(Camera2D& cam) { camera = cam; }
+        // Zoom needs to be updated separately because in the editor we want to apply zoom
+        void updateZoom(); // only on scenes that are hovered instead of focused (in editing mode)
+        void setCamera(Camera2D* cam) { camera = cam; }
 
     public:
         float speed = 100.f;
@@ -26,6 +24,6 @@ namespace mirras
         bool rotate = true;
     
     private:
-        Camera2D& camera;
+        Camera2D* camera = nullptr;
     };
 } // namespace mirras
