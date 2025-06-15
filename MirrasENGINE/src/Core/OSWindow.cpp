@@ -16,6 +16,13 @@
 
 #include <cstdlib>
 
+#if defined(_WIN32) && !defined(DISTRIBUTION_BUILD)
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+
+    #define WIN32_CONSOLE_WINDOW
+#endif
+
 namespace mirras
 {
     static void glfwErrorCallback(int32 errorCode, const char* what);
@@ -96,7 +103,30 @@ namespace mirras
 
     void OSWindow::makeVisible(bool visible) const
     {
-        visible ? glfwShowWindow(windowHandle) : glfwHideWindow(windowHandle);
+        // On some versions of Windows, when the main and console windows are grouped in the taskbar,
+        // we make the main window be the first one, so that its icon (if any) is displayed instead
+        if(visible)
+        {
+        #ifdef WIN32_CONSOLE_WINDOW
+            auto consoleHandle = GetConsoleWindow();
+
+            char className[19]; // As "ConsoleWindowClass" is the only one we're looking for,
+            GetClassNameA(consoleHandle, className, sizeof(className)); // let anything else longer be truncated
+
+            if(std::string{className} == "ConsoleWindowClass")
+            {
+                ShowWindow(consoleHandle, SW_HIDE);
+
+                glfwShowWindow(windowHandle);
+
+                ShowWindow(consoleHandle, SW_SHOWNOACTIVATE);
+            }
+        #endif
+            // Simplify the code at the cost of calling this function twice (on Windows, non dist builds)
+            glfwShowWindow(windowHandle);
+        }
+        else
+            glfwHideWindow(windowHandle);
     }
 
     bool OSWindow::shouldClose() const

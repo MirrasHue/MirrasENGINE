@@ -13,7 +13,7 @@ namespace mirras
     {
         ImGuiIO& io = ImGui::GetIO();
 
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/consolas.ttf", fontSize);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/bahnschrift.ttf", fontSize);
 
         auto scene1 = instantiate_shared<Scene>("Scene1");
         auto scene2 = instantiate_shared<Scene>("Scene2");

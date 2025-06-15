@@ -1872,16 +1872,6 @@ void rlActiveDrawBuffers(int count)
         else
         {
             unsigned int buffers[8] = {
-#if defined(GRAPHICS_API_OPENGL_ES3)
-                GL_COLOR_ATTACHMENT0_EXT,
-                GL_COLOR_ATTACHMENT1_EXT,
-                GL_COLOR_ATTACHMENT2_EXT,
-                GL_COLOR_ATTACHMENT3_EXT,
-                GL_COLOR_ATTACHMENT4_EXT,
-                GL_COLOR_ATTACHMENT5_EXT,
-                GL_COLOR_ATTACHMENT6_EXT,
-                GL_COLOR_ATTACHMENT7_EXT,
-#else
                 GL_COLOR_ATTACHMENT0,
                 GL_COLOR_ATTACHMENT1,
                 GL_COLOR_ATTACHMENT2,
@@ -1890,14 +1880,9 @@ void rlActiveDrawBuffers(int count)
                 GL_COLOR_ATTACHMENT5,
                 GL_COLOR_ATTACHMENT6,
                 GL_COLOR_ATTACHMENT7,
-#endif
             };
 
-#if defined(GRAPHICS_API_OPENGL_ES3)
-            glDrawBuffersEXT(count, buffers);
-#else
             glDrawBuffers(count, buffers);
-#endif
         }
     }
     else TRACELOG(RL_LOG_WARNING, "GL: One color buffer active by default");
@@ -2416,7 +2401,7 @@ void rlLoadExtensions(/*auto *loader*/)
 
     // Get supported extensions list
     GLint numExt = 0;
-    const char **extList = RL_MALLOC(512*sizeof(const char *)); // Allocate 512 strings pointers (2 KB)
+    const char **extList = (const char **)(512*sizeof(const char *)); // Allocate 512 strings pointers (2 KB)
     const char *extensions = (const char *)glGetString(GL_EXTENSIONS);  // One big const string
 
     // NOTE: We have to duplicate string because glGetString() returns a const string

@@ -108,6 +108,7 @@ void PlaygroundLayer::update(float dt)
     rotation += 30 * dt; // Temp, rotation should be capped
 
     cameraController.update(dt);
+    cameraController.updateZoom();
 }
 
 void PlaygroundLayer::drawImGui()
