@@ -18,6 +18,8 @@ And more to come...
 
 _You will need **CMake (3.20+)** and a compiler that supports **C++23**_
 
+_For **Linux**, you will also need to install some dependencies required by GLFW. Just follow these [instructions](https://www.glfw.org/docs/latest/compile_guide.html#compile_deps), according to your specific system_
+
 Clone the repository with:
 
     git clone https://github.com/MirrasHue/MirrasENGINE.git
