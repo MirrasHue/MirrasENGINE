@@ -1,0 +1,45 @@
+# This starter workflow is for a CMake project running on multiple platforms
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 1
+
+    - name: Install Dependencies - Ubuntu
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install libwayland-dev libxkbcommon-dev xorg-dev
+
+    # Ninja pulls GCC 12.2 (outdated) instead of MSVC, so we do this
+    - name: Build - Windows
+      if: runner.os == 'Windows'
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build . --config Release
+
+    - name: Build - Linux / macOS
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: |
+        cmake --preset release
+        cmake --build --preset release
+      
+
+    

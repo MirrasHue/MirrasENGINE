@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(BUILD_SAMPLES ON)
 
@@ -16,6 +17,10 @@ set(RUN_UPDATE_THREAD_LINUX OFF)
 project(MirrasENGINE)
 
 include(cmake/runtime-selection.cmake)
+
+if(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++2b)
+endif()
 
 # Fetch source files
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS MirrasENGINE/src/*.cpp)
