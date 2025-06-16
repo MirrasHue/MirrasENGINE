@@ -1,5 +1,6 @@
-
-#define GRAPHICS_API_OPENGL_43 // <- Comment this to use only OpenGL 3.3 functionality
+#ifndef __APPLE__
+    #define GRAPHICS_API_OPENGL_43 // <- Comment this to use only OpenGL 3.3 functionality
+#endif
 
 #include "Backends/OpenGL/OpenGLRenderer.h"
 
