@@ -131,7 +131,7 @@ namespace mirras
 
         auto atlasPath = fontFilepath;
         atlasPath.replace_extension();
-        atlasPath += std::format("-{}glyphs-atlas.png", loadedGlyphs);
+        atlasPath += std::format("-{}x{}_{}glyphs.png", width, height, loadedGlyphs);
 
         if(fs::exists(atlasPath))
         {
