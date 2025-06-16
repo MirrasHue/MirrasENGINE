@@ -3,7 +3,7 @@
 #include "Core/Types/Reference.h"
 #include "Core/Fwd.h"
 
-#include <filesystem>
+#include <filesystem_fs>
 
 namespace msdf_atlas
 {

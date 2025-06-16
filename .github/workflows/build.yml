@@ -1,0 +1,33 @@
+# This starter workflow is for a CMake project running on multiple platforms
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-2025, macos-15-large]
+        preset: [release, distribution]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 1
+
+    - name: Install Dependencies - Ubuntu
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install libwayland-dev libxkbcommon-dev xorg-dev
+
+    - name: Build
+      run: |
+        cmake --preset ${{ matrix.preset }}
+        cmake --build --preset ${{ matrix.preset }}

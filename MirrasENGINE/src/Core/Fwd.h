@@ -20,7 +20,3 @@ namespace mirras
     class EntityScript;
 
 } // namespace mirras
-
-namespace std::filesystem { }
-
-namespace fs = std::filesystem;

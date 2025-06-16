@@ -12,7 +12,7 @@ public:
     virtual void onEvent(mirras::Event& event) override;
     virtual void draw() override;
     virtual void drawImGui() override;
-    virtual void unload() {}
+    virtual void unload() override {}
 
 public:
     mirras::Camera2D camera;
