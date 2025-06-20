@@ -34,9 +34,13 @@ namespace mirras
         if(!glfwInit())
             external_adversity("Could not initialize GLFW\n");
 
-        /*glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
+        // With my testing on Windows and Ubuntu, this doesn't need to be used, the latest version
+        // is automatically picked. But in order to run on macOS 13, I had to provide the hint
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    #endif
 
         GLFWmonitor* monitor = nullptr;
         int32 width = windowSpecs.width;
