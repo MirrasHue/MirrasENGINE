@@ -34,8 +34,8 @@ namespace mirras
         if(!glfwInit())
             external_adversity("Could not initialize GLFW\n");
 
-        // With my testing on Windows and Ubuntu, this doesn't need to be used, the latest version
-        // is automatically picked. But in order to run on macOS 13, I had to provide the hint
+        // Without the hints on Windows and Ubuntu, the latest version of OpenGL is automatically picked (with
+        // the compatibility profile, though). But in order to run on macOS 13, I had to provide them
     #ifdef __APPLE__
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -52,6 +52,9 @@ namespace mirras
             auto videoMode = glfwGetVideoMode(monitor);
             width = videoMode->width;
             height = videoMode->height;
+            glfwWindowHint(GLFW_RED_BITS, videoMode->redBits);
+            glfwWindowHint(GLFW_GREEN_BITS, videoMode->greenBits);
+            glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
         }
 
         auto title = windowSpecs.title;

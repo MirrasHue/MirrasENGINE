@@ -4128,6 +4128,7 @@ unsigned int rlCompileShader(const char *shaderCode, int type)
             RL_FREE(log);
         }
 
+        glDeleteShader(shader);
         shader = 0;
     }
     else

@@ -20,7 +20,7 @@ include(cmake/runtime-selection.cmake)
 # Fetch source files
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS MirrasENGINE/src/*.cpp)
 
-add_library(${PROJECT_NAME} STATIC ${engine_src})
+add_library(${PROJECT_NAME} STATIC ${engine_src} MirrasENGINE/3rdParty/raylib/src/raudio.c)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC 

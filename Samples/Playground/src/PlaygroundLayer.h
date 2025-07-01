@@ -24,4 +24,7 @@ public:
     glm::vec2 triangleCenter{400, 300};
     std::array<glm::vec3, 3> points;
     mirras::single_ref<mirras::Font> font;
+    mirras::Sound sound1;
+    mirras::Sound sound2;
+    mirras::Sound sound3;
 };

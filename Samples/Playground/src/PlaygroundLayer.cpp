@@ -58,6 +58,10 @@ void PlaygroundLayer::load()
     font = mirras::instantiate<mirras::Font>("assets/fonts/consolas.ttf");
 
     mirras::Renderer::setLineWidth(1.f);
+    sound1.loadFrom("assets/doodle_pop.ogg");
+    sound2.loadFrom("assets/target.ogg");
+    sound2.loop(true);
+    sound3.loadFrom("assets/killdeer.wav");
 }
 
 void PlaygroundLayer::onEvent(mirras::Event& event)
@@ -109,6 +113,29 @@ void PlaygroundLayer::update(float dt)
 
     cameraController.update(dt);
     cameraController.updateZoom();
+
+    if(mirras::Input::isKeyDown(mirras::Key::Z))
+    {
+        if(!sound1.isPlaying())
+            sound1.play();
+    }
+
+    if(mirras::Input::isKeyDown(mirras::Key::X))
+    {
+        if(!sound2.isPlaying())
+            sound2.play();
+    }
+
+    if(mirras::Input::isKeyDown(mirras::Key::C))
+    {
+        if(!sound3.isPlaying())
+            sound3.play();
+    }
+
+    if(mirras::Input::isKeyDown(mirras::Key::Space))
+    {
+        sound2.loop(false);
+    }
 }
 
 void PlaygroundLayer::drawImGui()

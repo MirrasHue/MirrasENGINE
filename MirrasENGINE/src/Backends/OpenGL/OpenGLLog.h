@@ -59,6 +59,10 @@ namespace mirras
                     //openGLLogger->error(formatted);
                     MIRR_ASSERT_CORE(false, formatted);
                     break;
+
+                default:
+                    openGLLogger->trace(formatted);
+                    break;
             }
         }
 
@@ -73,7 +77,7 @@ namespace mirras
 
     #define TraceLogFmt(level, fmt, ...) mirras::OpenGLLog::logCStyleFmt(level, fmt, ##__VA_ARGS__)
     #define TRACELOG(level, ...) TraceLogFmt(level, __VA_ARGS__)
-    
+
     #ifdef DEBUG_BUILD
         #define RLGL_ENABLE_OPENGL_DEBUG_CONTEXT
         #define TRACELOGD(...) TraceLogFmt((int)rlLogLevel::Debug, __VA_ARGS__)
