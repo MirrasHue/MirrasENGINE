@@ -31,6 +31,11 @@ namespace mirras
         UUID id;
     };
 
+    struct TagComponent
+    {
+        std::string tag;
+    };
+
     struct SpriteComponent
     {
         single_ref<Texture> texture;

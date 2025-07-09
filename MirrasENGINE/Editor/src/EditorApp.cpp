@@ -27,10 +27,10 @@ namespace mirras
         WindowSpecs windowSpecs {
             .title = "MirrasENGINE Editor",
             .iconFilepath = "Assets/Icons/icon.png",
-            .width = 1600,
-            .height = 900,
-            .minWidth = 1280,
-            .minHeight = 720
+            .width = 1366,
+            .height = 768,
+            .minWidth = 600,
+            .minHeight = 400
         };
 
         return instantiate<EditorApp>(appSpecs, windowSpecs);

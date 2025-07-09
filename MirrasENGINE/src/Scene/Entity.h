@@ -11,7 +11,7 @@ namespace mirras
     public:
         Entity() = default;
         Entity(entt::entity enttHandle, entt::registry* enttRegistry) :
-            handle(enttHandle), registry(enttRegistry) {}
+            handle{enttHandle}, registry{enttRegistry} {}
 
         // Adds a component and returns a reference to it
         template<typename T, typename... Args>
@@ -40,10 +40,14 @@ namespace mirras
         {
             return registry->remove<T>(handle);
         }
+
+        bool operator <=>(const Entity& rhs) const = default;
+
+        operator uint32() { return (uint32)handle; }
     
     private:
         entt::entity handle = entt::null;
-        entt::registry* registry;
+        entt::registry* registry = nullptr;
     };
     
 

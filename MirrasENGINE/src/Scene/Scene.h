@@ -13,9 +13,10 @@ namespace mirras
     public:
         Scene() = default;
         Scene(std::string sceneName) :
-            name(sceneName) {}
+            name{std::move(sceneName)} {}
 
         Entity createEntity();
+        Entity createEntity(std::string tag);
 
         void update(float dt);
         void draw(Camera2D& camera);
@@ -27,6 +28,8 @@ namespace mirras
 
     private:
         entt::registry registry;
+
+        friend class SceneHierarchyPanel;
     };
 
 } // namespace mirras

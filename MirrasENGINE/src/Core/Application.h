@@ -80,7 +80,7 @@ namespace mirras
         NO_ASYNC_UPDATE (
             bool running = true;
         )
-        
-        float fixedTimestep{};
+
+        float fixedTimestep = 0.f;
     };
 } // namespace mirras

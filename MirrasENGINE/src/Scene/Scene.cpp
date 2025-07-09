@@ -17,6 +17,16 @@ namespace mirras
         return entity;
     }
 
+    Entity Scene::createEntity(std::string tag)
+    {
+        auto entity = createEntity();
+
+        auto& name = entity.add<TagComponent>();
+        name.tag = tag.empty() ? "Default Entity" : std::move(tag);
+
+        return entity;
+    }
+
     void Scene::update(float dt)
     {
         registry.view<CppScriptComponent>().each([dt, this](auto entity, auto& cpp)

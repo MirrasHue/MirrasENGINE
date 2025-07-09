@@ -5,7 +5,7 @@
 #include "UI/ImGui.h"
 
 #include <imgui/imgui.h>
-//#include <imgui/imgui_internal.h>
+#include <imgui/imgui_internal.h>
 
 namespace mirras
 {
@@ -15,26 +15,29 @@ namespace mirras
 
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/bahnschrift.ttf", fontSize);
 
-        auto scene1 = instantiate_shared<Scene>("Scene1");
-        auto scene2 = instantiate_shared<Scene>("Scene2");
+        auto scene1 = instantiate<Scene>("Scene1");
+        auto scene2 = instantiate<Scene>("Scene2");
 
-        auto cameraEntity = scene1->createEntity();
+        auto cameraEntity = scene1->createEntity("Camera");
         auto& camera = cameraEntity.add<CameraComponent>();
 
-        auto textEntity = scene1->createEntity();
+        auto textEntity = scene1->createEntity("Text");
         auto& text = textEntity.add<TextComponent>();
         text.font = instantiate<Font>("Assets/Fonts/consolas.ttf");
         text.text = L"Hello World!";
 
-        auto rectEntity = scene1->createEntity();
+        auto rectEntity = scene1->createEntity("Square");
         auto& rect = rectEntity.add<RectangleComponent>();
         rect.size  = {200, 200};
         rect.color = {0, 0, 1, 1};
 
-        scenes.emplace_back(scene1);
-        scenes.emplace_back(scene2);
+        auto rectEntity2 = scene2->createEntity("Rectangle");
+        auto& rect2 = rectEntity2.add<RectangleComponent>();
+        rect2.size  = {200, 200};
+        rect2.color = {1, 0, 0, 1};
 
-        activeScene = scene1;
+        scenes.emplace_back(std::move(scene1));
+        scenes.emplace_back(std::move(scene2));
     }
 
     void EditorLayer::update(float dt)
@@ -53,7 +56,7 @@ namespace mirras
                         cameraController.update(dt);
 
                     if(editorScene.hovered)
-                        camControllerHovered.updateZoom();
+                        zoomController.updateZoom();
 
                     break;
                 }
@@ -65,14 +68,15 @@ namespace mirras
                 }
             }
         }
-
-        //imgui::ignoreEventCapturing(viewportFocused || viewportHovered);
     }
 
     void EditorLayer::draw()
     {
         for(auto& editorScene : scenes)
         {
+            if(editorScene.hidden)
+                continue;
+
             Renderer::beginTextureDrawing(editorScene.canvas);
                 Renderer::clearBackBuffers();
 
@@ -105,11 +109,9 @@ namespace mirras
             ImGui::EndMainMenuBar();
         }
 
-        ImGui::Begin("Panel", nullptr, ImGuiWindowFlags_NoTitleBar);
-
-        ImGui::End();
-
         //ImGui::SetNextWindowSizeConstraints({800, 450}, {FLT_MAX, FLT_MAX});
+        activeScene = nullptr;
+
         for(auto& editorScene : scenes)
         {
             if(!editorScene.open)
@@ -120,23 +122,36 @@ namespace mirras
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
             ImGui::Begin(editorScene.scene->name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
             {
-                // ImGui::GetCurrentWindow()->Hidden
+                editorScene.hidden = false;
+
+                if(ImGui::GetCurrentWindow()->Hidden)
+                {
+                    editorScene.hidden = true;
+                    ImGui::End();
+                    ImGui::PopStyleVar();
+                    continue;
+                }
+
                 editorScene.focused = false;
 
                 if(ImGui::IsWindowFocused())
                 {
-                    activeScene = editorScene.scene;
                     cameraController.setCamera(&editorScene.camera);
                     editorScene.focused = true;
+                    activeScene = editorScene.scene.get();
                 }
 
                 editorScene.hovered = false;
 
                 if(ImGui::IsWindowHovered())
                 {
-                    camControllerHovered.setCamera(&editorScene.camera);
+                    zoomController.setCamera(&editorScene.camera);
                     editorScene.hovered = true;
                 }
+
+                // So that we keep showing the hierarchy panel for this scene when its tab is selected but not focused
+                if(!activeScene && ImGui::GetCurrentWindow()->DockTabIsVisible)
+                    activeScene = editorScene.scene.get();
 
                 auto [width, height] = ImGui::GetContentRegionAvail();
                 editorScene.size = {width, height};
@@ -146,6 +161,8 @@ namespace mirras
             ImGui::End();
             ImGui::PopStyleVar();
         }
+
+        sceneHierarchy.drawPanel(activeScene);
 
         ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_NoTitleBar);
 

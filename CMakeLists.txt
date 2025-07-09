@@ -23,9 +23,9 @@ file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS MirrasENGINE/src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${engine_src} MirrasENGINE/3rdParty/raylib/src/raudio.c)
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC 
+    PUBLIC
         ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/MirrasENGINE/src
+        MirrasENGINE/src
         MirrasENGINE/3rdParty/raylib/include
         MirrasENGINE/3rdParty/Glad/include
         MirrasENGINE/3rdParty/stb/include
@@ -92,6 +92,11 @@ file(GLOB_RECURSE editor_src CONFIGURE_DEPENDS MirrasENGINE/Editor/src/*.cpp)
 add_executable(${PROJECT_NAME} ${editor_src})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE MirrasENGINE)
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        MirrasENGINE/Editor/src
+)
 
 ##################################################################
 
