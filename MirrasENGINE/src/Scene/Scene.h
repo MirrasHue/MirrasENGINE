@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Fwd.h"
+#include "Utilities/UUID.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -28,6 +29,7 @@ namespace mirras
 
     private:
         entt::registry registry;
+        UUID id;
 
         friend class SceneHierarchyPanel;
     };

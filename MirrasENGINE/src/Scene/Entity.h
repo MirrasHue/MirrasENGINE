@@ -43,11 +43,16 @@ namespace mirras
 
         bool operator <=>(const Entity& rhs) const = default;
 
+        operator bool() { return handle != entt::null; }
+        operator entt::entity() { return handle; }
         operator uint32() { return (uint32)handle; }
     
     private:
         entt::entity handle = entt::null;
         entt::registry* registry = nullptr;
+
+        friend class SceneHierarchyPanel;
+        friend class EntityPropertiesPanel;
     };
     
 

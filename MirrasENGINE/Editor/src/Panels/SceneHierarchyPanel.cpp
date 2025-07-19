@@ -8,32 +8,43 @@
 
 namespace mirras
 {
-    void SceneHierarchyPanel::drawPanel(Scene* scene)
+    void SceneHierarchyPanel::draw()
     {
-        ImGui::Begin("Scene Hierarchy");
+        ImGui::Begin("Scene Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse);
 
-        if(!scene)
+        if(!context)
         {
             ImGui::End();
             return;
         }
 
+        // Unselect the entity if we switch scenes
+        if(context->id != currentSceneID)
+        {
+            selectedEntity = {};
+            currentSceneID = context->id;
+        }
+
         int32 flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-        if(ImGui::TreeNodeEx(scene->name.c_str(), flags | ImGuiTreeNodeFlags_DefaultOpen))
+        if(ImGui::TreeNodeEx(context->name.c_str(), flags | ImGuiTreeNodeFlags_DefaultOpen))
         {
-            if(ImGui::IsItemToggledOpen() || (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)))
+            if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
                 selectedEntity = {};
 
             // Iterating through all entities in reverse because they are being given in the reverse order of insertion
-            for(auto enttID : scene->registry.view<entt::entity>() | std::views::reverse)
+            for(auto enttID : context->registry.view<entt::entity>() | std::views::reverse)
             {
-                Entity entity{enttID, &scene->registry};
+                Entity entity{enttID, &context->registry};
                 drawNode(entity, flags);
             }
 
             ImGui::TreePop();
         }
+
+        // Avoids a registry dangling ptr when the scenes vector resizes
+        if(selectedEntity)
+            selectedEntity.registry = &context->registry;
 
         ImGui::End();
     }
@@ -45,7 +56,7 @@ namespace mirras
         if(selectedEntity == entity)
             treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-        bool opened = ImGui::TreeNodeEx((void*)(intptr_t)entity, treeNodeFlags, name.c_str());
+        bool opened = ImGui::TreeNodeEx((void*)(intptr_t)entity.handle, treeNodeFlags, name.c_str());
 
         if(ImGui::IsItemClicked())
             selectedEntity = entity;

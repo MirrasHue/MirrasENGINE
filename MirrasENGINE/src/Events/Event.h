@@ -21,14 +21,14 @@ namespace mirras
     class Event
     {
     public:
-        template<typename EventClass>
+        template<typename EventType>
         static bool is_a(Event& event); // This doesn't take the parent class into consideration
 
-        template<typename EventClass, auto func>
+        template<typename EventType, auto func>
         static bool dispatch(Event& event);
 
-        template<typename EventClass, auto memberFunc, typename Object>
-        static bool dispatch_to_member(Event& event, Object* this_pointer);
+        template<typename EventType, auto memberFunc, typename InstanceType>
+        static bool dispatch_to_member(Event& event, InstanceType* this_ptr);
 
         virtual EventType getEventType() const = 0;
         virtual EventCategory getEventCategory() const = 0;
@@ -40,21 +40,21 @@ namespace mirras
         bool propagable = true;
     };
 
-    template <typename EventClass>
+    template <typename EventType>
     bool Event::is_a(Event& event)
     {
-        if(event.getEventType() == EventClass::getEventTypeStatic())
+        if(event.getEventType() == EventType::getEventTypeStatic())
             return true;
 
         return false;
     }
 
-    template <typename EventClass, auto func>
+    template <typename EventType, auto func>
     bool Event::dispatch(Event& event)
     {
-        if(Event::is_a<EventClass>(event))
+        if(Event::is_a<EventType>(event))
         {
-            func(static_cast<EventClass&>(event));
+            func(static_cast<EventType&>(event));
 
             return true;
         }
@@ -62,15 +62,15 @@ namespace mirras
         return false;
     }
 
-    template <typename EventClass, auto memberFunc, typename Object>
-    bool Event::dispatch_to_member(Event& event, Object* this_pointer)
+    template <typename EventType, auto memberFunc, typename InstanceType>
+    bool Event::dispatch_to_member(Event& event, InstanceType* this_ptr)
     {
-        if(!this_pointer)
+        if(!this_ptr)
             return false;
             
-        if(Event::is_a<EventClass>(event))
+        if(Event::is_a<EventType>(event))
         {
-            std::invoke(memberFunc, this_pointer, static_cast<EventClass&>(event));
+            std::invoke(memberFunc, this_ptr, static_cast<EventType&>(event));
 
             return true;
         }

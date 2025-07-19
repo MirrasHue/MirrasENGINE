@@ -1,8 +1,7 @@
 #include "EditorLayer.h"
 
 #include "Core/Renderer/Renderer.h"
-
-#include "UI/ImGui.h"
+#include "Reflection.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -11,6 +10,8 @@ namespace mirras
 {
     void EditorLayer::load()
     {
+        reflect::registerComponentsUIFunction();
+
         ImGuiIO& io = ImGui::GetIO();
 
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/bahnschrift.ttf", fontSize);
@@ -74,9 +75,6 @@ namespace mirras
     {
         for(auto& editorScene : scenes)
         {
-            if(editorScene.hidden)
-                continue;
-
             Renderer::beginTextureDrawing(editorScene.canvas);
                 Renderer::clearBackBuffers();
 
@@ -122,11 +120,11 @@ namespace mirras
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
             ImGui::Begin(editorScene.scene->name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
             {
-                editorScene.hidden = false;
+                auto [width, height] = ImGui::GetContentRegionAvail();
+                editorScene.size = {width, height};
 
                 if(ImGui::GetCurrentWindow()->Hidden)
                 {
-                    editorScene.hidden = true;
                     ImGui::End();
                     ImGui::PopStyleVar();
                     continue;
@@ -153,16 +151,17 @@ namespace mirras
                 if(!activeScene && ImGui::GetCurrentWindow()->DockTabIsVisible)
                     activeScene = editorScene.scene.get();
 
-                auto [width, height] = ImGui::GetContentRegionAvail();
-                editorScene.size = {width, height};
-
                 ImGui::Image(editorScene.canvas.color->id, {width, height}, {0, 1}, {1, 0});
             }
             ImGui::End();
             ImGui::PopStyleVar();
         }
 
-        sceneHierarchy.drawPanel(activeScene);
+        sceneHierarchy.setContext(activeScene);
+
+        sceneHierarchy.draw();
+
+        entityProperties.draw(sceneHierarchy.getSelectedEntity());
 
         ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_NoTitleBar);
 

@@ -117,6 +117,12 @@ namespace mirras
         #ifdef WIN32_CONSOLE_WINDOW
             auto consoleHandle = GetConsoleWindow();
 
+            if(!consoleHandle)
+            {
+                glfwShowWindow(windowHandle);
+                return;
+            }
+
             char className[19]; // As "ConsoleWindowClass" is the only one we're looking for,
             GetClassNameA(consoleHandle, className, sizeof(className)); // let anything else longer be truncated
 
