@@ -22,7 +22,8 @@ namespace mirras::imgui
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;        // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigDockingAnyDraggableArea = true;                    // Enable docking a window from any draggable area
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        //io.ConfigDockingAnyDraggableArea = true;                    // Enable docking a window from any draggable area
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();

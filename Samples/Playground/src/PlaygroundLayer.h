@@ -2,8 +2,6 @@
 
 #include "MirrasENGINE.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 class PlaygroundLayer : public mirras::Layer
 {
 public:

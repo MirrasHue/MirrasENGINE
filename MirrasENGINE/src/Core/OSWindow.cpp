@@ -1,5 +1,6 @@
 #include "Core/OSWindow.h"
 
+#include "Core/EventHandler.h"
 #include "Core/Log.h"
 #include "Core/Asserts.h"
 #include "Core/Utils.h"
@@ -75,8 +76,6 @@ namespace mirras
 
         glfwSwapInterval(windowSpecs.VSync);
         OSWindow::VSyncEnabled = windowSpecs.VSync;
-
-        glfwSetWindowUserPointer(windowHandle, &appCallbacks);
 
         setGLFWCallbacks();
 
@@ -162,6 +161,11 @@ namespace mirras
         glfwPollEvents();
     }
 
+    void OSWindow::postEmptyEvent() const
+    {
+        glfwPostEmptyEvent();
+    }
+
     void OSWindow::setVSync(bool VSync)
     {
         glfwSwapInterval(VSync);
@@ -176,56 +180,55 @@ namespace mirras
         return size;
     }
 
+    void OSWindow::setAppEventHandler(EventHandler* handler) const
+    {
+        glfwSetWindowUserPointer(windowHandle, handler);
+    }
+
     void OSWindow::setGLFWCallbacks()
     {
         glfwSetFramebufferSizeCallback(windowHandle, [](GLFWwindow* window, int32 width, int32 height)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
             
             WindowResized event{width, height};
-
-            appCallbacks->onEvent(event);
+            handler->dispatchResize(event);
         });
 
         glfwSetWindowCloseCallback(windowHandle, [](GLFWwindow* window)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
 
-            WindowClosed event;
-
-            appCallbacks->onEvent(event);
+            handler->handle(WindowClosed{});
         });
 
         glfwSetKeyCallback(windowHandle, [](GLFWwindow* window, int32 keyCode, int32 scanCode, int32 state, int32 modifierFlags)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
 
             switch(KeyState{state})
             {
                 case KeyState::Pressed:
                 {
-                    KeyPressed event{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}};
-                    appCallbacks->onEvent(event);
+                    handler->handle(KeyPressed{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}});
                     break;
                 }
 
                 case KeyState::Released:
                 {
-                    KeyReleased event{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}};
-                    appCallbacks->onEvent(event);
+                    handler->handle(KeyReleased{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}});
                     break;
                 }
 
                 case KeyState::Repeated:
                 {
-                    KeyPressed event{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}, true};
-                    appCallbacks->onEvent(event);
+                    handler->handle(KeyPressed{Key{keyCode}, scanCode, ModifierKeyFlag{(uint8)modifierFlags}, true});
                     break;
                 }
             }
@@ -233,34 +236,30 @@ namespace mirras
 
         glfwSetCharCallback(windowHandle, [](GLFWwindow* window, uint32 unicode)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
 
-            TextEntered event{unicode};
-
-            appCallbacks->onEvent(event);
+            handler->handle(TextEntered{unicode});
         });
 
         glfwSetMouseButtonCallback(windowHandle, [](GLFWwindow* window, int32 button, int32 state, int32 modifierFlags)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
 
             switch(MouseButtonState{state})
             {
                 case MouseButtonState::Pressed:
                 {
-                    MouseButtonPressed event{Mouse{button}, ModifierKeyFlag{(uint8)modifierFlags}};
-                    appCallbacks->onEvent(event);
+                    handler->handle(MouseButtonPressed{Mouse{button}, ModifierKeyFlag{(uint8)modifierFlags}});
                     break;
                 }
                 
                 case MouseButtonState::Released:
                 {
-                    MouseButtonReleased event{Mouse{button}, ModifierKeyFlag{(uint8)modifierFlags}};
-                    appCallbacks->onEvent(event);
+                    handler->handle(MouseButtonReleased{Mouse{button}, ModifierKeyFlag{(uint8)modifierFlags}});
                     break;
                 }
             }
@@ -268,25 +267,27 @@ namespace mirras
 
         glfwSetCursorPosCallback(windowHandle, [](GLFWwindow* window, double xPos, double yPos)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
 
-            MouseMoved event{(float)xPos, (float)yPos};
-
-            appCallbacks->onEvent(event);
+            handler->handle(MouseMoved{(float)xPos, (float)yPos});
         });
 
         glfwSetScrollCallback(windowHandle, [](GLFWwindow* window, double xOffset, double yOffset)
         {
-            auto appCallbacks = static_cast<AppCallbacks*>(glfwGetWindowUserPointer(window));
+            auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(appCallbacks, "User pointer not set for the current window!");
+            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
 
-            MouseWheelScrolled event{(float)xOffset, (float)yOffset};
-
-            appCallbacks->onEvent(event);
+            handler->handle(MouseWheelScrolled{(float)xOffset, (float)yOffset});
         });
+    }
+
+    OSWindow::~OSWindow()
+    {
+        glfwDestroyWindow(windowHandle);
+        std::atexit(glfwTerminate);
     }
 
     class glfw_error : public std::runtime_error
@@ -295,12 +296,6 @@ namespace mirras
         glfw_error(const char* what) :
             std::runtime_error{what} {}
     };
-
-    OSWindow::~OSWindow()
-    {
-        glfwDestroyWindow(windowHandle);
-        std::atexit(glfwTerminate);
-    }
 
     void glfwErrorCallback(int32 errorCode, const char* what)
     {

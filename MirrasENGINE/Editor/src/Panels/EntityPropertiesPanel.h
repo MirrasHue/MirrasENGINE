@@ -21,13 +21,12 @@ namespace mirras
                 return;
             }
 
-            for(const auto [component_id, storage] : entity.registry->storage())
+            for(const auto [type_id, meta] : entt::resolve())
             {
-                if(component_id == entt::type_hash<IDComponent> ::value() ||
-                   component_id == entt::type_hash<TagComponent>::value() ||
-                   !storage.contains(entity)) continue;
+                auto* storage = entity.registry->storage(type_id);
 
-                reflect::call("drawComponent", component_id, entity);
+                if(storage && storage->contains(entity))
+                    reflect::call("drawComponent", type_id, entity);
             }
 
             ImGui::End();

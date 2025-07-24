@@ -31,7 +31,7 @@ namespace mirras::reflect
     inline void registerUIFunction(const char* name)
     {
         entt::meta_factory<CompType>()
-            .type(entt::type_hash<CompType>::value())
+            .type(entt::type_hash<CompType>::value(), name)
             .template func<&drawComponent<CompType>>("drawComponent"); // Defined in Widgets/Entity.h
     }
 

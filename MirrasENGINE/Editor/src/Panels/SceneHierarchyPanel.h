@@ -4,22 +4,21 @@
 
 namespace mirras
 {
-    class Scene;
+    class EditorScene;
 
     class SceneHierarchyPanel
     {
     public:
         void draw();
-        void setContext(Scene* scene) { context = scene; };
-        void setSelectedEntity(Entity entity) { selectedEntity = entity; }
-        Entity getSelectedEntity() { return selectedEntity; }
+        void setContext(EditorScene* scene) { context = scene; };
+        /*void setSelectedEntity(Entity entity) { selectedEntity = entity; }
+        Entity getSelectedEntity() { return selectedEntity; }*/
 
     private:
         void drawNode(Entity entity, int32 treeNodeFlags);
 
     private:
-        Scene* context = nullptr;
-        Entity selectedEntity;
-        uint64 currentSceneID = 0;
+        EditorScene* context = nullptr;
+        //Entity selectedEntity;
     };
 } // namespace mirras

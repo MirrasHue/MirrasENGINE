@@ -14,6 +14,10 @@
 #include <ranges>
 #include <filesystem_fs>
 
+#ifdef RUN_UPDATE_THREAD
+    #include <thread>
+#endif
+
 namespace mirras
 {
     App::App(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs)
@@ -21,10 +25,13 @@ namespace mirras
         MIRR_ASSERT_CORE(appInstance == nullptr, "One instance of application already exists");
         appInstance = this;
 
+        eventHandler.connectEvents(this);
+
         if(!appSpecs.workingDirectory.empty())
             fs::current_path(appSpecs.workingDirectory);
 
         window.init(windowSpecs);
+        window.setAppEventHandler(&eventHandler);
 
         Log::initAppLog(appSpecs.name);
 
@@ -32,13 +39,9 @@ namespace mirras
         Renderer::setClearColor(0.2f, 0.2f, 0.2f);
 
         imgui::init();
-        
-        window.setOnEventCallback([this](Event& event)
-        {
-            App::onEvent(event);
-        });
 
         fixedTimestep = 1.f / appSpecs.updateRate;
+        handleStopOnClose = appSpecs.autoStopOnClose;
     }
 
     void App::run()
@@ -48,7 +51,7 @@ namespace mirras
         ASYNC_UPDATE
         (
             window.makeContextCurrent(false);
-            updateThread = std::thread{&App::update, this};
+            std::jthread updateThread{&App::update, this};
         )
         
         Timer timer;
@@ -74,6 +77,12 @@ namespace mirras
                 Input::mouseWheelScroll = vec2f{};
             )
         }
+    }
+
+    void App::stop()
+    {
+        running = false;
+        window.postEmptyEvent();
     }
 
     void App::updateLayers(float frameTime)
@@ -136,15 +145,13 @@ namespace mirras
             {
                 float frameTime = timer.elapsed();
 
-                {
-                    std::lock_guard lock{layersMutex};
+                eventHandler.process();
 
-                    updateLayers(frameTime);
+                updateLayers(frameTime);
 
-                    renderLayers();
+                renderLayers();
 
-                    Input::mouseWheelScroll = vec2f{};
-                }
+                Input::mouseWheelScroll = vec2f{};
 
                 if(resizing)
                 {
@@ -200,12 +207,6 @@ namespace mirras
         )
     }
 
-    void App::onWindowClose(WindowClosed& event)
-    {
-        ENGINE_LOG_INFO("Window Close Event");
-        running = false;
-    }
-
     static void updateMouseScrollInput(MouseWheelScrolled& event)
     {
         Input::mouseWheelScroll = event.mouseWheelOffset;
@@ -213,33 +214,20 @@ namespace mirras
 
     void App::onEvent(Event& event)
     {
-        Event::dispatch_to_member<WindowClosed, &App::onWindowClose>(event, this);
-        Event::dispatch_to_member<WindowResized, &App::onWindowResize>(event, this);
+        if(Event::is_a<WindowClosed>(event) && handleStopOnClose)
+            stop();
 
         imgui::onEvent(event);
 
+        Event::dispatch<MouseWheelScrolled, &updateMouseScrollInput>(event);
+
+        for(auto& layer : layers | std::views::reverse)
         {
-            ASYNC_UPDATE (
-                std::lock_guard lock{layersMutex};
-            )
+            if(!event.propagable)
+                break;
 
-            Event::dispatch<MouseWheelScrolled, &updateMouseScrollInput>(event);
-
-            for(auto& layer : layers | std::views::reverse)
-            {
-                if(!event.propagable)
-                    break;
-
-                layer->onEvent(event);
-            }
+            layer->onEvent(event);
         }
-
-        // Another way to dispatch events, not limited to functions with only an event as argument
-        /*if(Event::is_a<WindowResized>(event))
-            onWindowResize(static_cast<WindowResize&>(event));
-        else
-        if(Event::is_a<WindowClosed>(event))
-            onWindowClose(static_cast<WindowClose&>(event));*/
     }
 
     App& App::getInstance()
@@ -250,32 +238,16 @@ namespace mirras
 
     void App::addLayer(single_ref<Layer> layer)
     {
-        ASYNC_UPDATE (
-            std::lock_guard lock{layersMutex};
-        )
-
         layers.addLayer(std::move(layer));
     }
 
     void App::addOverlay(single_ref<Layer> layer)
     {
-        ASYNC_UPDATE (
-            std::lock_guard lock{layersMutex};
-        )
-    
         layers.addOverlay(std::move(layer));
     }
 
     App::~App()
     {
-        running = false;
-
-        ASYNC_UPDATE
-        (
-            if(updateThread.joinable())
-                updateThread.join();
-        )
-
         imgui::shutdown();
         Renderer::shutdown();
     }

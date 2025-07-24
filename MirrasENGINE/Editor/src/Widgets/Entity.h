@@ -23,26 +23,26 @@ namespace mirras
 
     inline void draw(CameraComponent& camera)
     {
-
+        ImGui::Text("Camera");
     }
 
     inline void draw(SpriteComponent& sprite)
     {
-
+        ImGui::Text("Sprite");
     }
 
     inline void draw(RectangleComponent& rectangle)
     {
-
+        ImGui::Text("Rect");
     }
 
     inline void draw(CircleComponent& circle)
     {
-
+        ImGui::Text("Circle");
     }
 
     inline void draw(TextComponent& text)
     {
-
+        ImGui::Text("Text");
     }
 } // namespace mirras

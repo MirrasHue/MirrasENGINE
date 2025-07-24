@@ -1,6 +1,9 @@
 #include "EditorLayer.h"
 
 #include "Core/Renderer/Renderer.h"
+
+#include "Events/WindowEvents.h"
+
 #include "Reflection.h"
 
 #include <imgui/imgui.h>
@@ -136,7 +139,7 @@ namespace mirras
                 {
                     cameraController.setCamera(&editorScene.camera);
                     editorScene.focused = true;
-                    activeScene = editorScene.scene.get();
+                    activeScene = &editorScene;
                 }
 
                 editorScene.hovered = false;
@@ -149,7 +152,7 @@ namespace mirras
 
                 // So that we keep showing the hierarchy panel for this scene when its tab is selected but not focused
                 if(!activeScene && ImGui::GetCurrentWindow()->DockTabIsVisible)
-                    activeScene = editorScene.scene.get();
+                    activeScene = &editorScene;
 
                 ImGui::Image(editorScene.canvas.color->id, {width, height}, {0, 1}, {1, 0});
             }
@@ -158,10 +161,9 @@ namespace mirras
         }
 
         sceneHierarchy.setContext(activeScene);
-
         sceneHierarchy.draw();
 
-        entityProperties.draw(sceneHierarchy.getSelectedEntity());
+        entityProperties.draw(activeScene ? activeScene->selectedEntity : Entity{});
 
         ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_NoTitleBar);
 
@@ -172,6 +174,7 @@ namespace mirras
 
     void EditorLayer::onEvent(Event& event)
     {
-        
+        if(Event::is_a<WindowClosed>(event))
+            App::getInstance().stop();
     }
 } // namespace mirras

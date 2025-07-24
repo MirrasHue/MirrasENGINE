@@ -5,6 +5,7 @@ namespace mirras
     class Event;
     class WindowResized;
     class WindowClosed;
+    class MouseMoved;
 
     class Camera2D;
     

@@ -4,12 +4,13 @@
 #include "Core/Fwd.h"
 
 #include <string_view>
-#include <functional>
 
 struct GLFWwindow;
 
 namespace mirras
 {
+    class EventHandler;
+
     struct WindowSpecs
     {
         std::string_view title;
@@ -26,11 +27,7 @@ namespace mirras
     class OSWindow
     {
     public:
-        using EventCallback = std::function<void(Event&)>;
-
         void init(const WindowSpecs& windowSpecs);
-
-        void setOnEventCallback(const EventCallback& callback) { appCallbacks.onEvent = callback; }
 
         void makeContextCurrent(bool makeCurrent) const;
 
@@ -45,6 +42,7 @@ namespace mirras
 
         void waitEvents() const;
         void pollEvents() const;
+        void postEmptyEvent() const; // Causes waitEvents to return
 
         static void setVSync(bool VSync);
         static bool isVSynced() { return OSWindow::VSyncEnabled; }
@@ -54,19 +52,16 @@ namespace mirras
         ~OSWindow();
 
     private:
+        void setAppEventHandler(EventHandler* handler) const;
         void setGLFWCallbacks();
 
     private:
-        struct AppCallbacks
-        {
-            EventCallback onEvent;
-        }
-        appCallbacks;
-
         GLFWwindow* windowHandle = nullptr;
 
         // There's only one window per application lifecycle, otherwise these wouldn't be static
         inline static vec2i initialFbSize; // Needed by Camera2D
         inline static bool VSyncEnabled = false;
+
+        friend class App;
     };
 } // namespace mirras
