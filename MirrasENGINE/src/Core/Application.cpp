@@ -159,7 +159,11 @@ namespace mirras
 
                     // Because of the way we do multithreading, ImGui widgets start to flicker on resize when VSync is disabled
                     // Waiting here for atleast 4ms seems to eliminate the flickering for the most part (have to test elsewhere)
-                    if(!OSWindow::isVSynced())
+
+                    // Also, while testing the engine with lower CPU clock speeds (notebook unplugged), there's some flickering
+                    // when running on release even with VSync enabled. So it's better to slowdown a bit, regardless of configuration
+
+                    //if(!OSWindow::isVSynced())
                         wait(4_ms);
 
                     continue;

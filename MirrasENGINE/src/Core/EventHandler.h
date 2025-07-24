@@ -48,11 +48,12 @@ namespace mirras
             std::mutex swapMutex;
             entt::dispatcher front;
             entt::dispatcher back;
-            entt::delegate<void(WindowResized&)> onResizeCallback;
         )
 
         NO_ASYNC_UPDATE (
             entt::delegate<void(Event&)> onEventCallback;
         )
+
+        entt::delegate<void(WindowResized&)> onResizeCallback;
     };
 } // namespace mirras

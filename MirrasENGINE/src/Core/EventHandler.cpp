@@ -10,10 +10,10 @@ namespace mirras
 {
     void EventHandler::connectEvents(App* app)
     {
+        onResizeCallback.connect<&App::onWindowResize>(app);
+
         ASYNC_UPDATE
         (
-            onResizeCallback.connect<&App::onWindowResize>(app);
-
             front.sink<WindowResized>().connect<&App::onEvent>(app);
             front.sink<WindowClosed>().connect<&App::onEvent>(app);
             front.sink<MouseMoved>().connect<&App::onEvent>(app);
@@ -70,9 +70,9 @@ namespace mirras
 
     void EventHandler::dispatchResize(WindowResized& event)
     {
-        ASYNC_UPDATE
-        (
-            onResizeCallback(event);
+        onResizeCallback(event);
+
+        ASYNC_UPDATE (
             handle(event); // Just in case someone wants to be notified about resizes
         )
 
