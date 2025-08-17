@@ -55,7 +55,7 @@ namespace mirras
         )
         
         Timer timer;
-    
+
         while(running)
         {
             ASYNC_UPDATE (
@@ -149,10 +149,6 @@ namespace mirras
 
                 updateLayers(frameTime);
 
-                renderLayers();
-
-                Input::mouseWheelScroll = vec2f{};
-
                 if(resizing)
                 {
                     synchronizeResize();
@@ -168,6 +164,10 @@ namespace mirras
 
                     continue;
                 }
+
+                renderLayers();
+
+                Input::mouseWheelScroll = vec2f{};
 
                 window.swapBuffers();
             }

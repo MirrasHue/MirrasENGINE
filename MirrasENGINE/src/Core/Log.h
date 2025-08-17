@@ -15,9 +15,8 @@ namespace mirras
         static void init()
         {
     #ifndef DISTRIBUTION_BUILD
-            spdlog::set_pattern("%^[%l - %T] %n: %v%$");
-
-            coreLogger = spdlog::stdout_color_mt("MirrasENGINE");
+            coreLogger = spdlog::create<spdlog::sinks::stdout_color_sink_mt>("MirrasENGINE");
+            coreLogger->set_pattern("%^[%l - %T] %n: %v%$");
             coreLogger->set_level(spdlog::level::trace);
     #endif
         }
@@ -25,7 +24,8 @@ namespace mirras
         static void initAppLog(std::string_view appName)
     #ifndef DISTRIBUTION_BUILD
         {
-            appLogger = spdlog::stdout_color_mt(appName.data());
+            appLogger = spdlog::create<spdlog::sinks::stdout_color_sink_mt>(appName.data());
+            appLogger->set_pattern("%^[%l - %T] %n: %v%$");
             appLogger->set_level(spdlog::level::trace);
         }
 

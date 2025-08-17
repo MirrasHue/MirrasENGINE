@@ -28,7 +28,7 @@ namespace mirras
         static void init()
         {
     #ifndef DISTRIBUTION_BUILD
-            openGLLogger = spdlog::stdout_color_mt("OpenGL");
+            openGLLogger = spdlog::create<spdlog::sinks::stdout_color_sink_mt>("OpenGL");
             openGLLogger->set_pattern("%^[%l - %n] %v%$");
             openGLLogger->set_level(spdlog::level::trace);
     #endif

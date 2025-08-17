@@ -17,7 +17,8 @@ namespace mirras
 
         ImGuiIO& io = ImGui::GetIO();
 
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/bahnschrift.ttf", fontSize);
+        io.ConfigDpiScaleFonts = true;
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/bahnschrift.ttf");
 
         auto scene1 = instantiate<Scene>("Scene1");
         auto scene2 = instantiate<Scene>("Scene2");

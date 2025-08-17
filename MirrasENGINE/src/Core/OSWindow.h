@@ -27,7 +27,7 @@ namespace mirras
     class OSWindow
     {
     public:
-        void init(const WindowSpecs& windowSpecs);
+        OSWindow() = default;
 
         void makeContextCurrent(bool makeCurrent) const;
 
@@ -52,6 +52,7 @@ namespace mirras
         ~OSWindow();
 
     private:
+        void init(const WindowSpecs& windowSpecs);
         void setAppEventHandler(EventHandler* handler) const;
         void setGLFWCallbacks();
 

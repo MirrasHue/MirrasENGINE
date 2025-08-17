@@ -11,21 +11,20 @@ namespace mirras
     {
     public:
         
-        Timer()
-        {
-            start = std::chrono::steady_clock::now();
-        }
+        Timer() :
+            start{clock::now()} {}
 
-        float elapsed()
+        double elapsed()
         {
-            auto end = std::chrono::steady_clock::now();
-            float seconds = std::chrono::duration<float>(end - start).count();
+            auto end = clock::now();
+            auto seconds = std::chrono::duration<double>(end - start).count();
             start = end;
             return seconds;
         }
 
     private:
-        std::chrono::steady_clock::time_point start;
+        using clock = std::chrono::steady_clock;
+        clock::time_point start;
     };
 
     inline void wait(double seconds)
