@@ -18,8 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: recursive
-        fetch-depth: 1
+        submodules: false
+    - run: |
+        git submodule update --init --recursive MirrasENGINE/3rdParty/GLFW MirrasENGINE/3rdParty/GLM MirrasENGINE/3rdParty/MSDF-Atlas-Gen MirrasENGINE/3rdParty/EnTT
 
     - name: Install Dependencies - Ubuntu
       if: runner.os == 'Linux'
