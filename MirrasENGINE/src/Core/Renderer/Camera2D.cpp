@@ -11,7 +11,7 @@ namespace mirras
 
     void Camera2D::targetSize(int32 framebufferWidth, int32 framebufferHeight)
     {
-        MIRR_ASSERT_CORE(framebufferWidth > 0 && framebufferHeight > 0,
+        MIRR_ASSERT(framebufferWidth > 0 && framebufferHeight > 0,
             "Invalid framebuffer size: {} x {}", framebufferWidth, framebufferHeight);
 
         auto [initialFbW, initialFbH] = Camera2D::currentFbInitialSize;

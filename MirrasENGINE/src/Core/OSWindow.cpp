@@ -84,7 +84,7 @@ namespace mirras
         
         if(glfwPlatformSupported(GLFW_PLATFORM_WAYLAND) || glfwPlatformSupported(GLFW_PLATFORM_COCOA))
         {
-            ENGINE_LOG_INFO("GLFW doesn't support setting window icons on Wayland or macOS");
+            LOG_INFO("GLFW doesn't support setting window icons on Wayland or macOS");
             return;
         }
 
@@ -95,7 +95,7 @@ namespace mirras
 
         if(!icon.pixels)
         {
-            ENGINE_LOG_ERROR("Unable to load window icon: {}", windowSpecs.iconFilepath);
+            LOG_ERROR("Unable to load window icon: {}", windowSpecs.iconFilepath);
             return;
         }
         
@@ -191,7 +191,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
             
             WindowResized event{width, height};
             handler->dispatchResize(event);
@@ -201,7 +201,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
 
             handler->handle(WindowClosed{});
         });
@@ -210,7 +210,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
 
             switch(KeyState{state})
             {
@@ -238,7 +238,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
 
             handler->handle(TextEntered{unicode});
         });
@@ -247,7 +247,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
 
             switch(MouseButtonState{state})
             {
@@ -269,7 +269,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
 
             handler->handle(MouseMoved{(float)xPos, (float)yPos});
         });
@@ -278,7 +278,7 @@ namespace mirras
         {
             auto handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
 
-            MIRR_ASSERT_CORE(handler, "User pointer not set for the current window!");
+            MIRR_ASSERT(handler, "User pointer not set for the current window!");
 
             handler->handle(MouseWheelScrolled{(float)xOffset, (float)yOffset});
         });
@@ -300,11 +300,11 @@ namespace mirras
     void glfwErrorCallback(int32 errorCode, const char* what)
     {
         // Application programmer errors, should be fixed by using GLFW properly
-        MIRR_ASSERT_CORE(errorCode != GLFW_NOT_INITIALIZED, what);
-        MIRR_ASSERT_CORE(errorCode != GLFW_NO_CURRENT_CONTEXT, what);
-        MIRR_ASSERT_CORE(errorCode != GLFW_NO_WINDOW_CONTEXT, what);
-        MIRR_ASSERT_CORE(errorCode != GLFW_INVALID_VALUE, what);
-        MIRR_ASSERT_CORE(errorCode != GLFW_INVALID_ENUM, what);
+        MIRR_ASSERT(errorCode != GLFW_NOT_INITIALIZED, what);
+        MIRR_ASSERT(errorCode != GLFW_NO_CURRENT_CONTEXT, what);
+        MIRR_ASSERT(errorCode != GLFW_NO_WINDOW_CONTEXT, what);
+        MIRR_ASSERT(errorCode != GLFW_INVALID_VALUE, what);
+        MIRR_ASSERT(errorCode != GLFW_INVALID_ENUM, what);
 
         // GLFW doesn't distinguish between some platform errors that are caused by the programmer. For example, when
         // using multithreading, if we don't detach the context from the old thread, before making it current on the
@@ -314,7 +314,7 @@ namespace mirras
         switch(errorCode)
         {
             case GLFW_OUT_OF_MEMORY:
-                ENGINE_LOG_ERROR("GLFW could not allocate the necessary memory");
+                LOG_ERROR("GLFW could not allocate the necessary memory");
                 throw std::bad_alloc();
 
             default:

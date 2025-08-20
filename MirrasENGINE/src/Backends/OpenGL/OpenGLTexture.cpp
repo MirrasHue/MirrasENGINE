@@ -46,7 +46,7 @@ namespace mirras
 
         if(!image)
         {
-            ENGINE_LOG_ERROR("Could not load image from: {}", imageFilepath.string());
+            LOG_ERROR("Could not load image from: {}", imageFilepath.string());
             width = height = channels = 0;
 
             return;
@@ -60,7 +60,7 @@ namespace mirras
 
         if(id == 0)
         {
-            ENGINE_LOG_ERROR("Failed to load OpenGL texture");
+            LOG_ERROR("Failed to load OpenGL texture");
             width = height = channels = mipmaps = 0;
 
             return;
@@ -73,14 +73,14 @@ namespace mirras
     {
         if(!specs.data)
         {
-            ENGINE_LOG_WARN("Creating texture with no pixel data");
+            LOG_WARN("Creating texture with no pixel data");
         }
 
         id = rlLoadTexture(specs.data, specs.width, specs.height, channelsToRaylibFormat(specs.channels), specs.mipmaps);
 
         if(id == 0)
         {
-            ENGINE_LOG_ERROR("Failed to load OpenGL texture");
+            LOG_ERROR("Failed to load OpenGL texture");
             return;
         }
 
@@ -113,13 +113,13 @@ namespace mirras
 
     void initRenderTextureOpenGL(RenderTexture2D& texture, int32 width, int32 height)
     {
-        MIRR_ASSERT_CORE_RETURN(width > 0 && height > 0, "Invalid render texture size: {} x {}", width, height);
+        MIRR_ASSERT_RETURN(width > 0 && height > 0, "Invalid render texture size: {} x {}", width, height);
 
         texture.id = rlLoadFramebuffer();
 
         if(texture.id == 0)
         {
-            ENGINE_LOG_ERROR("Unable to create framebuffer for the render texture");
+            LOG_ERROR("Unable to create framebuffer for the render texture");
             return;
         }
 
@@ -132,7 +132,7 @@ namespace mirras
 
         if(texture.color->id == 0)
         {
-            ENGINE_LOG_ERROR("Unable to create color texture for the render texture");
+            LOG_ERROR("Unable to create color texture for the render texture");
 
             texture.color.reset();
             rlUnloadFramebuffer(texture.id);
@@ -153,7 +153,7 @@ namespace mirras
 
         if(texture.depth->id == 0)
         {
-            ENGINE_LOG_ERROR("Unable to create depth texture for the render texture");
+            LOG_ERROR("Unable to create depth texture for the render texture");
 
             texture.color.reset();
             texture.depth.reset();
@@ -174,7 +174,7 @@ namespace mirras
         // Check if FBO is valid
         if(!rlFramebufferComplete(texture.id))
         {
-            ENGINE_LOG_ERROR("Render texture framebuffer is incomplete for some reason. Deleting it...");
+            LOG_ERROR("Render texture framebuffer is incomplete for some reason. Deleting it...");
 
             texture.color.reset();
             texture.depth.reset();
@@ -189,7 +189,7 @@ namespace mirras
 
     void resizeRenderTextureOpenGL(RenderTexture2D& texture, int32 width, int32 height)
     {
-        MIRR_ASSERT_CORE_RETURN(texture.id > 0 && texture.color && width > 0 && height > 0,
+        MIRR_ASSERT_RETURN(texture.id > 0 && texture.color && width > 0 && height > 0,
             "Invalid resize of render texture. ID: {}, null color: {}, requested size: {} x {}", texture.id, !(bool)texture.color, width, height);
 
         if(width == texture.color->width && height == texture.color->height)

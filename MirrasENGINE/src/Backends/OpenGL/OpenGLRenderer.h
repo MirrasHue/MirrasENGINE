@@ -29,6 +29,9 @@ namespace mirras
         void beginMode2D(Camera2D& camera);
         void endMode2D();
 
+        void enableDepthTest();
+        void disableDepthTest();
+
         void setLineWidth(float width);
 
         void drawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color);

@@ -36,27 +36,4 @@ namespace mirras
     private:
         single_ref<::Sound> sound;
     };
-
-
-    class Music
-    {
-        Music() = default;
-        Music(const fs::path& musicFilepath);
-
-        void loadFrom(const fs::path& musicFilepath);
-        void play();
-        void pause();
-        void resume();
-        void stop();
-
-        bool isPlaying();
-        bool isValid();
-
-        void seek(float position);
-
-        ~Music();
-
-    private:
-        single_ref<::Music> music;
-    };
 } // namespace mirras

@@ -54,9 +54,9 @@ namespace mirras
     {
         FreetypeHandle ftHandle{msdfgen::initializeFreetype()};
 
-        if(!ftHandle) // Not critical to the engine, so we don't need to terminate
+        if(!ftHandle) // Not critical to the framework, so we don't need to terminate
         {
-            ENGINE_LOG_ERROR("Could not initialize FreeType");
+            LOG_ERROR("Could not initialize FreeType");
             return false;
         }
 
@@ -64,7 +64,7 @@ namespace mirras
 
         if(!fontHandle)
         {
-            ENGINE_LOG_ERROR("Failed to load font: {}", fontFilepath.string());
+            LOG_ERROR("Failed to load font: {}", fontFilepath.string());
             return false;
         }
 
@@ -93,7 +93,7 @@ namespace mirras
 
         if(loadedGlyphs <= 0) // -1 is a valid return value
         {
-            ENGINE_LOG_ERROR("Failed to load glyphs specified in the charset");
+            LOG_ERROR("Failed to load glyphs specified in the charset");
             geometry.reset();
 
             return false;
@@ -123,7 +123,7 @@ namespace mirras
         // Before the bugfix in the FontGeometry constructor, sometimes result was equal 0 (success), but width and
         if(result != 0 || !(width > 0 && height > 0)) // height were still 0, so we do this extra check just in case
         {
-            ENGINE_LOG_ERROR("Failed to compute the font atlas layout when packing the glyphs");
+            LOG_ERROR("Failed to compute the font atlas layout when packing the glyphs");
             geometry.reset();
 
             return false;
@@ -141,11 +141,11 @@ namespace mirras
                 return true;
             else
             {
-                ENGINE_LOG_ERROR("Failed to load existing font atlas texture from {}. Generating a new one...", atlasPath.string());
+                LOG_ERROR("Failed to load existing font atlas texture from {}. Generating a new one...", atlasPath.string());
             }
         }
 
-        ENGINE_LOG_INFO("Generating font atlas texture...");
+        LOG_INFO("Generating font atlas texture...");
         
         constexpr int32 channels = 3; // MSDF atlas type has 3 channels
 
@@ -168,7 +168,7 @@ namespace mirras
 
         if(atlasTexture->id == 0)
         {
-            ENGINE_LOG_ERROR("Failed to create font atlas texture from the generated bitmap");
+            LOG_ERROR("Failed to create font atlas texture from the generated bitmap");
             geometry.reset();
             atlasTexture.reset();
 
@@ -177,7 +177,7 @@ namespace mirras
 
         if(!msdfgen::savePng(generator.atlasStorage(), atlasPath.string().c_str(), /*flipVertically =*/ true))
         {
-            ENGINE_LOG_ERROR("Failed to save the font atlas texture to {}", atlasPath.string());
+            LOG_ERROR("Failed to save the font atlas texture to {}", atlasPath.string());
         }
 
         return true;

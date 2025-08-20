@@ -36,8 +36,6 @@ namespace mirras
         bool isInCategory(EventCategory category) { return getEventCategory() == category; }
 
         virtual ~Event() = default;
-
-        bool propagable = true;
     };
 
     template <typename EventType>

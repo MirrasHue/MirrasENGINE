@@ -13,7 +13,7 @@ namespace mirras::file
 
         if(!file.is_open())
         {
-            ENGINE_LOG_ERROR("Could not open file: {}", filepath.string());
+            LOG_ERROR("Could not open file: {}", filepath.string());
             return {};
         }
 
@@ -24,7 +24,7 @@ namespace mirras::file
 
         if(!file.read(fileContent.data(), size))
         {
-            ENGINE_LOG_ERROR("Failed to read file: {}", filepath.string());
+            LOG_ERROR("Failed to read file: {}", filepath.string());
             return {};
         }
 

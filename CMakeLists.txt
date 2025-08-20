@@ -24,7 +24,6 @@ add_library(${PROJECT_NAME} STATIC ${engine_src} MirrasENGINE/3rdParty/raylib/sr
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        ${CMAKE_SOURCE_DIR}
         MirrasENGINE/src
         MirrasENGINE/3rdParty/raylib/include
         MirrasENGINE/3rdParty/Glad/include
@@ -37,21 +36,13 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(MirrasENGINE/3rdParty/GLFW)
 
-add_subdirectory(MirrasENGINE/3rdParty/ImGui)
-
 add_subdirectory(MirrasENGINE/3rdParty/EnTT)
 
 add_subdirectory(MirrasENGINE/3rdParty/GLM)
 
 add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
 
-target_link_libraries(${PROJECT_NAME} glfw ImGui EnTT glm msdf-atlas-gen)
-
-# Don't include spdlog in the distribution build
-if(NOT DEFINED PRESET_NAME OR NOT PRESET_NAME STREQUAL "distribution")
-    add_subdirectory(MirrasENGINE/3rdParty/spdlog)
-    target_link_libraries(${PROJECT_NAME} spdlog)
-endif()
+target_link_libraries(${PROJECT_NAME} glfw EnTT glm msdf-atlas-gen)
 
 # Define a location for the generated binaries, separated by build type.
 # Also simplify the specification of relative paths within the project structure,
@@ -75,6 +66,9 @@ if(WIN32 AND PRESET_NAME STREQUAL "distribution")
     endif()
 endif()
 
+# Forces GLM to default initialize its types
+target_compile_definitions(${PROJECT_NAME} PUBLIC GLM_FORCE_CTOR_INIT)
+
 if(WIN32 AND RUN_UPDATE_THREAD_WIN32)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
 endif()
@@ -82,21 +76,6 @@ endif()
 if(UNIX AND RUN_UPDATE_THREAD_LINUX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
 endif()
-
-##################################################################
-
-project(Editor)
-
-file(GLOB_RECURSE editor_src CONFIGURE_DEPENDS MirrasENGINE/Editor/src/*.cpp)
-
-add_executable(${PROJECT_NAME} ${editor_src})
-
-target_link_libraries(${PROJECT_NAME} PRIVATE MirrasENGINE)
-
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        MirrasENGINE/Editor/src
-)
 
 ##################################################################
 

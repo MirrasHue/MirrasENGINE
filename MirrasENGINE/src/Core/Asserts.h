@@ -17,19 +17,7 @@
 #endif
 
 #ifndef DISTRIBUTION_BUILD
-
     #include "Core/Log.h"
-
-    #define MIRR_ASSERT_CORE(expr, ...)                                      \
-        do{                                                                  \
-            if(!(expr))                                                      \
-            {                                                                \
-                ENGINE_LOG_ERROR("Assertion Failed: {}\nFile: {}, line {}",  \
-                    #expr, __FILE__, __LINE__);                              \
-                ENGINE_LOG_ERROR(__VA_ARGS__);                               \
-                breakpoint();                                                \
-            }                                                                \
-        } while(false)
 
     #define MIRR_ASSERT(expr, ...)                                    \
         do{                                                           \
@@ -43,26 +31,11 @@
         } while(false)
 
 #else
-    #define MIRR_ASSERT_CORE(expr, ...)
     #define MIRR_ASSERT(expr, ...)
 #endif
 
 // In some cases we still need the runtime check in distribution builds for extra safety
 // (mainly to protect against misuse by some user, or resources from the graphics API that fail to be created)
-#define MIRR_ASSERT_CORE_RETURN(expr, ...)    \
-    do{                                       \
-        MIRR_ASSERT_CORE(expr, __VA_ARGS__);  \
-        if(!(expr))                           \
-            return;                           \
-    } while(false)
-
-#define MIRR_ASSERT_CORE_RETURN_VALUE(expr, value, ...)  \
-    do{                                                  \
-        MIRR_ASSERT_CORE(expr, __VA_ARGS__);             \
-        if(!(expr))                                      \
-            return value;                                \
-    } while(false)
-
 #define MIRR_ASSERT_RETURN(expr, ...)    \
     do{                                  \
         MIRR_ASSERT(expr, __VA_ARGS__);  \

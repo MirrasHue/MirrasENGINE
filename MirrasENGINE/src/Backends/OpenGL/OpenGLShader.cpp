@@ -89,7 +89,7 @@ namespace mirras
 
         if(outLocation < 0)
         {
-            ENGINE_LOG_WARN("Uniform '{}' not found in shader", name);
+            LOG_WARN("Uniform '{}' not found in shader", name);
             return false;
         }
         
@@ -101,7 +101,7 @@ namespace mirras
     {
         if(location < 0)
         {
-            ENGINE_LOG_ERROR("Provided uniform location '{}' is not valid!", location);
+            LOG_ERROR("Provided uniform location '{}' is not valid!", location);
             return false;
         }
 

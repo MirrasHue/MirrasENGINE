@@ -82,7 +82,6 @@ namespace mirras
 
     bool Sound::isLooping()
     {
-        
         return sound ? IsSoundLooping(*sound) : false;
     }
 

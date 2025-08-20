@@ -62,6 +62,16 @@ namespace mirras
         renderer.endMode2D();
     }
 
+    void Renderer::enableDepthTest()
+    {
+        renderer.enableDepthTest();
+    }
+
+    void Renderer::disableDepthTest()
+    {
+        renderer.disableDepthTest();
+    }
+
     void Renderer::setLineWidth(float width)
     {
         renderer.setLineWidth(width);

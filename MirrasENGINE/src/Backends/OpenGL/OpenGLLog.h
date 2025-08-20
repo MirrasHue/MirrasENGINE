@@ -2,92 +2,61 @@
 
 #ifndef DISTRIBUTION_BUILD
     #include "Core/Asserts.h"
-    #include "Core/Types/Reference.h"
 
-    #include <fmt/printf.h>
-#endif
+    // Adapted from rlgl.h, instead of including the header just for the rlTraceLogLevel enum
+    enum class rlLogLevel
+    {
+        All = 0,     // Display all logs
+        Trace,       // Trace logging, intended for internal use only
+        Debug,       // Debug logging, used for internal debugging, it should be disabled on release builds
+        Info,        // Info logging, used for program execution info
+        Warning,     // Warning logging, used on recoverable failures
+        Error,       // Error logging, used on unrecoverable failures
+        Fatal,       // Fatal logging, used to abort program: exit(EXIT_FAILURE)
+        None         // Disable logging
+    };
 
-// Adapted from rlgl.h, instead of including the header just for the rlTraceLogLevel enum
-enum class rlLogLevel
-{
-    All = 0,     // Display all logs
-    Trace,       // Trace logging, intended for internal use only
-    Debug,       // Debug logging, used for internal debugging, it should be disabled on release builds
-    Info,        // Info logging, used for program execution info
-    Warning,     // Warning logging, used on recoverable failures
-    Error,       // Error logging, used on unrecoverable failures
-    Fatal,       // Fatal logging, used to abort program: exit(EXIT_FAILURE)
-    None         // Disable logging
-};
-
-namespace mirras
-{
-    class OpenGLLog
-	{
-	public:
-        static void init()
-        {
-    #ifndef DISTRIBUTION_BUILD
-            openGLLogger = spdlog::create<spdlog::sinks::stdout_color_sink_mt>("OpenGL");
-            openGLLogger->set_pattern("%^[%l - %n] %v%$");
-            openGLLogger->set_level(spdlog::level::trace);
-    #endif
-        }
-
+    namespace mirras
+    {
         template<typename... Args>
-        static void logCStyleFmt(int logLevel, const char* fmt, Args&&... args)
-    #ifndef DISTRIBUTION_BUILD
+        inline void logGL(int level, std::string_view fmt, Args&&... args)
         {
-            auto formatted = fmt::sprintf(fmt, std::forward<Args>(args)...);
+            auto msg = std::vformat(fmt, std::make_format_args(args...));
 
-            // Only 4 log levels are used by rlgl.h at the moment
-            switch(rlLogLevel{logLevel})
+            // Use std::println when it gets available by default on GCC (Windows)
+            switch(rlLogLevel{level})
             {
-                case rlLogLevel::Debug:
-                    openGLLogger->debug(formatted);
+                case rlLogLevel::Trace:
+                    printf("[TRACE] %s\n", msg.c_str());
                     break;
 
                 case rlLogLevel::Info:
-                    openGLLogger->info(formatted);
+                    printf("[INFO] %s\n", msg.c_str());
                     break;
 
                 case rlLogLevel::Warning:
-                    openGLLogger->warn(formatted);
+                    printf("[WARN] %s\n", msg.c_str());
                     break;
 
                 case rlLogLevel::Error:
-                    //openGLLogger->error(formatted);
-                    MIRR_ASSERT_CORE(false, formatted);
-                    break;
-
-                default:
-                    openGLLogger->trace(formatted);
+                    MIRR_ASSERT(false, msg.c_str());
                     break;
             }
         }
+    } // namespace mirras
 
-        inline static shared_ref<spdlog::logger> openGLLogger;
-    #else
-        { }
-    #endif
-	};
-} // namespace mirras
-
-#ifndef DISTRIBUTION_BUILD
-
-    #define TraceLogFmt(level, fmt, ...) mirras::OpenGLLog::logCStyleFmt(level, fmt, ##__VA_ARGS__)
-    #define TRACELOG(level, ...) TraceLogFmt(level, __VA_ARGS__)
+    #define TRACELOG(level, fmt, ...) mirras::logGL(level, fmt, ##__VA_ARGS__)
 
     #ifdef DEBUG_BUILD
         #define RLGL_ENABLE_OPENGL_DEBUG_CONTEXT
-        #define TRACELOGD(...) TraceLogFmt((int)rlLogLevel::Debug, __VA_ARGS__)
+        #define TRACELOGD(fmt, ...) mirras::logGL((int)rlLogLevel::Debug, fmt, ##__VA_ARGS__)
     #else
-        #define TRACELOGD(...)
+        #define TRACELOGD(fmt, ...)
     #endif
 
 #else
 
-    #define TRACELOG(level, ...)
-    #define TRACELOGD(...)
+    #define TRACELOG(level, fmt, ...)
+    #define TRACELOGD(fmt, ...)
 
 #endif

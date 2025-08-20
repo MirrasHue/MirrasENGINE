@@ -13,7 +13,7 @@ namespace mirras
 
         static bool isKeyDown(Key key);
         static bool isMouseButtonDown(Mouse button);
-    
+
     public:
         inline static vec2f mouseWheelScroll;
     };

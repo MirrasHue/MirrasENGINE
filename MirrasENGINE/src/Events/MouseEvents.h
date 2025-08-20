@@ -17,8 +17,8 @@ namespace mirras
         MouseButtonEvent(MouseButton buttonCode, ModifierKeyFlag modifiers) :
             button{buttonCode}, keyModifierFlags{modifiers} {}
 
-        ModifierKeyFlag keyModifierFlags{};
         MouseButton button = MouseButton::None;
+        ModifierKeyFlag keyModifierFlags{};
     };
 
     class MouseButtonPressed : public MouseButtonEvent

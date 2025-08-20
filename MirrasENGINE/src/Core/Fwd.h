@@ -16,8 +16,4 @@ namespace mirras
     using RenderTexture2D = RenderTexture;
 
     class Font;
-
-    class Entity;
-    class EntityScript;
-
 } // namespace mirras

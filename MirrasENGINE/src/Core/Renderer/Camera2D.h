@@ -14,7 +14,7 @@ namespace mirras
         Camera2D() = default;
         Camera2D(glm::vec2 position, glm::vec2 offset = {}, float rotation = 0.f, float zoom = 1.f);
 
-        // Already called for us by the engine, no need to call it ourselves
+        // Already called for us by the framework, no need to call it ourselves
         void targetSize(int32 framebufferWidth, int32 framebufferHeight);
 
     public:

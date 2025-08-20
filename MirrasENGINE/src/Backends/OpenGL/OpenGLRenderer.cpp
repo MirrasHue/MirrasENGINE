@@ -44,8 +44,6 @@ namespace mirras
 
     void OpenGLRenderer::init()
     {
-        OpenGLLog::init();
-
         if(!gladLoadGL(glfwGetProcAddress))
             external_adversity("Could not initialize GLAD\n");
 
@@ -60,10 +58,6 @@ namespace mirras
         initialWindowFbSize = {width , height};
         windowFbSize = initialWindowFbSize;
         Camera2D::currentFbInitialSize = initialWindowFbSize;
-
-        // So that we can use the Z axis to determine the draw order
-        // independent of the draw call order (for different Z values)
-        rlEnableDepthTest();
     }
 
     void OpenGLRenderer::shutdown()
@@ -127,7 +121,7 @@ namespace mirras
 
     void OpenGLRenderer::beginTextureDrawing(const RenderTexture2D& texture)
     {
-        MIRR_ASSERT_CORE_RETURN(texture.id > 0 && texture.color,
+        MIRR_ASSERT_RETURN(texture.id > 0 && texture.color,
             "Invalid render texture. ID: {}, null color: {}", texture.id, !(bool)texture.color);
 
         rlDrawRenderBatchActive();
@@ -162,6 +156,16 @@ namespace mirras
     {
         rlDrawRenderBatchActive();
         rlLoadIdentity();
+    }
+
+    void OpenGLRenderer::enableDepthTest()
+    {
+        rlEnableDepthTest();
+    }
+
+    void OpenGLRenderer::disableDepthTest()
+    {
+        rlDisableDepthTest();
     }
 
     void OpenGLRenderer::setLineWidth(float width)
@@ -268,7 +272,7 @@ namespace mirras
     {
         if(segments < 3)
         {
-            ENGINE_LOG_WARN("Trying to draw circle with less than 3 segments");
+            LOG_WARN("Trying to draw circle with less than 3 segments");
             return;
         }
 
@@ -297,7 +301,7 @@ namespace mirras
     {
         if(fillFactor <= 0.f || fadeFactor <= 0.f)
         {
-            ENGINE_LOG_WARN("Fill and fade factors must be greater than 0");
+            LOG_WARN("Fill and fade factors must be greater than 0");
             return;
         }
 
@@ -373,7 +377,7 @@ namespace mirras
     {
         if(texture.id == 0)
         {
-            ENGINE_LOG_WARN("Not possible to draw texture with ID: 0");
+            LOG_WARN("Not possible to draw texture with ID: 0");
             return;
         }
 
@@ -422,7 +426,7 @@ namespace mirras
     {
         if(!font.geometry || !font.atlasTexture)
         {
-            ENGINE_LOG_ERROR("Font was not properly initialized, unable to render text with it");
+            LOG_ERROR("Font was not properly initialized, unable to render text with it");
             return;
         }
 
@@ -510,7 +514,7 @@ namespace mirras
 
             if(!glyph)
             {
-                ENGINE_LOG_WARN("Limited font charset was loaded, some basic characters are missing. Unable to draw the requested text");
+                LOG_WARN("Limited font charset was loaded, some basic characters are missing. Unable to draw the requested text");
                 break;
             }
 

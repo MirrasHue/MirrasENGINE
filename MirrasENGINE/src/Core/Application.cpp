@@ -9,8 +9,6 @@
 
 #include "Input/Input.h"
 
-#include "UI/ImGui.h"
-
 #include <ranges>
 #include <filesystem_fs>
 
@@ -22,7 +20,7 @@ namespace mirras
 {
     App::App(const AppSpecs& appSpecs, const WindowSpecs& windowSpecs)
     {
-        MIRR_ASSERT_CORE(appInstance == nullptr, "One instance of application already exists");
+        MIRR_ASSERT(appInstance == nullptr, "One instance of application already exists");
         appInstance = this;
 
         eventHandler.connectEvents(this);
@@ -33,12 +31,8 @@ namespace mirras
         window.init(windowSpecs);
         window.setAppEventHandler(&eventHandler);
 
-        Log::initAppLog(appSpecs.name);
-
         Renderer::init(appSpecs.backend);
         Renderer::setClearColor(0.2f, 0.2f, 0.2f);
-
-        imgui::init();
 
         fixedTimestep = 1.f / appSpecs.updateRate;
         handleStopOnClose = appSpecs.autoStopOnClose;
@@ -46,14 +40,16 @@ namespace mirras
 
     void App::run()
     {
+        load();
+
         window.makeVisible(true);
 
         ASYNC_UPDATE
         (
             window.makeContextCurrent(false);
-            std::jthread updateThread{&App::update, this};
+            std::thread updateThread{&App::updateRender, this};
         )
-        
+
         Timer timer;
 
         while(running)
@@ -68,15 +64,23 @@ namespace mirras
 
                 window.pollEvents();
 
-                updateLayers(frameTime);
+                updateApp(frameTime);
 
-                renderLayers();
+                renderApp();
 
                 window.swapBuffers();
 
                 Input::mouseWheelScroll = vec2f{};
             )
         }
+
+        ASYNC_UPDATE
+        (
+            if(updateThread.joinable())
+                updateThread.join();
+        )
+
+        unload();
     }
 
     void App::stop()
@@ -85,40 +89,29 @@ namespace mirras
         window.postEmptyEvent();
     }
 
-    void App::updateLayers(float frameTime)
+    void App::updateApp(float frameTime)
     {
         static float frameTimeAccumulator{};
         frameTimeAccumulator += frameTime;
 
         while(frameTimeAccumulator >= fixedTimestep)
         {
-            for(auto& layer : layers)
-                layer->fixedUpdate(fixedTimestep);
-
+            fixedUpdate(fixedTimestep);
             frameTimeAccumulator -= fixedTimestep;
         }
 
-        for(auto& layer : layers)
-            layer->update(frameTime);
+        update(frameTime);
     }
 
-    void App::renderLayers()
+    void App::renderApp()
     {
         Renderer::clearBackBuffers();
 
         Renderer::beginDrawing();
 
-            for(auto& layer : layers)
-                layer->draw();
+            draw();
 
         Renderer::endDrawing();
-
-        imgui::beginFrame();
-
-            for(auto& layer : layers)
-                layer->drawImGui();
-
-        imgui::endFrame();
     }
 
     ASYNC_UPDATE
@@ -136,7 +129,7 @@ namespace mirras
             window.makeContextCurrent(true);
         }
         
-        void App::update()
+        void App::updateRender()
         {
             window.makeContextCurrent(true);
             Timer timer;
@@ -147,7 +140,7 @@ namespace mirras
 
                 eventHandler.process();
 
-                updateLayers(frameTime);
+                updateApp(frameTime);
 
                 if(resizing)
                 {
@@ -156,7 +149,7 @@ namespace mirras
                     // Because of the way we do multithreading, ImGui widgets start to flicker on resize when VSync is disabled
                     // Waiting here for atleast 4ms seems to eliminate the flickering for the most part (have to test elsewhere)
 
-                    // Also, while testing the engine with lower CPU clock speeds (notebook unplugged), there's some flickering
+                    // Also, while testing the framework with lower CPU clock speeds (notebook unplugged), there's some flickering
                     // when running on release even with VSync enabled. So it's better to slowdown a bit, regardless of configuration
 
                     //if(!OSWindow::isVSynced())
@@ -165,7 +158,7 @@ namespace mirras
                     continue;
                 }
 
-                renderLayers();
+                renderApp();
 
                 Input::mouseWheelScroll = vec2f{};
 
@@ -182,9 +175,9 @@ namespace mirras
             window.makeContextCurrent(true);
 
             Renderer::setWindowViewport(0, 0, width, height);
-            
+
             // Keep rendering on window resize
-            renderLayers();
+            renderApp();
 
             window.swapBuffers();
 
@@ -216,43 +209,24 @@ namespace mirras
         Input::mouseWheelScroll = event.mouseWheelOffset;
     }
 
-    void App::onEvent(Event& event)
+    void App::onAppEvent(Event& event)
     {
         if(Event::is_a<WindowClosed>(event) && handleStopOnClose)
             stop();
 
-        imgui::onEvent(event);
-
         Event::dispatch<MouseWheelScrolled, &updateMouseScrollInput>(event);
 
-        for(auto& layer : layers | std::views::reverse)
-        {
-            if(!event.propagable)
-                break;
-
-            layer->onEvent(event);
-        }
+        onEvent(event);
     }
 
     App& App::getInstance()
     {
-        MIRR_ASSERT_CORE(appInstance, "No application instance yet");
+        MIRR_ASSERT(appInstance, "No application instance yet");
         return *appInstance;
-    }
-
-    void App::addLayer(single_ref<Layer> layer)
-    {
-        layers.addLayer(std::move(layer));
-    }
-
-    void App::addOverlay(single_ref<Layer> layer)
-    {
-        layers.addOverlay(std::move(layer));
     }
 
     App::~App()
     {
-        imgui::shutdown();
         Renderer::shutdown();
     }
 } // namespace mirras

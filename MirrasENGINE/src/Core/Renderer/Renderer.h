@@ -30,7 +30,7 @@ namespace mirras
         static void clearBackBuffers();
         static void setClearColor(float r, float g, float b, float a = 1.f);
 
-        // These two are already called for us by the engine, no need to call them ourselves
+        // These two are already called for us by the framework, no need to call them ourselves
         static void beginDrawing();
         static void endDrawing();
 
@@ -39,6 +39,9 @@ namespace mirras
 
         static void beginMode2D(Camera2D& camera);
         static void endMode2D();
+
+        static void enableDepthTest();
+        static void disableDepthTest();
 
         static void setLineWidth(float width);
 
