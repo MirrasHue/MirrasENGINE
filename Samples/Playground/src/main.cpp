@@ -3,10 +3,9 @@
 int main()
 {
     mirras::AppSpecs appSpecs {
-        .name = "Playground",
         .workingDirectory = "../../Samples/Playground",
         .backend = mirras::Renderer::Backend::OpenGL,
-        .updateRate = 60
+        .fixedUpdateRate = 60
     };
 
     mirras::WindowSpecs windowSpecs {

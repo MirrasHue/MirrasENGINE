@@ -49,10 +49,10 @@ namespace mirras
         void drawShaderCircle(const glm::vec3& center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor);
         void drawShaderCircle(glm::vec2 center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor);
 
-        void drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
+        void drawTexture(const Texture& texture, const rect4f& texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
                          glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
         
-        void drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
+        void drawTexture(const Texture& texture, const rect4f& texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
                          glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
 
         void drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeftPos,

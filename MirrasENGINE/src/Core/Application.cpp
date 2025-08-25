@@ -34,12 +34,20 @@ namespace mirras
         Renderer::init(appSpecs.backend);
         Renderer::setClearColor(0.2f, 0.2f, 0.2f);
 
-        fixedTimestep = 1.f / appSpecs.updateRate;
+        fixedTimestep = 1.f / appSpecs.fixedUpdateRate;
         handleStopOnClose = appSpecs.autoStopOnClose;
     }
 
     void App::run()
     {
+        if(running)
+        {
+            LOG_WARN("Application is already running");
+            return;
+        }
+
+        running = true;
+
         load();
 
         window.makeVisible(true);

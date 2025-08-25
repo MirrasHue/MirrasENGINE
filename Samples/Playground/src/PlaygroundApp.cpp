@@ -1,5 +1,3 @@
-#include "MirrasENGINE.h"
-
 #include "PlaygroundApp.h"
 
 using namespace mirras;
@@ -112,7 +110,10 @@ void PlaygroundApp::draw()
 
 void PlaygroundApp::update(float dt)
 {
-    rotation += 30 * dt; // Temp, rotation should be capped
+    rotation += 30 * dt;
+
+    if(rotation > 360.f)
+        rotation -= 360.f;
 
     cameraController.update(dt);
     cameraController.updateZoom();

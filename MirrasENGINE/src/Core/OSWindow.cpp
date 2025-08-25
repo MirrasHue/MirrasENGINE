@@ -47,6 +47,11 @@ namespace mirras
         int32 width = windowSpecs.width;
         int32 height = windowSpecs.height;
 
+        if(windowSpecs.maximized)
+        {
+            glfwWindowHint(GLFW_MAXIMIZED, true);
+        }
+        else
         if(windowSpecs.fullScreen)
         {
             monitor = glfwGetPrimaryMonitor();
@@ -58,8 +63,9 @@ namespace mirras
             glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
         }
 
-        auto title = windowSpecs.title;
         glfwWindowHint(GLFW_VISIBLE, false); // Delay showing the window to avoid seeing a white filled one on Windows
+
+        const auto& title = windowSpecs.title;
 
         windowHandle = glfwCreateWindow(width, height, title.empty() ? " " : title.data(), monitor, nullptr);
 

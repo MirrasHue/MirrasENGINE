@@ -373,7 +373,7 @@ namespace mirras
         drawShaderCircle(glm::vec3{center, rlGetCurrentDrawDepth()}, radius, color, fillFactor, fadeFactor);
     }
 
-    void OpenGLRenderer::drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize, glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void OpenGLRenderer::drawTexture(const Texture& texture, const rect4f& texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize, glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         if(texture.id == 0)
         {
@@ -381,10 +381,20 @@ namespace mirras
             return;
         }
 
-        if(texSampleArea == rect4f{}) // Make use of the entire texture
+        rect4f sampleArea = texSampleArea;
+        const float texWidth  = texture.width;
+        const float texHeight = texture.height;
+
+        if(sampleArea == rect4f{}) // Make use of the entire texture
         {
-            texSampleArea.width = texture.width;
-            texSampleArea.height = texture.height;
+            sampleArea.width  = texWidth;
+            sampleArea.height = texHeight;
+        }
+
+        if(targetSize == glm::vec2{}) // Use the texture's original size for drawing
+        {
+            targetSize.x = texWidth;
+            targetSize.y = texHeight;
         }
 
         auto[topLeft,    topRight,
@@ -392,32 +402,29 @@ namespace mirras
 
         const float z = targetTopLeft.z;
 
-        const float texWidth = texture.width;
-        const float texHeight = texture.height;
-
         rlSetTexture(texture.id);
 
         rlBegin(RL_QUADS);
             rlColor4f(tintColor.r, tintColor.g, tintColor.b, tintColor.a);
             rlNormal3f(0.f, 0.f, -1.f);
 
-            rlTexCoord2f(texSampleArea.x / texWidth, texSampleArea.y / texHeight);
+            rlTexCoord2f(sampleArea.x / texWidth, sampleArea.y / texHeight);
             rlVertex3f(topLeft.x, topLeft.y, z);
 
-            rlTexCoord2f(texSampleArea.x / texWidth, (texSampleArea.y + texSampleArea.height) / texHeight);
+            rlTexCoord2f(sampleArea.x / texWidth, (sampleArea.y + sampleArea.height) / texHeight);
             rlVertex3f(bottomLeft.x, bottomLeft.y, z);
 
-            rlTexCoord2f((texSampleArea.x + texSampleArea.width) / texWidth, (texSampleArea.y + texSampleArea.height) / texHeight);
+            rlTexCoord2f((sampleArea.x + sampleArea.width) / texWidth, (sampleArea.y + sampleArea.height) / texHeight);
             rlVertex3f(bottomRight.x, bottomRight.y, z);
 
-            rlTexCoord2f((texSampleArea.x + texSampleArea.width) / texWidth, texSampleArea.y / texHeight);
+            rlTexCoord2f((sampleArea.x + sampleArea.width) / texWidth, sampleArea.y / texHeight);
             rlVertex3f(topRight.x, topRight.y, z);
         rlEnd();
 
         rlSetTexture(0);
     }
 
-    void OpenGLRenderer::drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void OpenGLRenderer::drawTexture(const Texture& texture, const rect4f& texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         drawTexture(texture, texSampleArea, glm::vec3{targetTopLeft, rlGetCurrentDrawDepth()}, targetSize, targetOrigin, rotation, tintColor);
     }

@@ -17,10 +17,9 @@ namespace mirras
 {
     struct AppSpecs
     {
-        std::string_view name = "Framework";
         std::string_view workingDirectory;
         Renderer::Backend backend = Renderer::Backend::OpenGL;
-        uint16 updateRate = 60;
+        uint16 fixedUpdateRate = 60;
         // Set to false if you need to do extra work before exiting, then call stop()
         bool autoStopOnClose = true;
     };
@@ -30,14 +29,6 @@ namespace mirras
     public:
         App(const AppSpecs& AppSpecs, const WindowSpecs& windowSpecs);
 
-        // User defined functions
-        virtual void load() {}
-        virtual void update(float dt) {}
-        virtual void fixedUpdate(float dt) {}
-        virtual void onEvent(Event& event) {}
-        virtual void draw() {}
-        virtual void unload() {}
-
         void run();
         void stop();
 
@@ -45,6 +36,15 @@ namespace mirras
         static OSWindow& getOSWindow() { return App::getInstance().window; }
 
         virtual ~App();
+
+    protected:
+        // User defined functions
+        virtual void load() {}
+        virtual void update(float dt) {}
+        virtual void fixedUpdate(float dt) {}
+        virtual void onEvent(Event& event) {}
+        virtual void draw() {}
+        virtual void unload() {}
 
     private:
         void updateApp(float frameTime);
@@ -70,13 +70,13 @@ namespace mirras
         (
             std::atomic_bool switchContext = false;
             std::atomic_bool resizing = false;
-            std::atomic_bool running = true;
+            std::atomic_bool running = false;
         )
 
         bool handleStopOnClose = true;
 
         NO_ASYNC_UPDATE (
-            bool running = true;
+            bool running = false;
         )
 
         float fixedTimestep = 0.f;

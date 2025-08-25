@@ -10,6 +10,7 @@ namespace mirras
         T x{}, y{};
 
         bool operator ==(const Vec2<T>& rhs) const = default;
+        Vec2 operator /(T scalar){ return {x / scalar, y / scalar}; }
     };
 
     using vec2i = Vec2<int32>;

@@ -10,6 +10,7 @@ set(DYNAMIC_RUNTIME ON)
 
 set(RUN_UPDATE_THREAD_WIN32 ON)
 set(RUN_UPDATE_THREAD_LINUX OFF)
+set(RUN_UPDATE_THREAD_MACOS OFF)
 
 ##################################################################
 
@@ -74,6 +75,10 @@ if(WIN32 AND RUN_UPDATE_THREAD_WIN32)
 endif()
 
 if(UNIX AND RUN_UPDATE_THREAD_LINUX)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
+endif()
+
+if(APPLE AND RUN_UPDATE_THREAD_MACOS)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
 endif()
 

@@ -42,6 +42,16 @@ namespace mirras
 
     OpenGLTexture::OpenGLTexture(const fs::path& imageFilepath, TextureFilter filter)
     {
+        init(imageFilepath, filter);
+    }
+
+    OpenGLTexture::OpenGLTexture(const TextureSpecs& specs) 
+    {
+        init(specs);
+    }
+
+    void OpenGLTexture::init(const fs::path& imageFilepath, TextureFilter filter)
+    {
         auto* image = stbi_load(imageFilepath.string().c_str(), &width, &height, &channels, 0);
 
         if(!image)
@@ -69,7 +79,7 @@ namespace mirras
         applyTextureFilter(id, filter);
     }
 
-    OpenGLTexture::OpenGLTexture(const TextureSpecs& specs) 
+    void OpenGLTexture::init(const TextureSpecs& specs)
     {
         if(!specs.data)
         {

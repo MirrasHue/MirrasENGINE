@@ -13,4 +13,14 @@ endif()
 
 #############################################################################
 
+option(BUILD_BENCHMARK "Build sample: Benchmark" ON)
 
+if(BUILD_BENCHMARK)
+    # Fetch source files
+    file(GLOB_RECURSE benchmark_src CONFIGURE_DEPENDS Benchmark/src/*.cpp)
+
+    add_executable(Benchmark ${benchmark_src})
+
+    target_link_libraries(Benchmark MirrasENGINE)
+
+endif()

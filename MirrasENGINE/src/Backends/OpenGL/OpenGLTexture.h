@@ -11,6 +11,9 @@ namespace mirras
         OpenGLTexture(const fs::path& imageFilepath, TextureFilter filter);
         OpenGLTexture(const TextureSpecs& specs);
 
+        void init(const fs::path& imageFilepath, TextureFilter filter);
+        void init(const TextureSpecs& specs);
+
         virtual void makeActive()   const override;
         virtual void makeInactive() const override;
 
