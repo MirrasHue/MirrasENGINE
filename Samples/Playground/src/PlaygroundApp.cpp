@@ -55,7 +55,7 @@ void PlaygroundApp::load()
     points[2] = {triangleCenter.x, triangleCenter.y - 100, 0.f};
 
     texture = Texture::loadFrom("assets/textures/GuadagniniModel.png");
-    font = instantiate<Font>("assets/fonts/consolas.ttf");
+    font = instantiate<Font>("assets/fonts/Doto_Rounded-Black.ttf");
 
     sound1.loadFrom("assets/doodle_pop.ogg");
     sound2.loadFrom("assets/target.ogg");

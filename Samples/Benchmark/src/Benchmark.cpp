@@ -30,8 +30,8 @@ void Benchmark::load()
         //sprite.texture.init(specs);
         sprite.x = screenW / 2;
         sprite.y = screenH / 2;
-        sprite.vx = std::cosf(angle) * speed;
-        sprite.vy = std::sinf(angle) * speed;
+        sprite.vx = std::cos(angle) * speed;
+        sprite.vy = std::sin(angle) * speed;
     }
 
     Renderer::setClearColor(0.f, 0.f, 0.f); // Black
@@ -87,7 +87,7 @@ void Benchmark::fixedUpdate(float dt)
 
 void Benchmark::draw()
 {
-    for(auto& sprite : sprites)
+    for(const auto& sprite : sprites)
         Renderer::drawTexture(texture, {}, {sprite.x, sprite.y});
         //Renderer::drawTexture(sprite.texture, {}, {sprite.x, sprite.y});
 }

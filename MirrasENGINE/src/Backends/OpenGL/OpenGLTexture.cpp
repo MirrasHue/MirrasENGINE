@@ -45,7 +45,7 @@ namespace mirras
         init(imageFilepath, filter);
     }
 
-    OpenGLTexture::OpenGLTexture(const TextureSpecs& specs) 
+    OpenGLTexture::OpenGLTexture(const TextureSpecs& specs)
     {
         init(specs);
     }
