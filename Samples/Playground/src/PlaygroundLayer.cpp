@@ -55,7 +55,7 @@ void PlaygroundLayer::load()
     points[2] = {triangleCenter.x, triangleCenter.y - 100, 0.f};
 
     texture = mirras::Texture::loadFrom("assets/textures/GuadagniniModel.png");
-    font = mirras::instantiate<mirras::Font>("assets/fonts/consolas.ttf");
+    font = mirras::instantiate<mirras::Font>("assets/fonts/Doto_Rounded-Black.ttf");
 
     mirras::Renderer::setLineWidth(1.f);
     sound1.loadFrom("assets/doodle_pop.ogg");

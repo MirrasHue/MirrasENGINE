@@ -18,7 +18,7 @@ namespace mirras
         ImGuiIO& io = ImGui::GetIO();
 
         io.ConfigDpiScaleFonts = true;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/bahnschrift.ttf");
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-SemiBold.ttf");
 
         auto scene1 = instantiate<Scene>("Scene1");
         auto scene2 = instantiate<Scene>("Scene2");
@@ -28,8 +28,9 @@ namespace mirras
 
         auto textEntity = scene1->createEntity("Text");
         auto& text = textEntity.add<TextComponent>();
-        text.font = instantiate<Font>("Assets/Fonts/consolas.ttf");
+        text.font = instantiate<Font>("Assets/Fonts/Doto_Rounded-Black.ttf");
         text.text = L"Hello World!";
+        text.fontSize = 48.f;
 
         auto rectEntity = scene1->createEntity("Square");
         auto& rect = rectEntity.add<RectangleComponent>();
