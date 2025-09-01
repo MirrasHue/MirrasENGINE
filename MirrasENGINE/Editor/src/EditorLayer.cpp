@@ -37,10 +37,17 @@ namespace mirras
         rect.size  = {200, 200};
         rect.color = {0, 0, 1, 1};
 
-        auto rectEntity2 = scene2->createEntity("Rectangle");
+        auto rectEntity2 = scene1->createEntity("Square2");
+        auto& transform = rectEntity2.get<TransformComponent>();
+        transform.position = {400, 0, 0};
         auto& rect2 = rectEntity2.add<RectangleComponent>();
         rect2.size  = {200, 200};
-        rect2.color = {1, 0, 0, 1};
+        rect2.color = {0, 1, 0, 1};
+
+        auto rectEntity3 = scene2->createEntity("Rectangle");
+        auto& rect3 = rectEntity3.add<RectangleComponent>();
+        rect3.size  = {200, 200};
+        rect3.color = {1, 0, 0, 1};
 
         scenes.emplace_back(std::move(scene1));
         scenes.emplace_back(std::move(scene2));
@@ -82,6 +89,8 @@ namespace mirras
         {
             Renderer::beginTextureDrawing(editorScene.canvas);
                 Renderer::clearBackBuffers();
+
+                editorScene.canvas.clear(Attachment::RedInteger, -1);
 
                 switch(editorScene.state)
                 {
@@ -150,13 +159,29 @@ namespace mirras
                 {
                     zoomController.setCamera(&editorScene.camera);
                     editorScene.hovered = true;
+
+                    auto [x, y] = ImGui::GetCursorScreenPos();
+                    auto [mx, my] = ImGui::GetMousePos();
+
+                    // Convert the mouse position to be relative to the viewport bounds
+                    mx -= x;
+                    my = height - (my - y); // Flip Y axis for texture pixel reading
+
+                    if(ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+                    {
+                        int32 pixelData = -1;
+                        pixelData = editorScene.canvas.readPixel(Attachment::RedInteger, mx, my);
+
+                        editorScene.selectedEntity = (pixelData != -1) ?
+                            Entity{(entt::entity)pixelData, &editorScene.scene->registry} : Entity{};
+                    }
                 }
 
                 // So that we keep showing the hierarchy panel for this scene when its tab is selected but not focused
                 if(!activeScene && ImGui::GetCurrentWindow()->DockTabIsVisible)
                     activeScene = &editorScene;
 
-                ImGui::Image(editorScene.canvas.color->id, {width, height}, {0, 1}, {1, 0});
+                ImGui::Image(editorScene.canvas.color, {width, height}, {0, 1}, {1, 0});
             }
             ImGui::End();
             ImGui::PopStyleVar();

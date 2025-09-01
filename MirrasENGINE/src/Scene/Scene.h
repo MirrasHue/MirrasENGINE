@@ -31,6 +31,7 @@ namespace mirras
         entt::registry registry;
         UUID id;
 
+        friend class EditorLayer;
         friend class SceneHierarchyPanel;
     };
 

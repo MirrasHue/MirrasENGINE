@@ -31,6 +31,6 @@ namespace mirras
         SceneHierarchyPanel sceneHierarchy;
         EntityPropertiesPanel entityProperties;
 
-        float fontSize = 17.f; // Used by ImGui text
+        //float fontSize = 17.f; // Used by ImGui text
     };
 } // namespace mirras

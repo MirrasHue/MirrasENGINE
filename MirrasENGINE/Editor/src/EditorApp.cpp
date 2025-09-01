@@ -21,7 +21,7 @@ namespace mirras
             .name = "Editor",
             .workingDirectory = "../../MirrasENGINE/Editor",
             .backend = Renderer::Backend::OpenGL,
-            .updateRate = 60,
+            .fixedUpdateRate = 60,
             .autoStopOnClose = false
         };
 
