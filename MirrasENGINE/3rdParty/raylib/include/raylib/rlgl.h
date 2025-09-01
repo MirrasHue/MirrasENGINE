@@ -341,6 +341,9 @@
 #ifndef RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2
     #define RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2 5
 #endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_LOCATION_PIXELDATA
+    #define RL_DEFAULT_SHADER_ATTRIB_LOCATION_PIXELDATA 6
+#endif
 
 // Default shader vertex attribute names to set location points
 #ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION
@@ -360,6 +363,9 @@
 #endif
 #ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2
     #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2    "vertexTexCoord2"   // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2
+#endif
+#ifndef RL_DEFAULT_SHADER_ATTRIB_NAME_PIXELDATA
+    #define RL_DEFAULT_SHADER_ATTRIB_NAME_PIXELDATA    "pixelOutputData"   // Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_NAME_PIXELDATA
 #endif
 
 #ifndef RL_DEFAULT_SHADER_UNIFORM_NAME_MVP
@@ -419,6 +425,7 @@ typedef struct rlVertexBuffer {
     float *texcoords;           // Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
     float *normals;             // Vertex normal (XYZ - 3 components per vertex) (shader-location = 2)
     unsigned char *colors;      // Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
+    int *pixeldata;             // Vertex pixel data (int - 1 component per vertex) (shader-location = 4)
 #if defined(GRAPHICS_API_OPENGL_11) || defined(GRAPHICS_API_OPENGL_33)
     unsigned int *indices;      // Vertex indices (in case vertex data comes indexed) (6 indices per quad)
 #endif
@@ -426,7 +433,7 @@ typedef struct rlVertexBuffer {
     unsigned short *indices;    // Vertex indices (in case vertex data comes indexed) (6 indices per quad)
 #endif
     unsigned int vaoId;         // OpenGL Vertex Array Object id
-    unsigned int vboId[5];      // OpenGL Vertex Buffer Objects id (5 types of vertex data)
+    unsigned int vboId[6];      // OpenGL Vertex Buffer Objects id (5 types of vertex data)
 } rlVertexBuffer;
 
 // Draw call type
@@ -490,6 +497,7 @@ typedef enum {
     RL_PIXELFORMAT_UNCOMPRESSED_R4G4B4A4,          // 16 bpp (4 bit alpha)
     RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,          // 32 bpp
     RL_PIXELFORMAT_UNCOMPRESSED_R32,               // 32 bpp (1 channel - float)
+    RL_PIXELFORMAT_UNCOMPRESSED_R32I,              // 32 bpp (1 channel - int)
     RL_PIXELFORMAT_UNCOMPRESSED_R32G32B32,         // 32*3 bpp (3 channels - float)
     RL_PIXELFORMAT_UNCOMPRESSED_R32G32B32A32,      // 32*4 bpp (4 channels - float)
     RL_PIXELFORMAT_UNCOMPRESSED_R16,               // 16 bpp (1 channel - half float)
@@ -559,7 +567,8 @@ typedef enum {
     RL_SHADER_LOC_MAP_CUBEMAP,          // Shader location: samplerCube texture: cubemap
     RL_SHADER_LOC_MAP_IRRADIANCE,       // Shader location: samplerCube texture: irradiance
     RL_SHADER_LOC_MAP_PREFILTER,        // Shader location: samplerCube texture: prefilter
-    RL_SHADER_LOC_MAP_BRDF              // Shader location: sampler2d texture: brdf
+    RL_SHADER_LOC_MAP_BRDF,             // Shader location: sampler2d texture: brdf
+    RL_SHADER_LOC_VERTEX_PIXELDATA      // Shader location: vertex attribute: normal
 } rlShaderLocationIndex;
 
 #define RL_SHADER_LOC_MAP_DIFFUSE       RL_SHADER_LOC_MAP_ALBEDO
@@ -659,6 +668,7 @@ RLAPI void rlNormal3f(float x, float y, float z);       // Define one vertex (no
 RLAPI void rlColor4ub(unsigned char r, unsigned char g, unsigned char b, unsigned char a); // Define one vertex (color) - 4 byte
 RLAPI void rlColor3f(float x, float y, float z);        // Define one vertex (color) - 3 float
 RLAPI void rlColor4f(float x, float y, float z, float w); // Define one vertex (color) - 4 float
+RLAPI void rlPixelOutputData(int value); // Define one int that is going to be stored in a second color attachment (RED_INTEGER)
 
 //------------------------------------------------------------------------------------
 // Functions Declaration - OpenGL style functions (common to 1.1, 3.3+, ES2)
@@ -813,7 +823,7 @@ RLAPI void rlSetUniformSampler(int locIndex, unsigned int textureId);           
 RLAPI void rlSetShader(unsigned int id, int *locs);                             // Set shader currently active (id and locations)
 
 RLAPI unsigned int rlGetCurrentShaderId();
-RLAPI int* rlGetCurrentShaderLocs();
+RLAPI int *rlGetCurrentShaderLocs();
 
 // Compute shader management
 RLAPI unsigned int rlLoadComputeShaderProgram(unsigned int shaderId);           // Load compute shader program
@@ -1025,6 +1035,7 @@ typedef struct rlglData {
         float texcoordx, texcoordy;         // Current active texture coordinate (added on glVertex*())
         float normalx, normaly, normalz;    // Current active normal (added on glVertex*())
         unsigned char colorr, colorg, colorb, colora;   // Current active color (added on glVertex*())
+        int pixeldata;                      // Current active value to be stored in a second color attachment
 
         int currentMatrixMode;              // Current matrix mode
         Matrix *currentMatrix;              // Current matrix pointer
@@ -1530,6 +1541,9 @@ void rlVertex3f(float x, float y, float z)
     RLGL.currentBatch->vertexBuffer[RLGL.currentBatch->currentBuffer].colors[4*RLGL.State.vertexCounter + 2] = RLGL.State.colorb;
     RLGL.currentBatch->vertexBuffer[RLGL.currentBatch->currentBuffer].colors[4*RLGL.State.vertexCounter + 3] = RLGL.State.colora;
 
+    // Add current pixel data
+    RLGL.currentBatch->vertexBuffer[RLGL.currentBatch->currentBuffer].pixeldata[RLGL.State.vertexCounter] = RLGL.State.pixeldata;
+
     RLGL.State.vertexCounter++;
     RLGL.currentBatch->draws[RLGL.currentBatch->drawCounter - 1].vertexCount++;
 }
@@ -1599,6 +1613,12 @@ void rlColor4f(float r, float g, float b, float a)
 void rlColor3f(float x, float y, float z)
 {
     rlColor4ub((unsigned char)(x*255), (unsigned char)(y*255), (unsigned char)(z*255), 255);
+}
+
+// Define one value
+void rlPixelOutputData(int value)
+{
+    RLGL.State.pixeldata = value;
 }
 
 #endif
@@ -2685,10 +2705,12 @@ rlRenderBatch rlLoadRenderBatch(int numBuffers, int bufferElements)
     {
         batch.vertexBuffer[i].elementCount = bufferElements;
 
-        batch.vertexBuffer[i].vertices = (float *)RL_MALLOC(bufferElements*3*4*sizeof(float));        // 3 float by vertex, 4 vertex by quad
-        batch.vertexBuffer[i].texcoords = (float *)RL_MALLOC(bufferElements*2*4*sizeof(float));       // 2 float by texcoord, 4 texcoord by quad
-        batch.vertexBuffer[i].normals = (float *)RL_MALLOC(bufferElements*3*4*sizeof(float));        // 3 float by vertex, 4 vertex by quad
-        batch.vertexBuffer[i].colors = (unsigned char *)RL_MALLOC(bufferElements*4*4*sizeof(unsigned char));   // 4 float by color, 4 colors by quad
+        batch.vertexBuffer[i].vertices = (float *)RL_MALLOC(bufferElements*3*4*sizeof(float));      // 3 float by vertex, 4 vertex by quad
+        batch.vertexBuffer[i].texcoords = (float *)RL_MALLOC(bufferElements*2*4*sizeof(float));     // 2 float by texcoord, 4 texcoord by quad
+        batch.vertexBuffer[i].normals = (float *)RL_MALLOC(bufferElements*3*4*sizeof(float));       // 3 float by vertex, 4 vertex by quad
+        batch.vertexBuffer[i].colors = (unsigned char *)RL_MALLOC(bufferElements*4*4*sizeof(unsigned char)); // 4 float by color, 4 colors by quad
+        batch.vertexBuffer[i].pixeldata = (int *)RL_MALLOC(bufferElements*4*sizeof(int));           // 1 int by vertex, 4 vertex by quad
+        
 #if defined(GRAPHICS_API_OPENGL_33)
         batch.vertexBuffer[i].indices = (unsigned int *)RL_MALLOC(bufferElements*6*sizeof(unsigned int));      // 6 int by quad (indices)
 #endif
@@ -2700,6 +2722,7 @@ rlRenderBatch rlLoadRenderBatch(int numBuffers, int bufferElements)
         for (int j = 0; j < (2*4*bufferElements); j++) batch.vertexBuffer[i].texcoords[j] = 0.0f;
         for (int j = 0; j < (3*4*bufferElements); j++) batch.vertexBuffer[i].normals[j] = 0.0f;
         for (int j = 0; j < (4*4*bufferElements); j++) batch.vertexBuffer[i].colors[j] = 0;
+        for (int j = 0; j < (4*bufferElements);   j++) batch.vertexBuffer[i].pixeldata[j] = 0;
 
         int k = 0;
 
@@ -2771,6 +2794,13 @@ rlRenderBatch rlLoadRenderBatch(int numBuffers, int bufferElements)
 #if defined(GRAPHICS_API_OPENGL_ES2)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferElements*6*sizeof(short), batch.vertexBuffer[i].indices, GL_STATIC_DRAW);
 #endif
+
+        // Vertex pixel data buffer (shader-location = 6)
+        glGenBuffers(1, &batch.vertexBuffer[i].vboId[5]);
+        glBindBuffer(GL_ARRAY_BUFFER, batch.vertexBuffer[i].vboId[5]);
+        glBufferData(GL_ARRAY_BUFFER, bufferElements*4*sizeof(int), batch.vertexBuffer[i].pixeldata, GL_DYNAMIC_DRAW);
+        glEnableVertexAttribArray(RLGL.State.currentShaderLocs[RL_SHADER_LOC_VERTEX_PIXELDATA]);
+        glVertexAttribIPointer(RLGL.State.currentShaderLocs[RL_SHADER_LOC_VERTEX_PIXELDATA], 1, GL_INT, 0, 0);
     }
 
     TRACELOG(RL_LOG_INFO, "RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)");
@@ -2823,6 +2853,7 @@ void rlUnloadRenderBatch(rlRenderBatch batch)
             glDisableVertexAttribArray(RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD);
             glDisableVertexAttribArray(RL_DEFAULT_SHADER_ATTRIB_LOCATION_NORMAL);
             glDisableVertexAttribArray(RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR);
+            glDisableVertexAttribArray(RL_DEFAULT_SHADER_ATTRIB_LOCATION_PIXELDATA);
             glBindVertexArray(0);
         }
 
@@ -2832,6 +2863,7 @@ void rlUnloadRenderBatch(rlRenderBatch batch)
         glDeleteBuffers(1, &batch.vertexBuffer[i].vboId[2]);
         glDeleteBuffers(1, &batch.vertexBuffer[i].vboId[3]);
         glDeleteBuffers(1, &batch.vertexBuffer[i].vboId[4]);
+        glDeleteBuffers(1, &batch.vertexBuffer[i].vboId[5]);
 
         // Delete VAOs from GPU (VRAM)
         if (RLGL.ExtSupported.vao) glDeleteVertexArrays(1, &batch.vertexBuffer[i].vaoId);
@@ -2841,6 +2873,7 @@ void rlUnloadRenderBatch(rlRenderBatch batch)
         RL_FREE(batch.vertexBuffer[i].texcoords);
         RL_FREE(batch.vertexBuffer[i].normals);
         RL_FREE(batch.vertexBuffer[i].colors);
+        RL_FREE(batch.vertexBuffer[i].pixeldata);
         RL_FREE(batch.vertexBuffer[i].indices);
     }
 
@@ -2883,6 +2916,11 @@ void rlDrawRenderBatch(rlRenderBatch *batch)
         glBindBuffer(GL_ARRAY_BUFFER, batch->vertexBuffer[batch->currentBuffer].vboId[3]);
         glBufferSubData(GL_ARRAY_BUFFER, 0, RLGL.State.vertexCounter*4*sizeof(unsigned char), batch->vertexBuffer[batch->currentBuffer].colors);
         //glBufferData(GL_ARRAY_BUFFER, sizeof(float)*4*4*batch->vertexBuffer[batch->currentBuffer].elementCount, batch->vertexBuffer[batch->currentBuffer].colors, GL_DYNAMIC_DRAW);    // Update all buffer
+
+        // Pixel data buffer
+        glBindBuffer(GL_ARRAY_BUFFER, batch->vertexBuffer[batch->currentBuffer].vboId[5]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, RLGL.State.vertexCounter*sizeof(int), batch->vertexBuffer[batch->currentBuffer].pixeldata);
+        //glBufferData(GL_ARRAY_BUFFER, sizeof(int)*4*batch->vertexBuffer[batch->currentBuffer].elementCount, batch->vertexBuffer[batch->currentBuffer].pixeldata, GL_DYNAMIC_DRAW);    // Update all buffer
 
         // NOTE: glMapBuffer() causes sync issue.
         // If GPU is working with this buffer, glMapBuffer() will wait(stall) until GPU to finish its job.
@@ -2982,6 +3020,11 @@ void rlDrawRenderBatch(rlRenderBatch *batch)
                 glEnableVertexAttribArray(RLGL.State.currentShaderLocs[RL_SHADER_LOC_VERTEX_COLOR]);
 
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->vertexBuffer[batch->currentBuffer].vboId[4]);
+
+                // Bind vertex attrib: color (shader-location = 6)
+                glBindBuffer(GL_ARRAY_BUFFER, batch->vertexBuffer[batch->currentBuffer].vboId[5]);
+                glVertexAttribIPointer(RLGL.State.currentShaderLocs[RL_SHADER_LOC_VERTEX_PIXELDATA], 1, GL_INT, 0, 0);
+                glEnableVertexAttribArray(RLGL.State.currentShaderLocs[RL_SHADER_LOC_VERTEX_PIXELDATA]);
             }
 
             // Setup some default shader values
@@ -3481,6 +3524,7 @@ void rlGetGlTextureFormats(int format, unsigned int *glInternalFormat, unsigned 
         case RL_PIXELFORMAT_UNCOMPRESSED_R4G4B4A4: *glInternalFormat = GL_RGBA4; *glFormat = GL_RGBA; *glType = GL_UNSIGNED_SHORT_4_4_4_4; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8: *glInternalFormat = GL_RGBA8; *glFormat = GL_RGBA; *glType = GL_UNSIGNED_BYTE; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R32: if (RLGL.ExtSupported.texFloat32) *glInternalFormat = GL_R32F; *glFormat = GL_RED; *glType = GL_FLOAT; break;
+        case RL_PIXELFORMAT_UNCOMPRESSED_R32I: *glInternalFormat = GL_R32I; *glFormat = GL_RED_INTEGER; *glType = GL_INT; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R32G32B32: if (RLGL.ExtSupported.texFloat32) *glInternalFormat = GL_RGB32F; *glFormat = GL_RGB; *glType = GL_FLOAT; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R32G32B32A32: if (RLGL.ExtSupported.texFloat32) *glInternalFormat = GL_RGBA32F; *glFormat = GL_RGBA; *glType = GL_FLOAT; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R16: if (RLGL.ExtSupported.texFloat16) *glInternalFormat = GL_R16F; *glFormat = GL_RED; *glType = GL_HALF_FLOAT; break;
@@ -3740,7 +3784,7 @@ bool rlFramebufferComplete(unsigned int id)
 void rlUnloadFramebuffer(unsigned int id)
 {
     // As I'm explicitly not using render buffers as the depth attachment, and the 
-    // depth texture is unloaded by its destructor, we don't need to do this extra check
+    // depth texture is unloaded before this call, we don't need to do these queries and checks
 #if (defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)) && defined(RLGL_RENDER_TEXTURES_HINT)
     // Query depth attachment to automatically delete texture/renderbuffer
     /*int depthType = 0, depthId = 0;
@@ -3759,9 +3803,7 @@ void rlUnloadFramebuffer(unsigned int id)
     // NOTE: If a texture object is deleted while its image is attached to the *currently bound* framebuffer,
     // the texture image is automatically detached from the currently bound framebuffer.
 
-    if(rlGetActiveFramebuffer() == id)
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteFramebuffers(1, &id);
 
     TRACELOGD("FBO: [ID %i] Unloaded framebuffer from VRAM (GPU)", id);
@@ -4170,6 +4212,7 @@ unsigned int rlLoadShaderProgram(unsigned int vShaderId, unsigned int fShaderId)
     glBindAttribLocation(program, RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR, RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR);
     glBindAttribLocation(program, RL_DEFAULT_SHADER_ATTRIB_LOCATION_TANGENT, RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT);
     glBindAttribLocation(program, RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2, RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2);
+    glBindAttribLocation(program, RL_DEFAULT_SHADER_ATTRIB_LOCATION_PIXELDATA, RL_DEFAULT_SHADER_ATTRIB_NAME_PIXELDATA);
 
     // NOTE: If some attrib name is no found on the shader, it locations becomes -1
 
@@ -4774,6 +4817,7 @@ const char *rlGetPixelFormatName(unsigned int format)
         case RL_PIXELFORMAT_UNCOMPRESSED_R4G4B4A4: return "R4G4B4A4"; break;           // 16 bpp (4 bit alpha)
         case RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8: return "R8G8B8A8"; break;           // 32 bpp
         case RL_PIXELFORMAT_UNCOMPRESSED_R32: return "R32"; break;                     // 32 bpp (1 channel - float)
+        case RL_PIXELFORMAT_UNCOMPRESSED_R32I: return "R32I"; break;                   // 32 bpp (1 channel - int)
         case RL_PIXELFORMAT_UNCOMPRESSED_R32G32B32: return "R32G32B32"; break;         // 32*3 bpp (3 channels - float)
         case RL_PIXELFORMAT_UNCOMPRESSED_R32G32B32A32: return "R32G32B32A32"; break;   // 32*4 bpp (4 channels - float)
         case RL_PIXELFORMAT_UNCOMPRESSED_R16: return "R16"; break;                     // 16 bpp (1 channel - half float)
@@ -4811,37 +4855,39 @@ static void rlLoadShaderDefault(void)
     // Vertex shader directly defined, no external file required
     const char *defaultVShaderCode =
 #if defined(GRAPHICS_API_OPENGL_21)
-    "#version 120                       \n"
-    "attribute vec3 vertexPosition;     \n"
-    "attribute vec2 vertexTexCoord;     \n"
-    "attribute vec4 vertexColor;        \n"
-    "varying vec2 fragTexCoord;         \n"
-    "varying vec4 fragColor;            \n"
+    "#version 120                   \n"
+    "attribute vec3 vertexPosition; \n"
+    "attribute vec2 vertexTexCoord; \n"
+    "attribute vec4 vertexColor;    \n"
+    "varying vec2 fragTexCoord;     \n"
+    "varying vec4 fragColor;        \n"
 #elif defined(GRAPHICS_API_OPENGL_33)
-    "#version 330                       \n"
-    "in vec3 vertexPosition;            \n"
-    "in vec2 vertexTexCoord;            \n"
-    "in vec4 vertexColor;               \n"
-    "out vec2 fragTexCoord;             \n"
-    "out vec4 fragColor;                \n"
+    "#version 330            \n"
+    "in vec3 vertexPosition; \n"
+    "in vec2 vertexTexCoord; \n"
+    "in vec4 vertexColor;    \n"
+    "in int pixelOutputData; \n"
+    "out vec2 fragTexCoord;  \n"
+    "out vec4 fragColor;     \n"
+    "out int fragOutputData; \n"
 #endif
 
 #if defined(GRAPHICS_API_OPENGL_ES3)
-    "#version 300 es                    \n"
-    "precision mediump float;           \n"     // Precision required for OpenGL ES3 (WebGL 2) (on some browsers)
-    "in vec3 vertexPosition;            \n"
-    "in vec2 vertexTexCoord;            \n"
-    "in vec4 vertexColor;               \n"
-    "out vec2 fragTexCoord;             \n"
-    "out vec4 fragColor;                \n"
+    "#version 300 es                \n"
+    "precision mediump float;       \n"     // Precision required for OpenGL ES3 (WebGL 2) (on some browsers)
+    "in vec3 vertexPosition;        \n"
+    "in vec2 vertexTexCoord;        \n"
+    "in vec4 vertexColor;           \n"
+    "out vec2 fragTexCoord;         \n"
+    "out vec4 fragColor;            \n"
 #elif defined(GRAPHICS_API_OPENGL_ES2)
-    "#version 100                       \n"
-    "precision mediump float;           \n"     // Precision required for OpenGL ES2 (WebGL) (on some browsers)
-    "attribute vec3 vertexPosition;     \n"
-    "attribute vec2 vertexTexCoord;     \n"
-    "attribute vec4 vertexColor;        \n"
-    "varying vec2 fragTexCoord;         \n"
-    "varying vec4 fragColor;            \n"
+    "#version 100                   \n"
+    "precision mediump float;       \n"     // Precision required for OpenGL ES2 (WebGL) (on some browsers)
+    "attribute vec3 vertexPosition; \n"
+    "attribute vec2 vertexTexCoord; \n"
+    "attribute vec4 vertexColor;    \n"
+    "varying vec2 fragTexCoord;     \n"
+    "varying vec4 fragColor;        \n"
 #endif
 
     "uniform mat4 mvp;                  \n"
@@ -4849,34 +4895,38 @@ static void rlLoadShaderDefault(void)
     "{                                  \n"
     "    fragTexCoord = vertexTexCoord; \n"
     "    fragColor = vertexColor;       \n"
+    "    fragOutputData = pixelOutputData; \n"
     "    gl_Position = mvp*vec4(vertexPosition, 1.0); \n"
-    "}                                  \n";
+    "}\n";
 
     // Fragment shader directly defined, no external file required
     const char *defaultFShaderCode =
 #if defined(GRAPHICS_API_OPENGL_21)
-    "#version 120                       \n"
-    "varying vec2 fragTexCoord;         \n"
-    "varying vec4 fragColor;            \n"
-    "uniform sampler2D texture0;        \n"
-    "uniform vec4 colDiffuse;           \n"
-    "void main()                        \n"
-    "{                                  \n"
+    "#version 120                \n"
+    "varying vec2 fragTexCoord;  \n"
+    "varying vec4 fragColor;     \n"
+    "uniform sampler2D texture0; \n"
+    "uniform vec4 colDiffuse;    \n"
+    "void main()                 \n"
+    "{                           \n"
     "    vec4 texelColor = texture2D(texture0, fragTexCoord); \n"
-    "    gl_FragColor = texelColor*colDiffuse*fragColor;      \n"
-    "}                                  \n";
+    "    gl_FragColor = texelColor*colDiffuse*fragColor; \n"
+    "}\n";
 #elif defined(GRAPHICS_API_OPENGL_33)
-    "#version 330       \n"
-    "in vec2 fragTexCoord;              \n"
-    "in vec4 fragColor;                 \n"
-    "out vec4 finalColor;               \n"
-    "uniform sampler2D texture0;        \n"
-    "uniform vec4 colDiffuse;           \n"
-    "void main()                        \n"
-    "{                                  \n"
-    "    vec4 texelColor = texture(texture0, fragTexCoord);   \n"
-    "    finalColor = texelColor*colDiffuse*fragColor;        \n"
-    "}                                  \n";
+    "#version 330                \n"
+    "in vec2 fragTexCoord;       \n"
+    "in vec4 fragColor;          \n"
+    "flat in int fragOutputData; \n"
+    "out vec4 finalColor;        \n"
+    "out int pixelOutputData;    \n"
+    "uniform sampler2D texture0; \n"
+    "uniform vec4 colDiffuse;    \n"
+    "void main()                 \n"
+    "{                           \n"
+    "    vec4 texelColor = texture(texture0, fragTexCoord); \n"
+    "    finalColor = texelColor*colDiffuse*fragColor; \n"
+    "    pixelOutputData = fragOutputData; \n"
+    "}\n";
 #endif
 
 #if defined(GRAPHICS_API_OPENGL_ES3)
@@ -4921,6 +4971,7 @@ static void rlLoadShaderDefault(void)
         RLGL.State.defaultShaderLocs[RL_SHADER_LOC_VERTEX_POSITION] = glGetAttribLocation(RLGL.State.defaultShaderId, RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION);
         RLGL.State.defaultShaderLocs[RL_SHADER_LOC_VERTEX_TEXCOORD01] = glGetAttribLocation(RLGL.State.defaultShaderId, RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD);
         RLGL.State.defaultShaderLocs[RL_SHADER_LOC_VERTEX_COLOR] = glGetAttribLocation(RLGL.State.defaultShaderId, RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR);
+        RLGL.State.defaultShaderLocs[RL_SHADER_LOC_VERTEX_PIXELDATA] = glGetAttribLocation(RLGL.State.defaultShaderId, RL_DEFAULT_SHADER_ATTRIB_NAME_PIXELDATA);
 
         // Set default shader locations: uniform locations
         RLGL.State.defaultShaderLocs[RL_SHADER_LOC_MATRIX_MVP]  = glGetUniformLocation(RLGL.State.defaultShaderId, RL_DEFAULT_SHADER_UNIFORM_NAME_MVP);

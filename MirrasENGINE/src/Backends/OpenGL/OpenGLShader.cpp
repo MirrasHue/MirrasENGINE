@@ -48,6 +48,7 @@ namespace mirras
         locs[RL_SHADER_LOC_VERTEX_NORMAL] = rlGetLocationAttrib(id, RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL);
         locs[RL_SHADER_LOC_VERTEX_TANGENT] = rlGetLocationAttrib(id, RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT);
         locs[RL_SHADER_LOC_VERTEX_COLOR] = rlGetLocationAttrib(id, RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR);
+        locs[RL_SHADER_LOC_VERTEX_PIXELDATA] = rlGetLocationAttrib(id, RL_DEFAULT_SHADER_ATTRIB_NAME_PIXELDATA);
 
         // Get handles to GLSL uniform locations (vertex shader)
         locs[RL_SHADER_LOC_MATRIX_MVP] = rlGetLocationUniform(id, RL_DEFAULT_SHADER_UNIFORM_NAME_MVP);

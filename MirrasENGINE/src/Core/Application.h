@@ -23,7 +23,7 @@ namespace mirras
         std::string_view name = "MirrasENGINE";
         std::string_view workingDirectory;
         Renderer::Backend backend = Renderer::Backend::OpenGL;
-        uint16 updateRate = 60;
+        uint16 fixedUpdateRate = 60;
         // Set to false if you need to do extra work before exiting, then call stop()
         bool autoStopOnClose = true;
     };

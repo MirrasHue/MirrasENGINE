@@ -40,7 +40,7 @@ namespace mirras
 
         imgui::init();
 
-        fixedTimestep = 1.f / appSpecs.updateRate;
+        fixedTimestep = 1.f / appSpecs.fixedUpdateRate;
         handleStopOnClose = appSpecs.autoStopOnClose;
     }
 

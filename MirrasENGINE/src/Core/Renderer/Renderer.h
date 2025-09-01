@@ -29,6 +29,8 @@ namespace mirras
         
         static void clearBackBuffers();
         static void setClearColor(float r, float g, float b, float a = 1.f);
+        // Sets a value to be stored in a second color buffer attachment (RED_INTEGER), if present
+        static void setPixelOutputData(int32 value);
 
         // These two are already called for us by the engine, no need to call them ourselves
         static void beginDrawing();
@@ -63,10 +65,11 @@ namespace mirras
         // End 2D primitives
 
         // Pass {} as the second parameter if you want to use the whole texture, not just part of it
-        static void drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,
+        static void drawTexture(const Texture& texture, const rect4f& texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize = {},
                                 glm::vec2 targetOrigin = {}, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
         
-        static void drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
+        // Pass {} as the second parameter if you want to use the whole texture
+        static void drawTexture(const Texture& texture, const rect4f& texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize = {},
                                 glm::vec2 targetOrigin = {}, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
 
         static void drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeft, float fontSize = 40.f,

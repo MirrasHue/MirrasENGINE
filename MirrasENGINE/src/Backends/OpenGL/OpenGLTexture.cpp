@@ -6,6 +6,7 @@
 #include "Utilities/FileIO.h"
 
 #include <raylib/rlgl.h>
+#include <glad/glad.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/image.h>
@@ -111,7 +112,7 @@ namespace mirras
 
     // Render texture
 
-    void initRenderTextureOpenGL(RenderTexture2D& texture, int32 width, int32 height)
+    static void initFramebuffer(RenderTexture& texture, int32 width, int32 height)
     {
         MIRR_ASSERT_CORE_RETURN(width > 0 && height > 0, "Invalid render texture size: {} x {}", width, height);
 
@@ -126,89 +127,145 @@ namespace mirras
         rlEnableFramebuffer(texture.id);
 
         // Create color texture
-        texture.color = instantiate<OpenGLTexture>();
-        
-        texture.color->id = rlLoadTexture(nullptr, width, height, RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 1);
-
-        if(texture.color->id == 0)
-        {
-            ENGINE_LOG_ERROR("Unable to create color texture for the render texture");
-
-            texture.color.reset();
-            rlUnloadFramebuffer(texture.id);
-            texture.id = 0;
-
-            return;
-        }
-
-        texture.color->width = width;
-        texture.color->height = height;
-        texture.color->channels = 4; //R8G8B8A8
-        texture.color->mipmaps = 1;
+        texture.color = rlLoadTexture(nullptr, width, height, RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 1);
 
         // Create depth texture
-        texture.depth = instantiate<OpenGLTexture>();
+        texture.depth = rlLoadTextureDepth(width, height, false);
 
-        texture.depth->id = rlLoadTextureDepth(width, height, false);
+        texture.width = width;
+        texture.height = height;
 
-        if(texture.depth->id == 0)
-        {
-            ENGINE_LOG_ERROR("Unable to create depth texture for the render texture");
+        // rlDisableFramebuffer() is called by the caller
+    }
 
-            texture.color.reset();
-            texture.depth.reset();
-            rlUnloadFramebuffer(texture.id);
-            texture.id = 0;
+    void initRenderTextureOpenGL(RenderTexture& texture, int32 width, int32 height)
+    {
+        initFramebuffer(texture, width, height);
 
-            return;
-        }
-
-        texture.depth->width = width;
-        texture.depth->height = height;
-        texture.depth->mipmaps = 1;
-
-        // Attach color texture and depth texture to FBO
-        rlFramebufferAttach(texture.id, texture.color->id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(texture.id, texture.depth->id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+        // Attach color and depth textures to FBO
+        rlFramebufferAttach(texture.id, texture.color, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(texture.id, texture.depth, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
 
         // Check if FBO is valid
         if(!rlFramebufferComplete(texture.id))
         {
-            ENGINE_LOG_ERROR("Render texture framebuffer is incomplete for some reason. Deleting it...");
+            ENGINE_LOG_ERROR("Render texture framebuffer is incomplete. Color tex ID: {}, Depth tex ID: {}",
+                texture.color, texture.depth);
 
-            texture.color.reset();
-            texture.depth.reset();
+            rlUnloadTexture(texture.color);
+            rlUnloadTexture(texture.depth);
             rlUnloadFramebuffer(texture.id);
-            texture.id = 0;
-
-            return;
+            texture.id = texture.color = texture.depth = 0;
         }
 
         rlDisableFramebuffer();
     }
 
-    void resizeRenderTextureOpenGL(RenderTexture2D& texture, int32 width, int32 height)
+    void resizeRenderTextureOpenGL(RenderTexture& texture, int32 width, int32 height)
     {
-        MIRR_ASSERT_CORE_RETURN(texture.id > 0 && texture.color && width > 0 && height > 0,
-            "Invalid resize of render texture. ID: {}, null color: {}, requested size: {} x {}", texture.id, !(bool)texture.color, width, height);
+        MIRR_ASSERT_CORE_RETURN(texture.id > 0 && width > 0 && height > 0,
+            "Invalid resize of render texture. ID: {}, requested size: {} x {}", texture.id, width, height);
 
-        if(width == texture.color->width && height == texture.color->height)
+        if(width == texture.width && height == texture.height)
             return;
 
-        // Delete previous render texture and create a new one
-        texture.color.reset();
-        texture.depth.reset();
+        // Delete current render texture and create a new one
+        rlUnloadTexture(texture.color);
+        rlUnloadTexture(texture.depth);
         rlUnloadFramebuffer(texture.id);
 
-        texture = RenderTexture2D{width, height};
+        texture = RenderTexture{width, height};
     }
 
-    void unloadRenderTextureOpenGL(RenderTexture2D& texture)
+    void unloadRenderTextureOpenGL(RenderTexture& texture)
     {
+        // We have to unload the textures before unloading the framebuffer
         if(texture.id > 0)
         {
-            texture.color.reset();
-            texture.depth.reset();
+            rlUnloadTexture(texture.color);
+            rlUnloadTexture(texture.depth);
+            rlUnloadFramebuffer(texture.id);
+        }
+    }
+
+    // Render texture Ex
+
+    void initRenderTextureExOpenGL(RenderTextureEx& texture, int32 width, int32 height)
+    {
+        initFramebuffer(texture, width, height);
+
+        // Create red integer texture
+        texture.redInt = rlLoadTexture(nullptr, width, height, RL_PIXELFORMAT_UNCOMPRESSED_R32I, 1);
+
+        rlActiveDrawBuffers(2); // Use two color buffers for drawing
+
+        // Attach color, red integer and depth textures to FBO
+        rlFramebufferAttach(texture.id, texture.color, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(texture.id, texture.redInt, RL_ATTACHMENT_COLOR_CHANNEL1, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(texture.id, texture.depth, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+
+        // Check if FBO is valid
+        if(!rlFramebufferComplete(texture.id))
+        {
+            ENGINE_LOG_ERROR("Render texture framebuffer is incomplete. Color tex ID: {}, Red Int tex ID: {}, Depth tex ID: {}",
+                texture.color, texture.redInt, texture.depth);
+
+            rlUnloadTexture(texture.color);
+            rlUnloadTexture(texture.redInt);
+            rlUnloadTexture(texture.depth);
+            rlUnloadFramebuffer(texture.id);
+            texture.id = texture.color = texture.redInt = texture.depth = 0;
+        }
+
+        rlDisableFramebuffer();
+    }
+
+    void resizeRenderTextureExOpenGL(RenderTextureEx& texture, int32 width, int32 height)
+    {
+        MIRR_ASSERT_CORE_RETURN(texture.id > 0 && width > 0 && height > 0,
+            "Invalid resize of render texture. ID: {}, requested size: {} x {}", texture.id, width, height);
+
+        if(width == texture.width && height == texture.height)
+            return;
+
+        // Delete current render texture and create a new one
+        rlUnloadTexture(texture.color);
+        rlUnloadTexture(texture.redInt);
+        rlUnloadTexture(texture.depth);
+        rlUnloadFramebuffer(texture.id);
+
+        texture = RenderTextureEx{width, height};
+    }
+
+    void clearColorAttachmentOpenGL(Attachment index, int32 value)
+    {
+        glClearBufferiv(GL_COLOR, static_cast<int32>(index), &value); 
+    }
+
+    int32 readRenderTexPixelOpenGL(const RenderTextureEx& texture, Attachment index, int32 x, int32 y)
+    {
+        MIRR_ASSERT_CORE_RETURN_VALUE(texture.id > 0, /*return*/ -1, "Invalid render texture. ID: 0");
+
+		int32 pixelData = -1;
+
+        rlEnableFramebuffer(texture.id);
+
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + static_cast<int32>(index));
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+
+        rlDisableFramebuffer();
+
+		return pixelData;
+    }
+
+    void unloadRenderTextureExOpenGL(RenderTextureEx& texture)
+    {
+        // We have to unload the textures before unloading the framebuffer
+        if(texture.id > 0)
+        {
+            rlUnloadTexture(texture.color);
+            rlUnloadTexture(texture.redInt);
+            rlUnloadTexture(texture.depth);
             rlUnloadFramebuffer(texture.id);
         }
     }

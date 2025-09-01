@@ -32,6 +32,11 @@ namespace mirras
         renderer.setClearColor(r, g, b, a);
     }
 
+    void Renderer::setPixelOutputData(int32 value)
+    {
+        renderer.setPixelOutputData(value);
+    }
+
     void Renderer::beginDrawing()
     {
         renderer.beginDrawing();
@@ -117,12 +122,12 @@ namespace mirras
         renderer.drawShaderCircle(center, radius, color, fillFactor, fadeFactor);
     }
 
-    void Renderer::drawTexture(const Texture& texture, rect4f texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void Renderer::drawTexture(const Texture& texture, const rect4f& texSampleArea, const glm::vec3& targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
     }
 
-    void Renderer::drawTexture(const Texture& texture, rect4f texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
+    void Renderer::drawTexture(const Texture& texture, const rect4f& texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor)
     {
         renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
     }

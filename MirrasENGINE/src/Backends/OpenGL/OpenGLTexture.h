@@ -18,7 +18,14 @@ namespace mirras
     };
 
     // Render texture management
-    void initRenderTextureOpenGL(RenderTexture2D& texture, int32 width, int32 height);
-    void resizeRenderTextureOpenGL(RenderTexture2D& texture, int32 width, int32 height);
-    void unloadRenderTextureOpenGL(RenderTexture2D& texture);
+    void initRenderTextureOpenGL(RenderTexture& texture, int32 width, int32 height);
+    void resizeRenderTextureOpenGL(RenderTexture& texture, int32 width, int32 height);
+    void unloadRenderTextureOpenGL(RenderTexture& texture);
+
+    // Render texture Ex
+    void initRenderTextureExOpenGL(RenderTextureEx& texture, int32 width, int32 height);
+    void resizeRenderTextureExOpenGL(RenderTextureEx& texture, int32 width, int32 height);
+    void clearColorAttachmentOpenGL(Attachment index, int32 value);
+    int32 readRenderTexPixelOpenGL(const RenderTextureEx& texture, Attachment index, int32 x, int32 y);
+    void unloadRenderTextureExOpenGL(RenderTextureEx& texture);
 } // namespace mirras

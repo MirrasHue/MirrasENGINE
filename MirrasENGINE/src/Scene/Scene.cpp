@@ -68,6 +68,8 @@ namespace mirras
                 return;
             }
 
+            Renderer::setPixelOutputData((int32)entity);
+
             Renderer::drawTexture(*sprite.texture, sprite.texSampleArea, transform.position, transform.scale *
                                   glm::vec2{sprite.texture->width, sprite.texture->height}, {0,0}, transform.rotation);
         });
@@ -75,12 +77,16 @@ namespace mirras
         // Rectangles
         registry.view<TransformComponent, RectangleComponent>().each([](auto entity, auto& transform, auto& rectangle)
         {
+            Renderer::setPixelOutputData((int32)entity);
+
             Renderer::drawRectangle(transform.position, rectangle.size, {0.f, 0.f}, rectangle.color, transform.rotation);
         });
 
         // Circles
         registry.view<TransformComponent, CircleComponent>().each([](auto entity, auto& transform, auto& circle)
         {
+            Renderer::setPixelOutputData((int32)entity);
+
             Renderer::drawShaderCircle(transform.position, circle.radius, circle.color, circle.fillFactor, circle.fadeFactor);
         });
 
@@ -92,7 +98,9 @@ namespace mirras
                 ENGINE_LOG_ERROR("TextComponent has no font assigned to it");
                 return;
             }
-            
+
+            Renderer::setPixelOutputData((int32)entity);
+
             Renderer::drawText(text.text, *text.font, transform.position, text.fontSize, text.color, text.kerning, text.lineSpacing);
         });
 

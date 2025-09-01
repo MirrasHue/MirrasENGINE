@@ -53,22 +53,53 @@ namespace mirras
     public:
         RenderTexture() = default;
         RenderTexture(int32 width, int32 height);
-
         RenderTexture(RenderTexture&& rhs);
-        RenderTexture& operator=(RenderTexture&& rhs);
 
         void resize(int32 width, int32 height);
+
+        RenderTexture& operator=(RenderTexture&& rhs);
 
         ~RenderTexture();
 
     public:
         uint32 id{};
-        single_ref<Texture> color;
-        single_ref<Texture> depth;
+        uint32 color{};
+        uint32 depth{};
+
+        int32 width{};
+        int32 height{};
 
         // Used by Camera2D in order to calculate offsets and zoom scale correctly
         // Initialized in the constructor once
         vec2i initialSize;
+    };
+
+    enum class Attachment
+    {
+        Color,
+        RedInteger
+    };
+
+    // Render texture with an extra color attachment (RED_INTEGER format) for storing data in pixels
+    class RenderTextureEx : public RenderTexture
+    {
+    public:
+        RenderTextureEx(int32 width, int32 height);
+        RenderTextureEx(RenderTextureEx&& rhs);
+
+        void resize(int32 width, int32 height);
+
+        // Assumes this render texture is currently active
+        void clear(Attachment index, int32 value) const;
+
+        int32 readPixel(Attachment index, int32 x, int32 y) const;
+
+        RenderTextureEx& operator=(RenderTextureEx&& rhs);
+
+        ~RenderTextureEx();
+
+    public:
+        uint32 redInt;
     };
 
     using Texture2D = Texture;

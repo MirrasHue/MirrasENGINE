@@ -44,7 +44,6 @@ namespace mirras
 
         static single_ref<Shader> loadFrom(std::string_view vertexSrc, std::string_view fragmentSrc);
         static single_ref<Shader> loadFrom(const fs::path& vertexFilepath, const fs::path& fragmentFilepath);
-        //static single_ref<Shader> loadFrom(const fs::path& shaderFilepath);
         
         virtual ~Shader() = default;
     };
