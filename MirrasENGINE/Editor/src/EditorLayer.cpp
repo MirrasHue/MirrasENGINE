@@ -131,7 +131,7 @@ namespace mirras
 
             ImGui::SetNextWindowDockID(mainDockID, ImGuiCond_FirstUseEver);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
             ImGui::Begin(editorScene.scene->name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
             {
                 auto [width, height] = ImGui::GetContentRegionAvail();
@@ -167,12 +167,11 @@ namespace mirras
                     mx -= x;
                     my = height - (my - y); // Flip Y axis for texture pixel reading
 
-                    if(ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
-                        int32 pixelData = -1;
-                        pixelData = editorScene.canvas.readPixel(Attachment::RedInteger, mx, my);
+                        int32 pixelData = editorScene.canvas.readPixel(Attachment::RedInteger, mx, my);
 
-                        editorScene.selectedEntity = (pixelData != -1) ?
+                        editorScene.selectedEntity = (pixelData != /*clear value*/ -1) ?
                             Entity{(entt::entity)pixelData, &editorScene.scene->registry} : Entity{};
                     }
                 }

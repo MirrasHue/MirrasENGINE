@@ -71,7 +71,7 @@ namespace mirras
             Renderer::setPixelOutputData((int32)entity);
 
             Renderer::drawTexture(*sprite.texture, sprite.texSampleArea, transform.position, transform.scale *
-                                  glm::vec2{sprite.texture->width, sprite.texture->height}, {0,0}, transform.rotation);
+                                  glm::vec2{sprite.texture->width, sprite.texture->height}, {0.f, 0.f}, transform.rotation, sprite.tintColor);
         });
 
         // Rectangles
@@ -79,7 +79,7 @@ namespace mirras
         {
             Renderer::setPixelOutputData((int32)entity);
 
-            Renderer::drawRectangle(transform.position, rectangle.size, {0.f, 0.f}, rectangle.color, transform.rotation);
+            Renderer::drawRectangle(transform.position, rectangle.size * transform.scale, {0.f, 0.f}, rectangle.color, transform.rotation);
         });
 
         // Circles

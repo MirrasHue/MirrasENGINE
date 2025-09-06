@@ -40,7 +40,7 @@ namespace mirras
     {
         single_ref<Texture> texture;
         rect4f texSampleArea;
-        glm::vec4 color{1.f};
+        glm::vec4 tintColor{1.f};
     };
 
     struct RectangleComponent

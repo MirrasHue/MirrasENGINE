@@ -26,7 +26,7 @@ namespace mirras
                 auto* storage = entity.registry->storage(type_id);
 
                 if(storage && storage->contains(entity))
-                    reflect::call("drawComponent", type_id, entity);
+                    reflect::call("drawComponent", type_id, entity, meta.name());
             }
 
             ImGui::End();

@@ -55,7 +55,7 @@ void PlaygroundLayer::load()
     points[2] = {triangleCenter.x, triangleCenter.y - 100, 0.f};
 
     texture = mirras::Texture::loadFrom("assets/textures/GuadagniniModel.png");
-    font = mirras::instantiate<mirras::Font>("assets/fonts/Doto_Rounded-Black.ttf");
+    font.loadFrom("assets/fonts/Doto_Rounded-Black.ttf");
 
     mirras::Renderer::setLineWidth(1.f);
     sound1.loadFrom("assets/doodle_pop.ogg");
@@ -92,8 +92,8 @@ void PlaygroundLayer::draw()
 
         mirras::Renderer::drawTriangle({300, 400, 0}, {700, 400, 0}, {500, 100, 0}, {0,0,0,0.5});
 
-        if(font->atlasTexture)
-            mirras::Renderer::drawTexture(*font->atlasTexture, {}, {0, 100, 0}, {330,330});
+        if(font.atlasTexture)
+            mirras::Renderer::drawTexture(*font.atlasTexture, {}, {0, 100, 0}, {330,330});
         else
         {
             LOG_ERROR("font atlas is null");
@@ -102,14 +102,17 @@ void PlaygroundLayer::draw()
         // To visualize how the rendered glyphs are aligning with the specified top left position
         mirras::Renderer::drawLine({0,450,0}, {0,600,0}, {1,1,1,1});
         mirras::Renderer::drawLine({0,450,0}, {150,450,0}, {1,1,1,1});
-        mirras::Renderer::drawText(L"Hello World!\nNow we have text rendering", *font, {0,450,0});
+        mirras::Renderer::drawText(L"Hello World!\nNow we have text rendering", font, {0,450,0});
 
     mirras::Renderer::endMode2D();
 }
 
 void PlaygroundLayer::update(float dt)
 {
-    rotation += 30 * dt; // Temp, rotation should be capped
+    rotation += 30.f * dt;
+
+    if(rotation > 720.f)
+        rotation -= 720.f;
 
     cameraController.update(dt);
     cameraController.updateZoom();

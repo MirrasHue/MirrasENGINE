@@ -1,48 +1,32 @@
 #pragma once
 
 #include "Scene/Components.h"
+#include "Scene/Entity.h"
 
 #include <imgui/imgui.h>
 
 namespace mirras
 {
     template<typename CompType>
-    inline void drawComponent(Entity entity)
+    inline void drawComponent(Entity entity, const char* compName)
     {
-        auto& component = entity.get<CompType>();
-        draw(component);
+        constexpr auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+
+        if(ImGui::TreeNodeEx(compName, flags))
+        {
+            auto& component = entity.get<CompType>();
+            // Calculate the first column width based on the longest string that will be displayed
+            // on it. This takes into acount variable font sizes, which I intend to add later
+            draw(component, ImGui::CalcTextSize("Translation").x + 10.f);
+
+            ImGui::TreePop();
+        }
     }
 
-    inline void draw(TransformComponent& transform)
-    {
-        ImGui::Text("Transform");
-        ImGui::DragFloat("X", &transform.position.x);
-        ImGui::DragFloat("Y", &transform.position.y);
-        ImGui::DragFloat("Z", &transform.position.z);
-    }
-
-    inline void draw(CameraComponent& camera)
-    {
-        ImGui::Text("Camera");
-    }
-
-    inline void draw(SpriteComponent& sprite)
-    {
-        ImGui::Text("Sprite");
-    }
-
-    inline void draw(RectangleComponent& rectangle)
-    {
-        ImGui::Text("Rect");
-    }
-
-    inline void draw(CircleComponent& circle)
-    {
-        ImGui::Text("Circle");
-    }
-
-    inline void draw(TextComponent& text)
-    {
-        ImGui::Text("Text");
-    }
+    void draw(TransformComponent& transform, float firstColumnWidth);
+    void draw(CameraComponent& camera, float firstColumnWidth);
+    void draw(SpriteComponent& sprite, float firstColumnWidth);
+    void draw(RectangleComponent& rectangle, float firstColumnWidth);
+    void draw(CircleComponent& circle, float firstColumnWidth);
+    void draw(TextComponent& text, float firstColumnWidth);
 } // namespace mirras
