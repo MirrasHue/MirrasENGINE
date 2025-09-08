@@ -18,6 +18,7 @@ namespace mirras
 
         Entity createEntity();
         Entity createEntity(std::string tag);
+        void deleteEntity(Entity entity);
 
         void update(float dt);
         void draw(Camera2D& camera);

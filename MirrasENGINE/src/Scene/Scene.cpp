@@ -27,6 +27,12 @@ namespace mirras
         return entity;
     }
 
+    void Scene::deleteEntity(Entity entity)
+    {
+        if(registry.valid(entity))
+            registry.destroy(entity);
+    }
+
     void Scene::update(float dt)
     {
         registry.view<CppScriptComponent>().each([dt, this](auto entity, auto& cpp)
@@ -64,7 +70,7 @@ namespace mirras
         {
             if(!sprite.texture)
             {
-                ENGINE_LOG_ERROR("SpriteComponent has no texture assigned to it");
+                //ENGINE_LOG_ERROR("SpriteComponent has no texture assigned to it");
                 return;
             }
 

@@ -35,13 +35,19 @@ namespace mirras
             return registry->get<T>(handle);
         }
 
+        template<typename... T>
+        bool has()
+        {
+            return registry->all_of<T...>(handle);
+        }
+
         template<typename T>
         auto remove()
         {
             return registry->remove<T>(handle);
         }
 
-        bool operator <=>(const Entity& rhs) const = default;
+        auto operator <=>(const Entity& rhs) const = default;
 
         operator bool() { return handle != entt::null; }
         operator entt::entity() { return handle; }

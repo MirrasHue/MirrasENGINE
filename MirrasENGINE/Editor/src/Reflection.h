@@ -28,20 +28,21 @@ namespace mirras::reflect
     }
 
     template<typename CompType>
-    inline void registerUIFunction(const char* name)
+    inline void registerFunctions(const char* name)
     {
         entt::meta_factory<CompType>()
             .type(entt::type_hash<CompType>::value(), name)
-            .template func<&drawComponent<CompType>>("drawComponent"); // Defined in Widgets/Entity.h
+            .template func<&drawComponent<CompType>>("drawComponent()") // Defined in Widgets/Entity.h
+            .template func<&addComponent<CompType>>("addComponent()");
     }
 
-    inline void registerComponentsUIFunction()
+    inline void registerComponentsFunctions()
     {
-        registerUIFunction<TransformComponent>("Transform");
-        registerUIFunction<CameraComponent>("Camera");
-        registerUIFunction<SpriteComponent>("Sprite");
-        registerUIFunction<RectangleComponent>("Rectangle");
-        registerUIFunction<CircleComponent>("Circle");
-        registerUIFunction<TextComponent>("Text");
+        registerFunctions<TransformComponent>("Transform");
+        registerFunctions<CameraComponent>("Camera");
+        registerFunctions<SpriteComponent>("Sprite");
+        registerFunctions<RectangleComponent>("Rectangle");
+        registerFunctions<CircleComponent>("Circle");
+        registerFunctions<TextComponent>("Text");
     }
 } // namespace mirras

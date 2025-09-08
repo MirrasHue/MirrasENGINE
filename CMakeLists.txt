@@ -83,6 +83,10 @@ if(UNIX AND RUN_UPDATE_THREAD_LINUX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
 endif()
 
+if(MSVC)
+    add_compile_options(/MP)
+endif()
+
 ##################################################################
 
 project(Editor)

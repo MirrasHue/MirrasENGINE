@@ -46,13 +46,13 @@ namespace mirras
     struct RectangleComponent
     {
         glm::vec4 color{1.f};
-        glm::vec2 size{100.f, 100.f};
+        glm::vec2 size{200.f, 200.f};
     };
 
     struct CircleComponent
     {
         glm::vec4 color{1.f};
-        float radius{50.f};
+        float radius{100.f};
         float fillFactor{1.f};
         float fadeFactor{0.007f};
     };

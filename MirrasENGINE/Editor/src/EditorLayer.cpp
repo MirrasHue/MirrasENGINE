@@ -13,7 +13,7 @@ namespace mirras
 {
     void EditorLayer::load()
     {
-        reflect::registerComponentsUIFunction();
+        reflect::registerComponentsFunctions();
 
         ImGuiIO& io = ImGui::GetIO();
 

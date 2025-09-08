@@ -22,19 +22,51 @@ namespace mirras
         auto& registry = scene->registry;
         auto flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
+        static bool entityAdded = false;
+
+        if(entityAdded)
+        {
+            ImGui::SetNextItemOpen(true);
+            entityAdded = false;
+        }
+
         if(ImGui::TreeNodeEx(scene->name.c_str(), flags | ImGuiTreeNodeFlags_DefaultOpen))
         {
-            if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+            if(ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 context->selectedEntity = {};
+            
+            Entity forDeletion;
 
             // Iterating through all entities in reverse because they are being given in the reverse order of insertion
             for(auto enttID : registry.view<entt::entity>() | std::views::reverse)
             {
                 Entity entity{enttID, &registry};
-                drawNode(entity, flags);
+                drawNode(entity, flags, forDeletion);
+            }
+
+            if(forDeletion)
+            {
+                context->scene->deleteEntity(forDeletion);
+
+                if(forDeletion == context->selectedEntity)
+                    context->selectedEntity = {};
+
+                registry.sort<entt::entity>(std::greater{});
             }
 
             ImGui::TreePop();
+        }
+
+        if(ImGui::BeginPopupContextWindow("Create", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+        {
+            if(ImGui::MenuItem("Create Entity"))
+            {
+                auto entity = scene->createEntity("New Entity " + std::to_string(context->addedEntityCount++));
+                context->selectedEntity = entity;
+                entityAdded = true;
+            }
+
+            ImGui::EndPopup();
         }
 
         // Avoids a registry dangling ptr when the scenes vector resizes
@@ -44,17 +76,27 @@ namespace mirras
         ImGui::End();
     }
 
-    void SceneHierarchyPanel::drawNode(Entity entity, int32 treeNodeFlags)
+    void SceneHierarchyPanel::drawNode(Entity entity, int32 treeNodeFlags, Entity& forDeletion)
     {
         auto& name = entity.get<TagComponent>().tag;
 
         if(context->selectedEntity == entity)
             treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-        bool opened = ImGui::TreeNodeEx((void*)(intptr_t)entity.handle, treeNodeFlags, name.c_str());
+        bool opened = ImGui::TreeNodeEx(name.c_str(), treeNodeFlags);
 
         if(ImGui::IsItemClicked())
             context->selectedEntity = entity;
+
+        ImGui::PushID((uint32)entity);
+        if(ImGui::BeginPopupContextItem())
+        {
+            if(ImGui::MenuItem("Delete Entity"))
+                forDeletion = entity;
+
+            ImGui::EndPopup();
+        }
+        ImGui::PopID();
 
         if(opened)
             ImGui::TreePop();

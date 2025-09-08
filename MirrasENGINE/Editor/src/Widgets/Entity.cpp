@@ -21,24 +21,24 @@ namespace mirras
         float textAlignX = 0.58f; // For better centering X, Y and Z inside the button across different font sizes
     };
 
-    static void drawControl(const char* label, float& value, const ImVec4& color, const ImVec2& buttonSize, int32& id, const ControlParams& params = {})
+    static void drawControl(const char* label, float& value, const ImVec4& color, const ImVec2& buttonSize, const ControlParams& params = {})
     {
         ImGui::TableNextColumn();
         {
             ImGui::PushStyleColor(ImGuiCol_Button, color);
             ImGui::PushStyleVarX(ImGuiStyleVar_ButtonTextAlign, params.textAlignX);
-            ImGui::PushID(id++);
+
             if(ImGui::Button(label, buttonSize))
                 value = params.resetValue;
-            ImGui::PopID();
+
             ImGui::PopStyleVar();
             ImGui::PopStyleColor();
 
             ImGui::SameLine(0.f, 0.f);
 
-            ImGui::PushID(id++);
+            ImGui::PushID(label);
             ImGui::SetNextItemWidth(-FLT_MIN);
-            ImGui::DragFloat("", &value, params.speed, params.min, params.max, "%.2f", params.flags);
+            ImGui::DragFloat("##", &value, params.speed, params.min, params.max, "%.2f", params.flags);
             ImGui::PopID();
         }
     }
@@ -53,7 +53,7 @@ namespace mirras
         drawControl("Y", y, GREEN, buttonSize, id, params);
     }*/
 
-    static void drawDisabledControl(const char* label, const ImVec4& color, const ImVec2& buttonSize, int32& id, float textAlignX = 0.58f)
+    static void drawDisabledControl(const char* label, const ImVec4& color, const ImVec2& buttonSize, float textAlignX = 0.58f)
     {
         ImGui::TableNextColumn();
         {
@@ -61,29 +61,39 @@ namespace mirras
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
             ImGui::PushStyleVarX(ImGuiStyleVar_ButtonTextAlign, textAlignX);
-                ImGui::Button(label, buttonSize);
+
+            ImGui::Button(label, buttonSize);
+
             ImGui::PopStyleVar();
             ImGui::PopStyleColor();
 
             ImGui::SameLine(0.f, 0.f);
 
-            ImGui::SetNextItemWidth(-FLT_MIN);
-            ImGui::PushID(id++);
             float dummy = 0.f;
-            ImGui::DragFloat("", &dummy, 0.f, 0.f, 0.f, "%.2f");
+            ImGui::PushID(label);
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            ImGui::DragFloat("##", &dummy, 0.f, 0.f, 0.f, "%.2f");
             ImGui::PopID();
 
             ImGui::EndDisabled();
         }
     }
 
-    static void setCellLabel(const char* label)
+    static void beginRow(const char* label)
     {
+        ImGui::PushID(label);
+
+        ImGui::TableNextRow();
         ImGui::TableNextColumn();
         {
             ImGui::AlignTextToFramePadding();
             ImGui::TextUnformatted(label);
         }
+    }
+
+    static void endRow()
+    {
+        ImGui::PopID(); // Label
     }
 
     void draw(TransformComponent& transform, float firstColumnWidth)
@@ -94,26 +104,30 @@ namespace mirras
             
             float frameHeight = ImGui::GetFrameHeight();
             ImVec2 buttonSize{frameHeight, frameHeight};
-            int32 id = 0;
  
-            setCellLabel("Translation");
-            drawControl("X", transform.position.x, RED, buttonSize, id);
-            drawControl("Y", transform.position.y, GREEN, buttonSize, id);
-            drawControl("Z", transform.position.z, BLUE, buttonSize, id, {.max = 1.f, .speed = 0.01f, .flags = ImGuiSliderFlags_AlwaysClamp});
+            beginRow("Translation");
+            {
+                drawControl("X", transform.position.x, RED, buttonSize);
+                drawControl("Y", transform.position.y, GREEN, buttonSize);
+                drawControl("Z", transform.position.z, BLUE, buttonSize, {.max = 1.f, .speed = 0.01f, .flags = ImGuiSliderFlags_AlwaysClamp});
+            }
+            endRow();
 
-            ImGui::TableNextRow();
+            beginRow("Scale");
+            {
+                drawControl("X", transform.scale.x, RED, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawControl("Y", transform.scale.y, GREEN, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawDisabledControl("Z", BLUE, buttonSize);
+            }
+            endRow();
 
-            setCellLabel("Scale");
-            drawControl("X", transform.scale.x, RED, buttonSize, id, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
-            drawControl("Y", transform.scale.y, GREEN, buttonSize, id, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
-            drawDisabledControl("Z", BLUE, buttonSize, id);
-
-            ImGui::TableNextRow();
-
-            setCellLabel("Rotation");
-            drawDisabledControl("X", RED, buttonSize, id);
-            drawDisabledControl("Y", GREEN, buttonSize, id);
-            drawControl("Z", transform.rotation, BLUE, buttonSize, id);
+            beginRow("Rotation");
+            {
+                drawDisabledControl("X", RED, buttonSize);
+                drawDisabledControl("Y", GREEN, buttonSize);
+                drawControl("Z", transform.rotation, BLUE, buttonSize);
+            }
+            endRow();
 
             ImGui::EndTable();
         }
@@ -137,12 +151,14 @@ namespace mirras
 
             float frameHeight = ImGui::GetFrameHeight();
             ImVec2 buttonSize{frameHeight, frameHeight};
-            int32 id = 0;
 
-            setCellLabel("Size");
-            drawControl("X", rectangle.size.x, RED, buttonSize, id, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
-            drawControl("Y", rectangle.size.y, GREEN, buttonSize, id, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
-            drawDisabledControl("Z", BLUE, buttonSize, id);
+            beginRow("Size");
+            {
+                drawControl("X", rectangle.size.x, RED, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
+                drawControl("Y", rectangle.size.y, GREEN, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
+                drawDisabledControl("Z", BLUE, buttonSize);
+            }
+            endRow();
 
             ImGui::EndTable();
         }
