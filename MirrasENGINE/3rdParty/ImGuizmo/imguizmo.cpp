@@ -47,9 +47,9 @@ namespace IMGUIZMO_NAMESPACE
    static const float ZPI = 3.14159265358979323846f;
    static const float RAD2DEG = (180.f / ZPI);
    static const float DEG2RAD = (ZPI / 180.f);
-   const float screenRotateSize = 0.06f;
+   const float screenRotateSize = 0.01f;
    // scale a bit so translate axis do not touch when in universal
-   const float rotationDisplayFactor = 1.2f;
+   const float rotationDisplayFactor = 1.1f;
 
    static OPERATION operator&(OPERATION lhs, OPERATION rhs)
    {
@@ -637,12 +637,12 @@ namespace IMGUIZMO_NAMESPACE
    Style::Style()
    {
       // default values
-      TranslationLineThickness   = 3.0f;
-      TranslationLineArrowSize   = 6.0f;
-      RotationLineThickness      = 2.0f;
-      RotationOuterLineThickness = 3.0f;
-      ScaleLineThickness         = 3.0f;
-      ScaleLineCircleSize        = 6.0f;
+      TranslationLineThickness   = 6.0f;
+      TranslationLineArrowSize   = 8.0f;
+      RotationLineThickness      = 3.0f;
+      RotationOuterLineThickness = 6.0f;
+      ScaleLineThickness         = 6.0f;
+      ScaleLineCircleSize        = 8.0f;
       HatchedAxisLineThickness   = 6.0f;
       CenterCircleSize           = 6.0f;
 
@@ -1435,10 +1435,10 @@ namespace IMGUIZMO_NAMESPACE
                }
                drawList->AddCircleFilled(worldDirSSpace, gContext.mStyle.ScaleLineCircleSize, colors[i + 1]);
 
-               if (gContext.mAxisFactor[i] < 0.f)
+               /*if (gContext.mAxisFactor[i] < 0.f)
                {
                   DrawHatchedAxis(dirAxis * scaleDisplay[i]);
-               }
+               }*/
             }
          }
       }
@@ -1523,13 +1523,13 @@ namespace IMGUIZMO_NAMESPACE
                }
                */
 #endif
-               drawList->AddCircleFilled(worldDirSSpace, 12.f, colors[i + 1]);
+               drawList->AddCircleFilled(worldDirSSpace, gContext.mStyle.ScaleLineCircleSize + 1.f, colors[i + 1]);
             }
          }
       }
 
       // draw screen cirle
-      drawList->AddCircle(gContext.mScreenSquareCenter, 20.f, colors[0], 32, gContext.mStyle.CenterCircleSize);
+      drawList->AddCircle(gContext.mScreenSquareCenter, 20.f, colors[0], 32, gContext.mStyle.RotationOuterLineThickness);
 
       if (gContext.mbUsing && (gContext.GetCurrentID() == gContext.mEditingID) && IsScaleType(type))
       {

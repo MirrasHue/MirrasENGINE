@@ -14,6 +14,10 @@
 
 namespace mirras
 {
+    using GizmoType = ImGuizmo::OPERATION;
+
+    static GizmoType gizmoType = GizmoType::TRANSLATE;
+
     void EditorLayer::load()
     {
         reflect::registerComponentsFunctions();
@@ -61,6 +65,9 @@ namespace mirras
     {
         std::erase_if(scenes, [](const auto& scene){ return !scene.open; });
 
+        bool control = Input::isKeyDown(Key::LeftControl) || Input::isKeyDown(Key::RightControl);
+        bool shift = Input::isKeyDown(Key::LeftShift) || Input::isKeyDown(Key::RightShift);
+
         for(auto& editorScene : scenes)
         {
             editorScene.canvas.resize(editorScene.size.x, editorScene.size.y);
@@ -69,7 +76,7 @@ namespace mirras
             {
                 case SceneState::Editing:
                 {
-                    if(editorScene.focused)
+                    if(editorScene.focused && !control && !shift)
                         cameraController.update(dt);
 
                     if(editorScene.hovered)
@@ -85,6 +92,22 @@ namespace mirras
                 }
             }
         }
+
+        // Gizmo controls
+        if(Input::isKeyDown(Key::F))
+            gizmoType = GizmoType::NONE;
+        else
+        if(Input::isKeyDown(Key::R))
+            gizmoType = GizmoType::ROTATE;
+        else
+        if(Input::isKeyDown(Key::T))
+            gizmoType = GizmoType::TRANSLATE;
+        else
+        if(Input::isKeyDown(Key::Y))
+            gizmoType = GizmoType::SCALE;
+        else
+        if(Input::isKeyDown(Key::U))
+            gizmoType = GizmoType::UNIVERSAL;
     }
 
     void EditorLayer::draw()
@@ -205,7 +228,7 @@ namespace mirras
 
                 ImGui::Image(editorScene.canvas.color, {width, height}, {0, 1}, {1, 0});
 
-                if(editorScene.selectedEntity)
+                if(editorScene.selectedEntity && gizmoType != GizmoType::NONE)
                 {
                     ImGuizmo::PushID(&editorScene);
                     ImGuizmo::SetOrthographic(true);
@@ -221,7 +244,7 @@ namespace mirras
                     glm::mat4 transform = transfComp.getTransformMatrix();
                     
                     ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
-                        ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform));
+                        gizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
 
                     if(ImGuizmo::IsUsing())
                         transfComp.decomposeTransform(transform);
