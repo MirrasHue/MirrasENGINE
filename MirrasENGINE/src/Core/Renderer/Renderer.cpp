@@ -57,7 +57,7 @@ namespace mirras
         renderer.endTextureDrawing();
     }
 
-    void Renderer::beginMode2D(Camera2D& camera)
+    void Renderer::beginMode2D(const Camera2D& camera)
     {
         renderer.beginMode2D(camera);
     }

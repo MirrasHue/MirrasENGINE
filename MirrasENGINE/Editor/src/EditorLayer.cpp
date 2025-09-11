@@ -8,6 +8,9 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/gizmo.h>
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace mirras
 {
@@ -19,6 +22,7 @@ namespace mirras
 
         io.ConfigDpiScaleFonts = true;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-SemiBold.ttf");
+        io.ConfigWindowsMoveFromTitleBarOnly = true;
 
         auto scene1 = instantiate<Scene>("Scene1");
         auto scene2 = instantiate<Scene>("Scene2");
@@ -122,6 +126,7 @@ namespace mirras
         }
 
         //ImGui::SetNextWindowSizeConstraints({800, 450}, {FLT_MAX, FLT_MAX});
+        ImGuizmo::BeginFrame();
         activeScene = nullptr;
 
         for(auto& editorScene : scenes)
@@ -134,6 +139,7 @@ namespace mirras
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
             ImGui::Begin(editorScene.scene->name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
             {
+                auto [viewportX, viewportY] = ImGui::GetCursorScreenPos();
                 auto [width, height] = ImGui::GetContentRegionAvail();
                 editorScene.size = {width, height};
 
@@ -160,19 +166,36 @@ namespace mirras
                     zoomController.setCamera(&editorScene.camera);
                     editorScene.hovered = true;
 
-                    auto [x, y] = ImGui::GetCursorScreenPos();
-                    auto [mx, my] = ImGui::GetMousePos();
+                    auto [mouseX, mouseY] = ImGui::GetMousePos();
 
                     // Convert the mouse position to be relative to the viewport bounds
-                    mx -= x;
-                    my = height - (my - y); // Flip Y axis for texture pixel reading
+                    mouseX -= viewportX;
+                    mouseY = height - (mouseY - viewportY); // Flip Y axis for texture pixel reading
 
-                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                    {
-                        int32 pixelData = editorScene.canvas.readPixel(Attachment::RedInteger, mx, my);
+                    static bool clicked = false;
+                    bool isOverGizmo = false;
+
+                    // Even when the gizmo is not visible, it's still active, messing up the selection if we are over it
+                    if(editorScene.selectedEntity)
+                        isOverGizmo = ImGuizmo::IsOver();
+
+                    if(!isOverGizmo && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                        clicked = true;
+
+                    if(clicked && !ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::GetMouseDragDelta() != ImVec2{0.f, 0.f})
+                        clicked = false;
+                    else
+                    // It's necessary to check (mouseY <= height) before reading a pixel because when the window
+                    // is not docked, the titlebar is also included (IsHovered == true), and reading a pixel in
+                    // that region (outside the texture) causes OpenGL to return 0 (a valid ID), instead of -1
+                    if(clicked && mouseY <= height && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+                    {                       
+                        int32 pixelData = editorScene.canvas.readPixel(Attachment::RedInteger, mouseX, mouseY);
 
                         editorScene.selectedEntity = (pixelData != /*clear value*/ -1) ?
                             Entity{(entt::entity)pixelData, &editorScene.scene->registry} : Entity{};
+
+                        clicked = false;
                     }
                 }
 
@@ -181,6 +204,30 @@ namespace mirras
                     activeScene = &editorScene;
 
                 ImGui::Image(editorScene.canvas.color, {width, height}, {0, 1}, {1, 0});
+
+                if(editorScene.selectedEntity)
+                {
+                    ImGuizmo::PushID(&editorScene);
+                    ImGuizmo::SetOrthographic(true);
+                    ImGuizmo::SetDrawlist();
+                    ImGuizmo::SetRect(viewportX, viewportY, width, height);
+                    
+                    vec2i fbSize{editorScene.canvas.width, editorScene.canvas.height};
+
+                    glm::mat4 view = editorScene.camera.getViewMatrix(fbSize, editorScene.canvas.initialSize);
+                    glm::mat4 projection = glm::ortho(0.f, (float)fbSize.x, (float)fbSize.y, 0.f, 0.f, 1.f);
+
+                    auto& transfComp = editorScene.selectedEntity.get<TransformComponent>();
+                    glm::mat4 transform = transfComp.getTransformMatrix();
+                    
+                    ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
+                        ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transform));
+
+                    if(ImGuizmo::IsUsing())
+                        transfComp.decomposeTransform(transform);
+
+                    ImGuizmo::PopID();
+                }
             }
             ImGui::End();
             ImGui::PopStyleVar();

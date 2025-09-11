@@ -4,6 +4,7 @@
 
 #include "EditorScene.h"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/EntityPropertiesPanel.h"
 

@@ -20,13 +20,12 @@ include(cmake/runtime-selection.cmake)
 # Fetch source files
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS MirrasENGINE/src/*.cpp)
 
-add_library(${PROJECT_NAME} STATIC ${engine_src} MirrasENGINE/3rdParty/raylib/src/raudio.c)
+add_library(${PROJECT_NAME} STATIC ${engine_src})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_SOURCE_DIR}
         MirrasENGINE/src
-        MirrasENGINE/3rdParty/raylib/include
         MirrasENGINE/3rdParty/Glad/include
         MirrasENGINE/3rdParty/stb/include
 )
@@ -37,6 +36,8 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(MirrasENGINE/3rdParty/GLFW)
 
+add_subdirectory(MirrasENGINE/3rdParty/raylib)
+
 add_subdirectory(MirrasENGINE/3rdParty/ImGui)
 
 add_subdirectory(MirrasENGINE/3rdParty/EnTT)
@@ -45,7 +46,9 @@ add_subdirectory(MirrasENGINE/3rdParty/GLM)
 
 add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
 
-target_link_libraries(${PROJECT_NAME} glfw ImGui EnTT glm msdf-atlas-gen)
+add_subdirectory(MirrasENGINE/3rdParty/ImGuizmo)
+
+target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT glm msdf-atlas-gen ImGuizmo)
 
 # Don't include spdlog in the distribution build
 if(NOT DEFINED PRESET_NAME OR NOT PRESET_NAME STREQUAL "distribution")
@@ -82,6 +85,9 @@ endif()
 if(UNIX AND RUN_UPDATE_THREAD_LINUX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RUN_UPDATE_THREAD)
 endif()
+
+# Forces GLM to default initialize its types
+target_compile_definitions(${PROJECT_NAME} PUBLIC GLM_FORCE_CTOR_INIT)
 
 if(MSVC)
     add_compile_options(/MP)

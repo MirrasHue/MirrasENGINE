@@ -27,7 +27,7 @@ namespace mirras
         void beginTextureDrawing(const RenderTexture2D& texture);
         void endTextureDrawing();
 
-        void beginMode2D(Camera2D& camera);
+        void beginMode2D(const Camera2D& camera);
         void endMode2D();
 
         void setLineWidth(float width);

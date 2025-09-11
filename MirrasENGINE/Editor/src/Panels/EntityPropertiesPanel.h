@@ -6,6 +6,8 @@
 
 #include <imgui/imgui.h>
 
+#include <string.h>
+
 namespace mirras
 {
     // Unfortunately ImGui doesn't clamp pasted text that exceeds the buffer size (it is completely

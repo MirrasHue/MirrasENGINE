@@ -39,7 +39,7 @@ namespace mirras
         static void beginTextureDrawing(const RenderTexture2D& texture);
         static void endTextureDrawing();
 
-        static void beginMode2D(Camera2D& camera);
+        static void beginMode2D(const Camera2D& camera);
         static void endMode2D();
 
         static void setLineWidth(float width);
