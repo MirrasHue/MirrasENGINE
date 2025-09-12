@@ -9,6 +9,17 @@
 
 #include <glm/vec2.hpp>
 
+// Matched the values from ImGuizmo, so that we don't have
+// to include it and imgui.h just for the OPERATION enum
+enum GizmoType
+{
+    None = 0,
+    Translate = 7,
+    Rotate = 120,
+    Scale = 896,
+    Universal = 14463
+};
+
 namespace mirras
 {
     enum class SceneState : uint8
@@ -26,6 +37,7 @@ namespace mirras
         Entity selectedEntity;
         uint32 addedEntityCount = 0; // Incremented when adding entities through the right click ctx menu
         SceneState state = SceneState::Editing;
+        GizmoType gizmoType = GizmoType::Translate;
         bool focused = false;
         bool hovered = false;
         bool open = true;

@@ -23,6 +23,9 @@ namespace mirras
         virtual void unload() override {}
 
     private:
+        void newScene();
+
+    private:
         std::vector<EditorScene> scenes;
         EditorScene* activeScene = nullptr;
 

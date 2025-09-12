@@ -19,6 +19,7 @@ namespace mirras
         int32 height = 720;
         int32 minWidth  = -1; // Both need to be set in
         int32 minHeight = -1; // order to take effect
+        bool maximized = false;
         bool fullScreen = false;
         bool VSync = true;
         bool keepAspectRatio = false;

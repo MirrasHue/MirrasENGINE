@@ -47,6 +47,9 @@ namespace mirras
         int32 width = windowSpecs.width;
         int32 height = windowSpecs.height;
 
+        if(windowSpecs.maximized)
+            glfwWindowHint(GLFW_MAXIMIZED, true);
+        else
         if(windowSpecs.fullScreen)
         {
             monitor = glfwGetPrimaryMonitor();

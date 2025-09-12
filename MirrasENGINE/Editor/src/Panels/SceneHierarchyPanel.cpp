@@ -83,12 +83,12 @@ namespace mirras
         if(context->selectedEntity == entity)
             treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
+        ImGui::PushID((uint32)entity);
         bool opened = ImGui::TreeNodeEx(name.c_str(), treeNodeFlags);
 
         if(ImGui::IsItemClicked())
             context->selectedEntity = entity;
 
-        ImGui::PushID((uint32)entity);
         if(ImGui::BeginPopupContextItem())
         {
             if(ImGui::MenuItem("Delete Entity"))

@@ -6,17 +6,24 @@
 
 #include <imgui/imgui.h>
 
-#include <string.h>
+#include <cstring>
 
 namespace mirras
 {
     // Unfortunately ImGui doesn't clamp pasted text that exceeds the buffer size (it is completely
     // ignored, instead of pasting what could still fit). It seems to be a limitation of stb_textedit
     template<unsigned N>
-    bool InputText(const char* label, std::string& source, ImGuiInputTextFlags flags = 0)
+    bool inputText(const char* label, std::string& source, ImGuiInputTextFlags flags = 0)
     {
-        char buffer[N] = {};
-        strncpy_s(buffer, sizeof(buffer), source.c_str(), N - 1);
+        // No need to initialize the buffer here, as it's going to only be used in this 
+        char buffer[N]; // function (std::string ctor taking a char* stops at the 1st '\0')
+        uint32 numBytes = source.size();
+
+        if(numBytes + 1 > N)
+            numBytes = N - 1;
+
+        std::memcpy(buffer, source.c_str(), numBytes);
+        buffer[numBytes] = '\0';
 
         ImGui::PushID(&source);
 
@@ -56,7 +63,7 @@ namespace mirras
                 {
                     auto& name = entity.get<TagComponent>().tag;
                     ImGui::SetNextItemWidth(-FLT_MIN);
-                    InputText<36>("##tag", name);
+                    inputText<36>("##tag", name);
                 }
 
                 ImGui::TableNextColumn();
@@ -101,6 +108,8 @@ namespace mirras
 
                 ImGui::EndPopup();
             }
+
+            ImGui::Separator();
 
             ImGui::End();
         }

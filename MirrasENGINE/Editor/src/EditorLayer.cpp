@@ -14,10 +14,6 @@
 
 namespace mirras
 {
-    using GizmoType = ImGuizmo::OPERATION;
-
-    static GizmoType gizmoType = GizmoType::TRANSLATE;
-
     void EditorLayer::load()
     {
         reflect::registerComponentsFunctions();
@@ -29,7 +25,6 @@ namespace mirras
         io.ConfigWindowsMoveFromTitleBarOnly = true;
 
         auto scene1 = instantiate<Scene>("Scene1");
-        auto scene2 = instantiate<Scene>("Scene2");
 
         auto cameraEntity = scene1->createEntity("Camera");
         auto& camera = cameraEntity.add<CameraComponent>();
@@ -52,21 +47,15 @@ namespace mirras
         rect2.size  = {200, 200};
         rect2.color = {0, 1, 0, 1};
 
-        auto rectEntity3 = scene2->createEntity("Rectangle");
-        auto& rect3 = rectEntity3.add<RectangleComponent>();
-        rect3.size  = {200, 200};
-        rect3.color = {1, 0, 0, 1};
-
         scenes.emplace_back(std::move(scene1));
-        scenes.emplace_back(std::move(scene2));
     }
 
     void EditorLayer::update(float dt)
     {
         std::erase_if(scenes, [](const auto& scene){ return !scene.open; });
 
-        bool control = Input::isKeyDown(Key::LeftControl) || Input::isKeyDown(Key::RightControl);
-        bool shift = Input::isKeyDown(Key::LeftShift) || Input::isKeyDown(Key::RightShift);
+        bool ctrlDown = Input::isKeyDown(Key::LeftControl) || Input::isKeyDown(Key::RightControl);
+        bool shiftDown = Input::isKeyDown(Key::LeftShift) || Input::isKeyDown(Key::RightShift);
 
         for(auto& editorScene : scenes)
         {
@@ -76,8 +65,26 @@ namespace mirras
             {
                 case SceneState::Editing:
                 {
-                    if(editorScene.focused && !control && !shift)
+                    if(editorScene.focused && !(ctrlDown || shiftDown))
+                    {
                         cameraController.update(dt);
+                        
+                        // Gizmo controls
+                        if(Input::isKeyDown(Key::F))
+                            editorScene.gizmoType = GizmoType::None;
+                        else
+                        if(Input::isKeyDown(Key::R))
+                            editorScene.gizmoType = GizmoType::Rotate;
+                        else
+                        if(Input::isKeyDown(Key::T))
+                            editorScene.gizmoType = GizmoType::Translate;
+                        else
+                        if(Input::isKeyDown(Key::Y))
+                            editorScene.gizmoType = GizmoType::Scale;
+                        else
+                        if(Input::isKeyDown(Key::U))
+                            editorScene.gizmoType = GizmoType::Universal;
+                    }
 
                     if(editorScene.hovered)
                         zoomController.updateZoom();
@@ -93,21 +100,13 @@ namespace mirras
             }
         }
 
-        // Gizmo controls
-        if(Input::isKeyDown(Key::F))
-            gizmoType = GizmoType::NONE;
-        else
-        if(Input::isKeyDown(Key::R))
-            gizmoType = GizmoType::ROTATE;
-        else
-        if(Input::isKeyDown(Key::T))
-            gizmoType = GizmoType::TRANSLATE;
-        else
-        if(Input::isKeyDown(Key::Y))
-            gizmoType = GizmoType::SCALE;
-        else
-        if(Input::isKeyDown(Key::U))
-            gizmoType = GizmoType::UNIVERSAL;
+        // NOTE: GLFW by default doesn't provide a function to check if a key went from Down -> Up (only through callbacks).
+        // We could detect this at onEvent(), but in the long run it would be better to roll our own state keeping, in order
+        // to access it from anywhere. For now we'll be using ImGui for such cases, so that we don't spam actions here
+
+        // Shortcuts
+        if(ctrlDown && ImGui::IsKeyReleased(ImGuiKey_N))
+            newScene();
     }
 
     void EditorLayer::draw()
@@ -142,6 +141,9 @@ namespace mirras
         {
             if(ImGui::BeginMenu("File"))
             {
+                if(ImGui::MenuItem("New Scene", "Ctrl + N"))
+                    newScene();
+                
 
                 ImGui::EndMenu();
             }
@@ -228,7 +230,9 @@ namespace mirras
 
                 ImGui::Image(editorScene.canvas.color, {width, height}, {0, 1}, {1, 0});
 
-                if(editorScene.selectedEntity && gizmoType != GizmoType::NONE)
+                bool hasTransform = editorScene.selectedEntity ? editorScene.selectedEntity.has<TransformComponent>() : false;
+
+                if(hasTransform && editorScene.gizmoType != GizmoType::None)
                 {
                     ImGuizmo::PushID(&editorScene);
                     ImGuizmo::SetOrthographic(true);
@@ -244,7 +248,7 @@ namespace mirras
                     glm::mat4 transform = transfComp.getTransformMatrix();
                     
                     ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
-                        gizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
+                        (ImGuizmo::OPERATION)editorScene.gizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
 
                     if(ImGuizmo::IsUsing())
                         transfComp.decomposeTransform(transform);
@@ -272,5 +276,10 @@ namespace mirras
     {
         if(Event::is_a<WindowClosed>(event))
             App::getInstance().stop();
+    }
+
+    void EditorLayer::newScene()
+    {
+        scenes.emplace_back(instantiate<Scene>("Untitled-" + std::to_string(scenes.size())));
     }
 } // namespace mirras
