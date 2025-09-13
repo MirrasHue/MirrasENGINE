@@ -17,6 +17,15 @@ namespace mirras
         return entity;
     }
 
+    Entity Scene::createEntity(uint32 idHint)
+    {
+        Entity entity = {registry.create(entt::entity{idHint}), &registry};
+        entity.add<IDComponent>();
+        entity.add<TransformComponent>();
+
+        return entity;
+    }
+
     Entity Scene::createEntity(std::string tag)
     {
         auto entity = createEntity();

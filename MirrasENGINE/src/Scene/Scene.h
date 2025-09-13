@@ -17,6 +17,7 @@ namespace mirras
             name{std::move(sceneName)} {}
 
         Entity createEntity();
+        Entity createEntity(uint32 idHint);
         Entity createEntity(std::string tag);
         void deleteEntity(Entity entity);
 

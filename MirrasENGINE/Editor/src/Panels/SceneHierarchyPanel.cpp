@@ -61,7 +61,11 @@ namespace mirras
         {
             if(ImGui::MenuItem("Create Entity"))
             {
-                auto entity = scene->createEntity("New Entity " + std::to_string(context->addedEntityCount++));
+                uint32& entityCount = context->addedEntityCount;
+                // Added a hint here so that the IDs of deleted entities are not reused
+                // (solves the problem of wrong ordering when displaying the entities after deletion)
+                auto entity = scene->createEntity(entityCount);
+                auto& tag = entity.add<TagComponent>("Entity " + std::to_string(entityCount++));
                 context->selectedEntity = entity;
                 entityAdded = true;
             }

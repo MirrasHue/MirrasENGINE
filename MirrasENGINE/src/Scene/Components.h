@@ -83,8 +83,8 @@ namespace mirras
         static glm::mat4 identity{1.f};
 
         return glm::translate(identity, position) *
-                glm::rotate(identity, glm::radians(rotation), glm::vec3{0.f, 0.f, 1.f}) *
-                glm::scale(identity, glm::vec3{scale, 1.f});
+               glm::rotate(identity, glm::radians(rotation), glm::vec3{0.f, 0.f, 1.f}) *
+               glm::scale(identity, glm::vec3{scale, 1.f});
     }
 
     // Adapted from https://www.reddit.com/r/opengl/comments/sih6lc/4x4_matrix_to_position_rotation_and_scale

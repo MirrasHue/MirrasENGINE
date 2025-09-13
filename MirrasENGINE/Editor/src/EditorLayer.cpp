@@ -48,6 +48,7 @@ namespace mirras
         rect2.color = {0, 1, 0, 1};
 
         scenes.emplace_back(std::move(scene1));
+        scenes.back().addedEntityCount = 4;
     }
 
     void EditorLayer::update(float dt)

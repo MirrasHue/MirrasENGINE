@@ -14,10 +14,10 @@
 enum GizmoType
 {
     None = 0,
-    Translate = 7,
-    Rotate = 120,
-    Scale = 896,
-    Universal = 14463
+    Translate = 3,
+    Rotate = 56,
+    Scale = 384,
+    Universal = 6203
 };
 
 namespace mirras
