@@ -186,13 +186,12 @@ namespace mirras
                 }
 
                 editorScene.hovered = false;
+                auto [mouseX, mouseY] = ImGui::GetMousePos();
 
                 if(ImGui::IsWindowHovered())
                 {
                     zoomController.setCamera(&editorScene.camera);
                     editorScene.hovered = true;
-
-                    auto [mouseX, mouseY] = ImGui::GetMousePos();
 
                     // Convert the mouse position to be relative to the viewport bounds
                     mouseX -= viewportX;
@@ -256,6 +255,25 @@ namespace mirras
 
                     ImGuizmo::PopID();
                 }
+
+                static bool rClicked = false;
+
+                if(editorScene.hovered && mouseY <= height && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                {
+                    ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
+                    rClicked = true;
+                }
+
+                if(rClicked && editorScene.hovered && ImGui::IsMouseDragging(ImGuiMouseButton_Right, 0.f))
+                {
+                    auto[dx, dy] = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.f);
+                    editorScene.camera.position -= glm::vec2{dx, dy} * (1.f / editorScene.camera.zoom);
+                }
+                else
+                if(rClicked && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+                    rClicked = false;
+
+                ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
             }
             ImGui::End();
             ImGui::PopStyleVar();

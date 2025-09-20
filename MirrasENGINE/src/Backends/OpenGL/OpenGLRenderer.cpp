@@ -287,9 +287,9 @@ namespace mirras
 
     void OpenGLRenderer::drawShaderCircle(const glm::vec3& center, float radius, const glm::vec4& color, float fillFactor, float fadeFactor)
     {
-        if(fillFactor <= 0.f || fadeFactor <= 0.f)
+        if(fillFactor < 0.f || fadeFactor < 0.f)
         {
-            ENGINE_LOG_WARN("Fill and fade factors must be greater than 0");
+            ENGINE_LOG_WARN("Fill or fade factors can't be negative");
             return;
         }
 
@@ -314,7 +314,7 @@ namespace mirras
                 // Adapted from Cherno's circle shader
                 float distance = 1.f - length(fragTexCoord);
                 float alpha = smoothstep(0.f, fadeFactor, distance);
-                alpha *= smoothstep(fillFactor + fadeFactor, fillFactor, distance);
+                alpha *= smoothstep(fillFactor + fadeFactor + 0.0001f, fillFactor, distance);
 
                 if(alpha == 0.f)
                     discard;

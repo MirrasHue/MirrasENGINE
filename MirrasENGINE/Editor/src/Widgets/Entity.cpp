@@ -5,6 +5,7 @@
 static constexpr ImVec4 RED{1.f, 0.f, 0.f, 1.f};
 static constexpr ImVec4 GREEN{0.f, 0.9f, 0.f, 1.f};
 static constexpr ImVec4 BLUE{0.f, 0.f, 1.f, 1.f};
+static constexpr ImVec4 WHITE{1.f, 1.f, 1.f, 1.f};
 
 namespace mirras
 {
@@ -168,7 +169,28 @@ namespace mirras
 
     void draw(CircleComponent& circle, float firstColumnWidth)
     {
-        ImGui::Text("Circle");
+        if(ImGui::BeginTable("Circle", 2, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            float frameHeight = ImGui::GetFrameHeight();
+            ImVec2 buttonSize{frameHeight, frameHeight};
+
+            beginRow("Radius");
+                drawControl("##r", circle.radius, WHITE, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 100.f});
+            endRow();
+            
+            beginRow("Fill");
+                drawControl("##f", circle.fillFactor, WHITE, buttonSize, {.max = 1.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+            endRow();
+
+            beginRow("Fade");
+                drawControl("##fa", circle.fadeFactor, WHITE, buttonSize, {.max = 4.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 0.007f});
+            endRow();
+
+            ImGui::EndTable();
+        }
+        ImGui::ColorEdit4("Color", glm::value_ptr(circle.color));
     }
 
     void draw(TextComponent& text, float firstColumnWidth)
