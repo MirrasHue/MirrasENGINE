@@ -2,7 +2,7 @@
 
 #include "Events/WindowEvents.h"
 
-#include <cmath>
+#include <format>
 
 #define MAX_FRAME_SPEED 15
 #define MIN_FRAME_SPEED  1
@@ -34,7 +34,7 @@ void Animation::fixedUpdate(float dt)
         framesCounter = 0;
         currentFrame++;
 
-        if (currentFrame > 5) currentFrame = 0;
+        if(currentFrame > 5) currentFrame = 0;
 
         frameRect.x = (float)currentFrame * scarfy->width / 6.f;
     }
@@ -62,18 +62,18 @@ void Animation::draw()
         Renderer::drawRectangleLines({x, y}, {scarfy->width, scarfy->height}, GREEN);
         Renderer::drawRectangleLines({x + frameRect.x, y + frameRect.y}, {frameRect.width, frameRect.height}, RED);
 
-        Renderer::drawText(L"FRAME SPEED", font, {-300, -30}, 25.f, BLACK);
-        Renderer::drawText(std::format(L"{:02} FPS", framesSpeed), font, {240, -30}, 25.f, BLACK);
-        Renderer::drawText(L"PRESS RIGHT/LEFT KEYS to CHANGE SPEED!", font, {-145, 0}, 22.f, BLACK);
+        Renderer::drawText(L"FRAME SPEED", font, {-300.f, -30.f}, 25.f, BLACK);
+        Renderer::drawText(std::format(L"{:02} FPS", framesSpeed), font, {240.f, -30.f}, 25.f, BLACK);
+        Renderer::drawText(L"PRESS RIGHT/LEFT KEYS to CHANGE SPEED!", font, {-145.f, 0.f}, 22.f, BLACK);
 
         for (int i = 0; i < MAX_FRAME_SPEED; i++)
         {
-            if (i < framesSpeed) Renderer::drawRectangle({-180 + 27 * i, -30}, {25, 25}, {}, RED);
-            Renderer::drawRectangleLines({-180 + 27 * i, -30}, {25, 25}, RED);
+            if (i < framesSpeed) Renderer::drawRectangle({-180.f + 27.f * i, -30.f}, {25.f, 25.f}, {}, RED);
+            Renderer::drawRectangleLines({-180.f + 27.f * i, -30.f}, {25.f, 25.f}, RED);
         }
 
-        Renderer::drawTexture(*scarfy, frameRect, {-frameRect.width / 2.f, 50}, {frameRect.width, frameRect.height});
-        Renderer::drawText(L"(c) Scarfy sprite by Eiden Marsal", font, {120, frameRect.height + 70}, 20.f, BLACK);
+        Renderer::drawTexture(*scarfy, frameRect, {-frameRect.width / 2.f, 50.f}, {frameRect.width, frameRect.height});
+        Renderer::drawText(L"(c) Scarfy sprite by Eiden Marsal", font, {120.f, frameRect.height + 70.f}, 20.f, BLACK);
 
     Renderer::endMode2D();
 }

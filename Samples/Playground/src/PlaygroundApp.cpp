@@ -2,6 +2,9 @@
 
 using namespace mirras;
 
+static constexpr glm::vec4 WHITE{1.f, 1.f, 1.f, 1.f};
+static constexpr glm::vec4 BLACK{0.f, 0.f, 0.f, 1.f};
+
 void PlaygroundApp::load()
 {
     vertexSrc = R"(
@@ -47,12 +50,12 @@ void PlaygroundApp::load()
     )";
     
     shader = Shader::loadFrom(vertexSrc, fragmentSrc);
-    camera.position = {400, 300};
-    //camera.setOffset(-300, 100);
+    camera.position = {400.f, 300.f};
+    //camera.setOffset(-300.f, 100.f);
 
-    points[0] = {triangleCenter.x - 100, triangleCenter.y + 100, 0.f};
-    points[1] = {triangleCenter.x + 100, triangleCenter.y + 100, 0.f};
-    points[2] = {triangleCenter.x, triangleCenter.y - 100, 0.f};
+    points[0] = {triangleCenter.x - 100.f, triangleCenter.y + 100.f, 0.f};
+    points[1] = {triangleCenter.x + 100.f, triangleCenter.y + 100.f, 0.f};
+    points[2] = {triangleCenter.x, triangleCenter.y - 100.f, 0.f};
 
     texture = Texture::loadFrom("assets/textures/GuadagniniModel.png");
     font = instantiate<Font>("assets/fonts/Doto_Rounded-Black.ttf");
@@ -72,45 +75,47 @@ void PlaygroundApp::onEvent(Event& event)
 
 void PlaygroundApp::draw()
 {
-    rect4f sampleArea(0, 0, texture->width, texture->height);
+    rect4f sampleArea(0.f, 0.f, texture->width, texture->height);
 
     Renderer::beginMode2D(camera);
-        Renderer::drawCircle({600, 400, 0}, 50, {1,1,1,1});
+        Renderer::drawCircle({600.f, 400.f, 0.f}, 50.f, WHITE);
 
-        Renderer::drawLine({0, 300}, {2000, 300}, {1,1,1,1});
+        Renderer::drawLine({0.f, 300.f}, {2000.f, 300.f}, WHITE);
 
-        Renderer::drawTexture(*texture, sampleArea, {400, 300, 0}, {texture->width, texture->height}, {0,0}, rotation);
-        Renderer::drawShaderCircle({200, 300, 1}, 100, {1,0,0.5,1});
+        Renderer::drawTexture(*texture, sampleArea, {400.f, 300.f, 0.f}, {texture->width, texture->height}, {0.f, 0.f}, rotation);
+        Renderer::drawShaderCircle({200.f, 300.f, 1.f}, 100.f, {1.f, 0.f, 0.5f, 1.f});
 
         shader->makeActive();
-            Renderer::drawCircle({400, 300}, 100, {1,0,1,1});
-            Renderer::drawTriangle(points[0], points[1], points[2], {0,0,0,1});
+            Renderer::drawCircle({400.f, 300.f}, 100.f, {1.f, 0.f, 1.f, 1.f});
+            Renderer::drawTriangle(points[0], points[1], points[2], BLACK);
 
-            Renderer::drawRectangle({300, 400, 1}, {200, 200}, {100, 100}, {0,0,0,1}, rotation);
+            Renderer::drawRectangle({300.f, 400.f, 1.f}, {200.f, 200.f}, {100.f, 100.f}, BLACK, rotation);
         shader->makeInactive();
 
-        Renderer::drawShaderCircle({300, 600, 0}, 200, {1,1,0.5,1}, 0.5, 1.f);
+        Renderer::drawShaderCircle({300.f, 600.f, 0.f}, 200.f, {1.f, 1.f, 0.5f, 1.f}, 0.5f, 1.f);
 
-        Renderer::drawTriangle({300, 400, 0}, {700, 400, 0}, {500, 100, 0}, {0,0,0,0.5});
+        Renderer::drawTriangle({300.f, 400.f, 0.f}, {700.f, 400.f, 0.f}, {500.f, 100.f, 0.f}, {0.f, 0.f, 0.f, 0.5f});
+
+        Renderer::drawText(L"Press Z, X or C to play a sound.\nPress Space to disable looping (sound 2)", *font, {0.f, 0.f, 0.f});
 
         if(font->atlasTexture)
-            Renderer::drawTexture(*font->atlasTexture, {}, {0, 100, 0}, {330,330});
+            Renderer::drawTexture(*font->atlasTexture, {}, {0.f, 100.f, 0.f}, {330.f, 330.f});
         else
         {
             LOG_ERROR("font atlas is null");
         }
 
         // To visualize how the rendered glyphs are aligning with the specified top left position
-        Renderer::drawLine({0,450,0}, {0,600,0}, {1,1,1,1});
-        Renderer::drawLine({0,450,0}, {150,450,0}, {1,1,1,1});
-        Renderer::drawText(L"Hello World!\nNow we have text rendering", *font, {0,450,0});
+        Renderer::drawLine({0.f, 450.f, 0.f}, {0.f, 600.f, 0.f}, WHITE);
+        Renderer::drawLine({0.f, 450.f, 0.f}, {150.f, 450.f, 0.f}, WHITE);
+        Renderer::drawText(L"Hello World!\nNow we have text rendering", *font, {0.f, 450.f, 0.f});
 
     Renderer::endMode2D();
 }
 
 void PlaygroundApp::update(float dt)
 {
-    rotation += 30 * dt;
+    rotation += 30.f * dt;
 
     if(rotation > 360.f)
         rotation -= 360.f;
