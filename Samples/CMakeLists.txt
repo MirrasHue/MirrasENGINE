@@ -24,3 +24,17 @@ if(BUILD_BENCHMARK)
     target_link_libraries(Benchmark MirrasENGINE)
 
 endif()
+
+#############################################################################
+
+option(BUILD_ANIMATION "Build sample: Animation" ON)
+
+if(BUILD_ANIMATION)
+    # Fetch source files
+    file(GLOB_RECURSE anim_src CONFIGURE_DEPENDS Animation/src/*.cpp)
+
+    add_executable(Animation ${anim_src})
+
+    target_link_libraries(Animation MirrasENGINE)
+
+endif()

@@ -52,7 +52,7 @@ namespace mirras
         renderer.endTextureDrawing();
     }
 
-    void Renderer::beginMode2D(Camera2D& camera)
+    void Renderer::beginMode2D(const Camera2D& camera)
     {
         renderer.beginMode2D(camera);
     }
@@ -95,6 +95,16 @@ namespace mirras
     void Renderer::drawTriangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const glm::vec4& color)
     {
         renderer.drawTriangle(p1, p2, p3, color);
+    }
+
+    void Renderer::drawRectangleLines(const glm::vec3& topLeft, glm::vec2 size, const glm::vec4& color)
+    {
+        renderer.drawRectangleLines(topLeft, size, color);
+    }
+
+    void Renderer::drawRectangleLines(glm::vec2 topLeft, glm::vec2 size, const glm::vec4& color)
+    {
+        renderer.drawRectangleLines(topLeft, size, color);
     }
 
     void Renderer::drawRectangle(const glm::vec3& topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation)

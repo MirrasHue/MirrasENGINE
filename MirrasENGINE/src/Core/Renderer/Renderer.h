@@ -37,7 +37,7 @@ namespace mirras
         static void beginTextureDrawing(const RenderTexture2D& texture);
         static void endTextureDrawing();
 
-        static void beginMode2D(Camera2D& camera);
+        static void beginMode2D(const Camera2D& camera);
         static void endMode2D();
 
         static void enableDepthTest();
@@ -55,6 +55,9 @@ namespace mirras
 
         static void drawRectangle(const glm::vec3& topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
         static void drawRectangle(glm::vec2 topLeft, glm::vec2 size, glm::vec2 localOrigin, const glm::vec4& color, float rotation = 0.f);
+
+        static void drawRectangleLines(const glm::vec3& topLeft, glm::vec2 size, const glm::vec4& color);
+        static void drawRectangleLines(glm::vec2 topLeft, glm::vec2 size, const glm::vec4& color);
 
         static void drawCircle(const glm::vec3& center, float radius, const glm::vec4& color, int32 segments = 36);
         static void drawCircle(glm::vec2 center, float radius, const glm::vec4& color, int32 segments = 36);

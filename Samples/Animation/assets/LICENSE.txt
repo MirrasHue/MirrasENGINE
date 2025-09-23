@@ -1,0 +1,9 @@
+scarfy.png           | [Eiden Marsal](https://www.artstation.com/marshall_z) | [CC-BY-NC](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
+
+--------------------------------------------------------------------------------
+
+Copyright 2011, The VT323 Project Authors (peter.hull@oikoi.com)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://openfontlicense.org

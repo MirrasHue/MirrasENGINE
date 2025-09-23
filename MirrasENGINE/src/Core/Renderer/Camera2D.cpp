@@ -4,21 +4,28 @@
 
 #include "Events/WindowEvents.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace mirras
 {
     Camera2D::Camera2D(glm::vec2 _position, glm::vec2 _offset, float _rotation, float _zoom)
         : position{_position}, offset{_offset}, rotation{_rotation}, zoom{_zoom} {}
 
-    void Camera2D::targetSize(int32 framebufferWidth, int32 framebufferHeight)
+    glm::mat4 Camera2D::getViewMatrix(vec2i framebufferSize, vec2i initialFbSize) const
     {
-        MIRR_ASSERT(framebufferWidth > 0 && framebufferHeight > 0,
-            "Invalid framebuffer size: {} x {}", framebufferWidth, framebufferHeight);
+        MIRR_ASSERT(framebufferSize.x > 0 && framebufferSize.y > 0,
+            "Invalid framebuffer size: {} x {}", framebufferSize.x, framebufferSize.y);
 
-        auto [initialFbW, initialFbH] = Camera2D::currentFbInitialSize;
+        const float zoomScale = (float)framebufferSize.y / initialFbSize.y;
+        const float offsetX = offset.x / initialFbSize.x * framebufferSize.x;
+        const float offsetY = offset.y / initialFbSize.y * framebufferSize.y;
 
-        zoomScale = (float)framebufferHeight / initialFbH;
+        static const glm::mat4 identity = glm::mat4{1.f};
+        const float appliedZoom = zoom * zoomScale;
 
-        offsetX = offset.x / initialFbW * framebufferWidth;
-        offsetY = offset.y / initialFbH * framebufferHeight;
+        return glm::translate(identity, glm::vec3{framebufferSize.x/2.f - offsetX, framebufferSize.y/2.f - offsetY, 0.f}) *
+               glm::rotate(identity, glm::radians(rotation), glm::vec3{0.f, 0.f, 1.f}) *
+               glm::scale(identity, glm::vec3{appliedZoom, appliedZoom, 1.f}) *
+               glm::translate(identity, glm::vec3{-position.x, -position.y, 0.f});
     }
 } // namespace mirras

@@ -39,8 +39,9 @@ namespace mirras
     static void resetViewport(int32 x, int32 y, int32 width, int32 height);
 
     static vec2i windowFbSize;
-    static vec2i initialWindowFbSize;
+    static vec2i windowFbInitialSize;
     static vec2i framebufferSize;
+    static vec2i currentFbInitialSize;
 
     void OpenGLRenderer::init()
     {
@@ -55,25 +56,14 @@ namespace mirras
 
         resetViewport(0, 0, width, height);
 
-        initialWindowFbSize = {width , height};
-        windowFbSize = initialWindowFbSize;
-        Camera2D::currentFbInitialSize = initialWindowFbSize;
+        windowFbInitialSize = {width , height};
+        windowFbSize = windowFbInitialSize;
+        currentFbInitialSize = windowFbInitialSize;
     }
 
     void OpenGLRenderer::shutdown()
     {
         rlglClose();
-    }
-
-    glm::mat4 getCameraMatrix(const Camera2D& camera)
-    {
-        static const glm::mat4 identity = glm::mat4(1.f);
-        const float zoom = camera.zoom * camera.zoomScale;
-
-        return glm::translate(identity, glm::vec3{framebufferSize.x/2.f - camera.offsetX, framebufferSize.y/2.f - camera.offsetY, 0.f}) *
-               glm::rotate(identity, glm::radians(camera.rotation), glm::vec3{0.f, 0.f, 1.f}) *
-               glm::scale(identity, glm::vec3{zoom, zoom, 1.f}) *
-               glm::translate(identity, glm::vec3{-camera.position.x, -camera.position.y, 0.f});
     }
 
     void resetViewport(int32 x, int32 y, int32 width, int32 height)
@@ -129,7 +119,7 @@ namespace mirras
 
         resetViewport(0, 0, texture.color->width, texture.color->height);
 
-        Camera2D::currentFbInitialSize = texture.initialSize;
+        currentFbInitialSize = texture.initialSize;
     }
 
     void OpenGLRenderer::endTextureDrawing()
@@ -140,16 +130,14 @@ namespace mirras
 
         resetViewport(0, 0, windowFbSize.x, windowFbSize.y);
 
-        Camera2D::currentFbInitialSize = initialWindowFbSize;
+        currentFbInitialSize = windowFbInitialSize;
     }
 
-    void OpenGLRenderer::beginMode2D(Camera2D& camera)
+    void OpenGLRenderer::beginMode2D(const Camera2D& camera)
     {
-        camera.targetSize(framebufferSize.x, framebufferSize.y);
-
         rlDrawRenderBatchActive();
         rlLoadIdentity();
-        rlMultMatrixf(glm::value_ptr(getCameraMatrix(camera)));
+        rlMultMatrixf(glm::value_ptr(camera.getViewMatrix(framebufferSize, currentFbInitialSize)));
     }
 
     void OpenGLRenderer::endMode2D()
@@ -268,6 +256,38 @@ namespace mirras
         drawRectangle(glm::vec3{topLeftPos, rlGetCurrentDrawDepth()}, size, localOrigin, color, rotation);
     }
 
+    void OpenGLRenderer::drawRectangleLines(const glm::vec3& topLeftPos, glm::vec2 size, const glm::vec4& color)
+    {
+        float x = topLeftPos.x;
+        float y = topLeftPos.y;
+        float z = topLeftPos.z;
+
+        Matrix mat = rlGetMatrixTransform();
+        float xOffset = 0.5f / mat.m0;
+        float yOffset = 0.5f / mat.m5;
+
+        rlBegin(RL_LINES);
+            rlColor4f(color.r, color.g, color.b, color.a);
+
+            rlVertex3f(x + xOffset, y + yOffset, z);
+            rlVertex3f(x + size.x - xOffset, y + yOffset, z);
+
+            rlVertex3f(x + size.x - xOffset, y + yOffset, z);
+            rlVertex3f(x + size.x - xOffset, y + size.y - yOffset, z);
+
+            rlVertex3f(x + size.x - xOffset, y + size.y - yOffset, z);
+            rlVertex3f(x + xOffset, y + size.y - yOffset, z);
+
+            rlVertex3f(x + xOffset, y + size.y - yOffset, z);
+            rlVertex3f(x + xOffset, y + yOffset, z);
+        rlEnd();
+    }
+    
+    void OpenGLRenderer::drawRectangleLines(glm::vec2 topLeftPos, glm::vec2 size, const glm::vec4& color)
+    {
+        drawRectangleLines(glm::vec3{topLeftPos, rlGetCurrentDrawDepth()}, size, color);
+    }
+
     void OpenGLRenderer::drawCircle(const glm::vec3& center, float radius, const glm::vec4& color, int32 segments)
     {
         if(segments < 3)
@@ -350,7 +370,6 @@ namespace mirras
 
         rlBegin(RL_QUADS);
             rlColor4f(color.r, color.g, color.b, color.a);
-            rlNormal3f(0.f, 0.f, -1.f); // Normal vector pointing towards viewer
 
             rlTexCoord2f(-1.f, -1.f); // Top left
             rlVertex3f(center.x - radius, center.y - radius, center.z);
@@ -406,7 +425,6 @@ namespace mirras
 
         rlBegin(RL_QUADS);
             rlColor4f(tintColor.r, tintColor.g, tintColor.b, tintColor.a);
-            rlNormal3f(0.f, 0.f, -1.f);
 
             rlTexCoord2f(sampleArea.x / texWidth, sampleArea.y / texHeight);
             rlVertex3f(topLeft.x, topLeft.y, z);
@@ -547,7 +565,6 @@ namespace mirras
 
                 rlBegin(RL_QUADS);
                     rlColor4f(color.r, color.g, color.b, color.a);
-                    rlNormal3f(0.f, 0.f, -1.f);
 
                     rlTexCoord2f(texSampleArea.x / atlasWidth, texSampleArea.y / atlasHeight);
                     rlVertex3f(topLeft.x, topLeft.y, drawDepth);
