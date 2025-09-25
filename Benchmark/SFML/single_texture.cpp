@@ -1,3 +1,6 @@
+
+// Using SFML's commit b0b6013de6faa0d63217f85f5887f6a12f810dd8 (09/09/2025)
+
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>
@@ -39,7 +42,7 @@ void Benchmark::run()
     screenW = window.getSize().x;
     screenH = window.getSize().y;    
 
-    if(!texture.loadFromFile("icon.png"))
+    if(!texture.loadFromFile("../icon.png"))
     {
         sf::err()<<"Could not create textures\n";
         return;

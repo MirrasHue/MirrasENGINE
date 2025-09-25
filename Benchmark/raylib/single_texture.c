@@ -1,3 +1,6 @@
+
+// Using raylib's commit 3f6d67c61c59affa4561de2ddf988e487093bc80 (24/09/2025)
+
 #include "raylib.h"
 #include "math.h"
 
@@ -78,7 +81,7 @@ int main()
 
     SetTargetFPS(0); // No caps
 
-    texture = LoadTexture("resources/icon.png");
+    texture = LoadTexture("../icon.png");
     SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
 
     const float pi = 3.141592f; // Use the same value across all frameworks

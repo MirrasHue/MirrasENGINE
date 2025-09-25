@@ -1,3 +1,6 @@
+
+// Using SDL's commit ed2cdceb66cc03dbcaf6c44659ec56c2e6767a91 (24/09/2025)
+
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
