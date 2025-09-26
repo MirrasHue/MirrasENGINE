@@ -29,6 +29,7 @@ target_include_directories(${PROJECT_NAME}
         MirrasENGINE/src
         MirrasENGINE/3rdParty/Glad/include
         MirrasENGINE/3rdParty/stb/include
+        MirrasENGINE/3rdParty/fkYAML/include
 )
 
 # GLFW Flags
@@ -49,7 +50,9 @@ add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
 
 add_subdirectory(MirrasENGINE/3rdParty/ImGuizmo)
 
-target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT glm msdf-atlas-gen ImGuizmo)
+add_subdirectory(MirrasENGINE/3rdParty/PortableFileDialogs)
+
+target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT glm msdf-atlas-gen ImGuizmo pfd)
 
 # Don't include spdlog in the distribution build
 if(NOT DEFINED PRESET_NAME OR NOT PRESET_NAME STREQUAL "distribution")
