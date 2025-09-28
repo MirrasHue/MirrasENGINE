@@ -8,19 +8,19 @@
 
 namespace mirras
 {
-    Entity Scene::createEntity()
+    Entity Scene::createEntity(UUID uuid)
     {
         Entity entity = {registry.create(), &registry};
-        entity.add<IDComponent>();
+        entity.add<IDComponent>(uuid);
         entity.add<TransformComponent>();
 
         return entity;
     }
 
-    Entity Scene::createEntity(uint32 idHint)
+    Entity Scene::createEntityWithHint(uint32 hint, UUID uuid)
     {
-        Entity entity = {registry.create(entt::entity{idHint}), &registry};
-        entity.add<IDComponent>();
+        Entity entity = {registry.create(entt::entity{hint}), &registry};
+        entity.add<IDComponent>(uuid);
         entity.add<TransformComponent>();
 
         return entity;
@@ -108,15 +108,15 @@ namespace mirras
         // Text
         registry.view<TransformComponent, TextComponent>().each([](auto entity, auto& transform, auto& text)
         {
-            if(!text.font)
+            if(!text.font.atlasTexture)
             {
-                ENGINE_LOG_ERROR("TextComponent has no font assigned to it");
+                ENGINE_LOG_ERROR("TextComponent has no atlas texture assigned to font");
                 return;
             }
 
             Renderer::setPixelOutputData((int32)entity);
 
-            Renderer::drawText(text.text, *text.font, transform.position, text.fontSize, text.color, text.kerning, text.lineSpacing);
+            Renderer::drawText(text.text, text.font, transform.position, text.fontSize, text.color, text.kerning, text.lineSpacing);
         });
 
         Renderer::endMode2D();

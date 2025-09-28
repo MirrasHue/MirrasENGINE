@@ -46,7 +46,7 @@ void SceneExample::load()
 
     auto textEntity = scene.createEntity();
     auto& text = textEntity.add<mirras::TextComponent>();
-    text.font = mirras::instantiate<mirras::Font>("assets/fonts/consolas.ttf");
+    text.loadFontFrom("assets/fonts/consolas.ttf");
     text.text = L"Hello World!";
 }
 

@@ -10,6 +10,8 @@
 namespace mirras
 {
     Font::Font() = default;
+    Font::Font(Font&&) = default;
+    Font& Font::operator=(Font&&) = default;
 
     Font::Font(const fs::path& fontFilepath)
     {
@@ -137,7 +139,7 @@ namespace mirras
         {
             atlasTexture = Texture::loadFrom(atlasPath);
 
-            if(atlasTexture->id)
+            if(atlasTexture->id > 0)
                 return true;
             else
             {

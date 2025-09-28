@@ -30,13 +30,13 @@ namespace mirras
         }
 
         template<typename T>
-        T& get()
+        T& get() const
         {
             return registry->get<T>(handle);
         }
 
         template<typename... T>
-        bool has()
+        bool has() const
         {
             return registry->all_of<T...>(handle);
         }
@@ -53,12 +53,9 @@ namespace mirras
         operator entt::entity() { return handle; }
         operator uint32() { return (uint32)handle; }
     
-    private:
+    public:
         entt::entity handle = entt::null;
         entt::registry* registry = nullptr;
-
-        friend class SceneHierarchyPanel;
-        friend class EntityPropertiesPanel;
     };
     
 

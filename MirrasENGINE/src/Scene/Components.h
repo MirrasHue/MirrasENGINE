@@ -8,6 +8,8 @@
 #include "Utilities/UUID.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <filesystem_fs>
 #include <cmath>
 
 namespace mirras
@@ -43,6 +45,10 @@ namespace mirras
         single_ref<Texture> texture;
         rect4f texSampleArea;
         glm::vec4 tintColor{1.f};
+        std::string imageFilepath;
+        TextureFilter textureFilter;
+
+        void loadTextureFrom(const fs::path& imageFilepath, TextureFilter filter = TextureFilter::Linear);
     };
 
     struct RectangleComponent
@@ -61,12 +67,15 @@ namespace mirras
 
     struct TextComponent
     {
-        single_ref<Font> font;
+        Font font;
         std::wstring text;
         glm::vec4 color{1.f};
+        std::string fontFilepath;
         float fontSize{40.f};
         float kerning{0.f};
         float lineSpacing{0.f};
+
+        void loadFontFrom(const fs::path& fontFilepath);
     };
 
     struct CppScriptComponent
@@ -103,5 +112,22 @@ namespace mirras
 
         // Rotation around Z axis
         rotation = glm::degrees(std::atan2(col0.y, col0.x));
+    }
+
+    inline void SpriteComponent::loadTextureFrom(const fs::path& filepath, TextureFilter filter)
+    {
+        texture = Texture::loadFrom(filepath, filter);
+
+        if(texture->id > 0)
+        {
+            imageFilepath = filepath.generic_string();
+            textureFilter = filter;
+        }
+    }
+
+    inline void TextComponent::loadFontFrom(const fs::path& filepath)
+    {
+        if(font.loadFrom(filepath))
+            fontFilepath = filepath.generic_string();
     }
 } // namespace mirras

@@ -34,7 +34,7 @@ namespace mirras
         {
             if(ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 context->selectedEntity = {};
-            
+
             Entity forDeletion;
 
             // Iterating through all entities in reverse because they are being given in the reverse order of insertion
@@ -64,7 +64,7 @@ namespace mirras
                 uint32& entityCount = context->addedEntityCount;
                 // Added a hint here so that the IDs of deleted entities are not reused
                 // (solves the problem of wrong ordering when displaying the entities after deletion)
-                auto entity = scene->createEntity(entityCount);
+                auto entity = scene->createEntityWithHint(entityCount);
                 auto& tag = entity.add<TagComponent>("Entity " + std::to_string(entityCount++));
                 context->selectedEntity = entity;
                 entityAdded = true;

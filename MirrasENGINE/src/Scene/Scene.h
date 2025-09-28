@@ -16,8 +16,8 @@ namespace mirras
         Scene(std::string sceneName) :
             name{std::move(sceneName)} {}
 
-        Entity createEntity();
-        Entity createEntity(uint32 idHint);
+        Entity createEntity(UUID uuid = {});
+        Entity createEntityWithHint(uint32 hint, UUID uuid = {});
         Entity createEntity(std::string tag);
         void deleteEntity(Entity entity);
 
@@ -25,16 +25,10 @@ namespace mirras
         void draw(Camera2D& camera);
         void draw();
         void onEvent(Event& event);
-        
+
     public:
         std::string name;
-
-    private:
         entt::registry registry;
-        UUID id;
-
-        friend class EditorLayer;
-        friend class SceneHierarchyPanel;
     };
 
 } // namespace mirras

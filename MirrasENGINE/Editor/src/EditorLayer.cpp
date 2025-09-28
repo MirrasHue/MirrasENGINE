@@ -1,8 +1,9 @@
 #include "EditorLayer.h"
 
 #include "Core/Renderer/Renderer.h"
-
+#include "Scene/Serializer.h"
 #include "Events/WindowEvents.h"
+#include "Utilities/FileDialogs.h"
 
 #include "Reflection.h"
 
@@ -31,8 +32,8 @@ namespace mirras
 
         auto textEntity = scene1->createEntity("Text");
         auto& text = textEntity.add<TextComponent>();
-        text.font = instantiate<Font>("Assets/Fonts/Doto_Rounded-Black.ttf");
-        text.text = L"Hello World!";
+        text.loadFontFrom("Assets/Fonts/Doto_Rounded-Black.ttf");
+        text.text = L"Hello ç\n § World!";
         text.fontSize = 48.f;
 
         auto rectEntity = scene1->createEntity("Square");
@@ -69,7 +70,7 @@ namespace mirras
                     if(editorScene.focused && !(ctrlDown || shiftDown))
                     {
                         cameraController.update(dt);
-                        
+
                         // Gizmo controls
                         if(Input::isKeyDown(Key::F))
                             editorScene.gizmoType = GizmoType::None;
@@ -142,9 +143,24 @@ namespace mirras
         {
             if(ImGui::BeginMenu("File"))
             {
+                //if(ImGui::MenuItem("Open Project", "Ctrl + O"))
+
                 if(ImGui::MenuItem("New Scene", "Ctrl + N"))
                     newScene();
-                
+
+                // Temp, just for testing
+                if(ImGui::MenuItem("Save Scene", "Ctrl + S"))
+                    serialize(*activeScene->scene, "out.mirras");
+
+                if(ImGui::MenuItem("Open Scene", "Ctrl + S"))
+                {
+                    auto scene = instantiate<Scene>("other");
+                    uint32 entityCount{};
+
+                    deserialize(*scene, "out.mirras", entityCount);
+                    scenes.emplace_back(std::move(scene));
+                    scenes.back().addedEntityCount = entityCount;
+                }
 
                 ImGui::EndMenu();
             }
@@ -154,6 +170,7 @@ namespace mirras
         //ImGui::SetNextWindowSizeConstraints({800, 450}, {FLT_MAX, FLT_MAX});
         ImGuizmo::BeginFrame();
         activeScene = nullptr;
+        uint32 sceneCount{};
 
         for(auto& editorScene : scenes)
         {
@@ -162,8 +179,12 @@ namespace mirras
 
             ImGui::SetNextWindowDockID(mainDockID, ImGuiCond_FirstUseEver);
 
+            // ImGui::Begin doesn't take into consideration the ID stack to generate a unique ID for the viewport,
+            // so PushID will not work here. That's why I'm concatenating with "##" to differentiate equal names
+            std::string name = editorScene.scene->name + "##" + std::to_string(sceneCount++);
+
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-            ImGui::Begin(editorScene.scene->name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
+            ImGui::Begin(name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
             {
                 auto [viewportX, viewportY] = ImGui::GetCursorScreenPos();
                 auto [width, height] = ImGui::GetContentRegionAvail();
