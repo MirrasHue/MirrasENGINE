@@ -16,12 +16,12 @@ endif()
 option(BUILD_BENCHMARK "Build sample: Benchmark" ON)
 
 if(BUILD_BENCHMARK)
-    # Fetch source files
-    file(GLOB_RECURSE benchmark_src CONFIGURE_DEPENDS Benchmark/src/*.cpp)
 
-    add_executable(Benchmark ${benchmark_src})
+    add_executable(mirras_single_texture Benchmark/src/single_texture.cpp)
+    target_link_libraries(mirras_single_texture MirrasENGINE)
 
-    target_link_libraries(Benchmark MirrasENGINE)
+    add_executable(mirras_multi_textures Benchmark/src/multi_textures.cpp)
+    target_link_libraries(mirras_multi_textures MirrasENGINE)
 
 endif()
 

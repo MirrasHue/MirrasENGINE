@@ -9,4 +9,15 @@ For each framework directory, run (**Ninja** generator is recommended):
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
     cmake --build .
 
-The generated executables will be located in the `/build` folders.
+This might take a while to download the framework. The generated executables will be located in their respective `/build` folders.
+
+----
+
+The files related to the benchmark of our framework are in the `Samples/Benchmark` directory. They are compiled alongside the framework when building it with (Ninja required, for ease of use):
+
+    cmake --preset release
+    cmake --build --preset release
+
+The executables are going to be found in the `bin/release` folder.
+
+It's important to pick the release preset, so that all frameworks are equally built with -O3 optimizations.

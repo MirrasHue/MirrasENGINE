@@ -1,5 +1,5 @@
 
-// Using SDL's commit ed2cdceb66cc03dbcaf6c44659ec56c2e6767a91 (24/09/2025)
+// Using SDL's commit d42bf59c669628d13dbc8cd41be93f2216211ff9 (28/09/2025)
 
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
@@ -38,7 +38,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     SDL_SetHint(SDL_HINT_RENDER_VSYNC,       "0"); // No VSync
 
-    if(!SDL_CreateWindowAndRenderer("SDL Benchmark", 1280, 720, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &renderer)) {
+    if(!SDL_CreateWindowAndRenderer("SDL benchmark single texture", 1280, 720, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }

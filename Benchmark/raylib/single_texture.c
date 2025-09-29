@@ -1,5 +1,5 @@
 
-// Using raylib's commit 3f6d67c61c59affa4561de2ddf988e487093bc80 (24/09/2025)
+// Using raylib's commit 6d9e17594bbe7b205bc34464d7ab31bfc24dd46a (28/09/2025)
 
 #include "raylib.h"
 #include "math.h"

@@ -1,10 +1,37 @@
-#include "Benchmark.h"
 
+#include "MirrasENGINE.h"
+
+#include "Backends/OpenGL/OpenGLTexture.h"
 #include "Events/KeyboardEvents.h"
 
 #include <stb/image.h>
 
 #include <cmath>
+
+struct Sprite
+{
+    float x{}, y{};   // position
+    float vx{}, vy{}; // velocity
+};
+
+class Benchmark : public mirras::App
+{
+public:
+    Benchmark(const mirras::AppSpecs& appSpecs, const mirras::WindowSpecs& windowSpecs) :
+        App{appSpecs, windowSpecs} {}
+
+protected:
+    virtual void load() override;
+    virtual void fixedUpdate(float dt) override;
+    virtual void onEvent(mirras::Event& event) override;
+    virtual void draw() override;
+
+private:
+    mirras::OpenGLTexture texture;
+    std::array<Sprite, 100'000> sprites;
+    int32 screenW{}, screenH{};
+    bool startTest = false;
+};
 
 using namespace mirras;
 
@@ -27,7 +54,6 @@ void Benchmark::load()
 
         float angle = (2.f * PI * i) / sprites.size();
 
-        //sprite.texture.init(specs);
         sprite.x = screenW / 2;
         sprite.y = screenH / 2;
         sprite.vx = std::cos(angle) * speed;
@@ -53,8 +79,6 @@ void Benchmark::fixedUpdate(float dt)
 
     for(auto& sprite : sprites)
     {
-        /*float width = sprite.texture.width;
-        float height = sprite.texture.height;*/
         float width = texture.width;
         float height = texture.height;
 
@@ -89,5 +113,22 @@ void Benchmark::draw()
 {
     for(const auto& sprite : sprites)
         Renderer::drawTexture(texture, {}, {sprite.x, sprite.y});
-        //Renderer::drawTexture(sprite.texture, {}, {sprite.x, sprite.y});
+}
+
+int main()
+{
+    mirras::AppSpecs appSpecs {
+        .workingDirectory = "../../Samples/Benchmark",
+        .fixedUpdateRate = 60
+    };
+
+    mirras::WindowSpecs windowSpecs {
+        .title = "mirras benchmark single texture",
+        .iconFilepath = "assets/icon.png",
+        .maximized = true,
+        .VSync = false
+    };
+
+    Benchmark app{appSpecs, windowSpecs};
+    app.run();
 }

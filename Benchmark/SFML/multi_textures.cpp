@@ -1,5 +1,5 @@
 
-// Using SFML's commit b0b6013de6faa0d63217f85f5887f6a12f810dd8 (09/09/2025)
+// Using SFML's commit dbe4f499ba2a290f1ff0b8b21e5352484f7300fa (22/09/2025)
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -37,7 +37,7 @@ void Benchmark::run()
 {
     // Currently there's no way to programmatically maximize the window, so we have to do it manually
     // We know that the maximized window will be 1920 x 991 (with 125% scale), so we set it here beforehand
-    window.create(sf::VideoMode({1920, 991}), "SFML Benchmark");
+    window.create(sf::VideoMode({1920, 991}), "SFML benchmark multi textures");
 
     screenW = window.getSize().x;
     screenH = window.getSize().y;    
@@ -141,7 +141,7 @@ void Benchmark::draw()
 {
     window.clear();
 
-    for(auto& sprite : sprites)
+    for(const auto& sprite : sprites)
     {
         sf::Sprite temp(sprite.texture);
         temp.setPosition({sprite.x, sprite.y});
