@@ -68,7 +68,7 @@ namespace mirras
     struct TextComponent
     {
         Font font;
-        std::wstring text;
+        std::string text;
         glm::vec4 color{1.f};
         std::string fontFilepath;
         float fontSize{40.f};

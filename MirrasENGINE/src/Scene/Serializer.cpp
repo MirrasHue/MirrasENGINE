@@ -10,7 +10,6 @@
 
 #include <ranges>
 #include <fstream>
-#include <locale>
 
 namespace glm
 {
@@ -148,24 +147,11 @@ namespace mirras
         s.tintColor = node["TintColor"].get_value<glm::vec4>();
     }
 
-    std::string wstring_to_string(const std::wstring& wstr)
-    {
-        // Deprecated. It'll do for now until fkYAML implements the conversion, or I switch to c++26
-        // (will have to find something else, because it's cumbersome to serialize char16_t or wchar_t
-        // text as a sequence, where each character value occupies one line (default behavior in fkYAML))
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().to_bytes(wstr);
-    }
-
-    std::wstring string_to_wstring(const std::string& str)
-    {
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(str);
-    }
-
     static void to_node(fkyaml::node& node, const TextComponent& c)
     {
         node = fkyaml::node::mapping();
         node["Font"] = c.fontFilepath;
-        node["TextString"] = wstring_to_string(c.text);
+        node["TextString"] = c.text;
         node["Color"] = c.color;
         node["FontSize"] = c.fontSize;
         node["Kerning"] = c.kerning;
@@ -178,7 +164,7 @@ namespace mirras
             c.loadFontFrom(node["Font"].get_value<std::string>());
 
         if(node["TextString"] != nullptr)
-            c.text = string_to_wstring(node["TextString"].get_value<std::string>());
+            c.text = node["TextString"].get_value<std::string>();
 
         c.color = node["Color"].get_value<glm::vec4>();
         c.fontSize = node["FontSize"].get_value<float>();

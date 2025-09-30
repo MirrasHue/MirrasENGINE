@@ -53,10 +53,10 @@ namespace mirras
         void drawTexture(const Texture& texture, const rect4f& texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize,
                          glm::vec2 targetOrigin, float rotation, const glm::vec4& tintColor);
 
-        void drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeftPos,
+        void drawText(const std::string& text, const Font& font, const glm::vec3& topLeftPos,
                       float fontSize,const glm::vec4& color, float kerning, float lineSpacing);
 
-        void drawText(std::wstring_view text, const Font& font, glm::vec2 topLeftPos,
+        void drawText(const std::string& text, const Font& font, glm::vec2 topLeftPos,
                       float fontSize, const glm::vec4& color, float kerning, float lineSpacing);
     };
 } // namespace mirras

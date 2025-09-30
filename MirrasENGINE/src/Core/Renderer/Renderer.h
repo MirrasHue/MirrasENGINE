@@ -72,10 +72,10 @@ namespace mirras
         static void drawTexture(const Texture& texture, const rect4f& texSampleArea, glm::vec2 targetTopLeft, glm::vec2 targetSize = {},
                                 glm::vec2 targetOrigin = {}, float rotation = 0.f, const glm::vec4& tintColor = glm::vec4{1.f});
 
-        static void drawText(std::wstring_view text, const Font& font, const glm::vec3& topLeft, float fontSize = 40.f,
+        static void drawText(const std::string& text, const Font& font, const glm::vec3& topLeft, float fontSize = 40.f,
                              const glm::vec4& color = glm::vec4{1.f}, float kerning = 0.f, float lineSpacing = 0.f);
 
-        static void drawText(std::wstring_view text, const Font& font, glm::vec2 topLeft, float fontSize = 40.f,
+        static void drawText(const std::string& text, const Font& font, glm::vec2 topLeft, float fontSize = 40.f,
                             const glm::vec4& color = glm::vec4{1.f}, float kerning = 0.f, float lineSpacing = 0.f);
 
         static Backend getBackend() { return currentBackend; }

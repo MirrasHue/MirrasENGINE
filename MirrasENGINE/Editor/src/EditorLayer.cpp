@@ -33,7 +33,7 @@ namespace mirras
         auto textEntity = scene1->createEntity("Text");
         auto& text = textEntity.add<TextComponent>();
         text.loadFontFrom("Assets/Fonts/Doto_Rounded-Black.ttf");
-        text.text = L"Hello ç\n § World!";
+        text.text = "Hello \n World!";
         text.fontSize = 48.f;
 
         auto rectEntity = scene1->createEntity("Square");
