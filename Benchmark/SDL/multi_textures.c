@@ -45,7 +45,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     SDL_GetWindowSizeInPixels(window, &screenW, &screenH);
 
-    SDL_Surface *surface = SDL_LoadBMP("icon.bmp");
+    SDL_Surface *surface = SDL_LoadBMP("../icon.bmp");
     if(!surface) {
         SDL_Log("Couldn't load bitmap: %s", SDL_GetError());
         return SDL_APP_FAILURE;
