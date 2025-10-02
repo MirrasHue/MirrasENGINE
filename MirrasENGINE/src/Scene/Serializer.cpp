@@ -5,6 +5,7 @@
 #include "Scene/Scene.h"
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
+#include "Utilities/Encodings.h"
 
 #include <fkYAML/node.hpp>
 
@@ -151,7 +152,7 @@ namespace mirras
     {
         node = fkyaml::node::mapping();
         node["Font"] = c.fontFilepath;
-        node["TextString"] = c.text;
+        node["TextString"] = u32stringToString(c.text);
         node["Color"] = c.color;
         node["FontSize"] = c.fontSize;
         node["Kerning"] = c.kerning;
@@ -164,7 +165,7 @@ namespace mirras
             c.loadFontFrom(node["Font"].get_value<std::string>());
 
         if(node["TextString"] != nullptr)
-            c.text = node["TextString"].get_value<std::string>();
+            c.text = stringToU32string(node["TextString"].get_value<std::string>());
 
         c.color = node["Color"].get_value<glm::vec4>();
         c.fontSize = node["FontSize"].get_value<float>();
@@ -245,7 +246,7 @@ namespace mirras
         try
         {
             std::ifstream in(filepath);
-            auto node = fkyaml::node::deserialize(in);
+            const auto node = fkyaml::node::deserialize(in);
 
             if(node["1|Scene"] == nullptr)
             {

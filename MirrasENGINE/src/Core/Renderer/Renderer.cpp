@@ -132,12 +132,12 @@ namespace mirras
         renderer.drawTexture(texture, texSampleArea, targetTopLeft, targetSize, targetOrigin, rotation, tintColor);
     }
 
-    void Renderer::drawText(const std::string& text, const Font& font, const glm::vec3& topLeft, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    void Renderer::drawText(std::u32string_view text, const Font& font, const glm::vec3& topLeft, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
     {
         renderer.drawText(text, font, topLeft, fontSize, color, kerning, lineSpacing);
     }
 
-    void Renderer::drawText(const std::string& text, const Font& font, glm::vec2 topLeft, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    void Renderer::drawText(std::u32string_view text, const Font& font, glm::vec2 topLeft, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
     {
         renderer.drawText(text, font, topLeft, fontSize, color, kerning, lineSpacing);
     }

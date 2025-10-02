@@ -16,11 +16,11 @@ namespace mirras
     bool inputText(const char* label, std::string& source, ImGuiInputTextFlags flags = 0)
     {
         // No need to initialize the buffer here, as it's going to only be used in this 
-        char buffer[N]; // function (std::string ctor taking a char* stops at the 1st '\0')
+        char buffer[N + 1]; // function (std::string ctor taking a char* stops at the 1st '\0')
         uint32 numBytes = source.size();
 
-        if(numBytes + 1 > N)
-            numBytes = N - 1;
+        if(numBytes > N)
+            numBytes = N;
 
         std::memcpy(buffer, source.c_str(), numBytes);
         buffer[numBytes] = '\0';

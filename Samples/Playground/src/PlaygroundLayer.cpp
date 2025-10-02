@@ -102,7 +102,7 @@ void PlaygroundLayer::draw()
         // To visualize how the rendered glyphs are aligning with the specified top left position
         mirras::Renderer::drawLine({0,450,0}, {0,600,0}, {1,1,1,1});
         mirras::Renderer::drawLine({0,450,0}, {150,450,0}, {1,1,1,1});
-        mirras::Renderer::drawText("Hello World!\nNow we have text rendering", font, {0,450,0});
+        mirras::Renderer::drawText(U"Hello World!\nNow we have text rendering", font, {0,450,0});
 
     mirras::Renderer::endMode2D();
 }

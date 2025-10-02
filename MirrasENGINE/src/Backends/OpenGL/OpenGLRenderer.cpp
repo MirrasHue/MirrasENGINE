@@ -418,7 +418,7 @@ namespace mirras
         drawTexture(texture, texSampleArea, glm::vec3{targetTopLeft, rlGetCurrentDrawDepth()}, targetSize, targetOrigin, rotation, tintColor);
     }
 
-    void OpenGLRenderer::drawText(const std::string& text, const Font& font, const glm::vec3& topLeftPos, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    void OpenGLRenderer::drawText(std::u32string_view text, const Font& font, const glm::vec3& topLeftPos, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
     {
         if(!font.geometry || !font.atlasTexture)
         {
@@ -486,19 +486,9 @@ namespace mirras
         msdfTextShader.makeActive();
         rlSetTexture(fontAtlas.id);
 
-        static std::vector<uint32> codepoints;
-        // To avoid reallocating every time the function is called or the text size changes
-        if(codepoints.capacity() < text.size())
-            codepoints.reserve(text.size() * 2);
-        else
-        if(codepoints.capacity() > text.size() * 8)
-            codepoints.shrink_to_fit();
-
-        msdf_atlas::utf8Decode(codepoints, text.data());
-
-        for(size_t i = 0; i < codepoints.size(); ++i)
+        for(size_t i = 0; i < text.size(); ++i)
         {
-            uint32 character = codepoints[i];
+            uint32 character = text[i];
 
             if(character == '\r')
                 continue;
@@ -564,10 +554,10 @@ namespace mirras
                 rlEnd();
             }
 
-            if(i < codepoints.size() - 1)
+            if(i < text.size() - 1)
             {
                 double advance = glyph->getAdvance();
-                uint32 nextCharacter = codepoints[i + 1];
+                uint32 nextCharacter = text[i + 1];
 
                 fontGeometry.getAdvance(advance, character, nextCharacter);
 
@@ -575,13 +565,11 @@ namespace mirras
             }
         }
 
-        codepoints.clear();
-
         rlSetTexture(0);
         msdfTextShader.makeInactive();
     }
 
-    void OpenGLRenderer::drawText(const std::string& text, const Font& font, glm::vec2 topLeftPos, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
+    void OpenGLRenderer::drawText(std::u32string_view text, const Font& font, glm::vec2 topLeftPos, float fontSize, const glm::vec4& color, float kerning, float lineSpacing)
     {
         drawText(text, font, glm::vec3{topLeftPos, rlGetCurrentDrawDepth()}, fontSize, color, kerning, lineSpacing);
     }

@@ -47,7 +47,7 @@ void SceneExample::load()
     auto textEntity = scene.createEntity();
     auto& text = textEntity.add<mirras::TextComponent>();
     text.loadFontFrom("assets/fonts/consolas.ttf");
-    text.text = "Hello World!";
+    text.text = U"Hello World!";
 }
 
 void SceneExample::onEvent(mirras::Event& event)
