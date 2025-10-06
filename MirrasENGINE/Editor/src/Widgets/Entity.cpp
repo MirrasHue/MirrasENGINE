@@ -1,5 +1,7 @@
 #include "Widgets/Entity.h"
 
+#include "Utilities/Encodings.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 static constexpr ImVec4 RED{1.f, 0.f, 0.f, 1.f};
@@ -22,8 +24,11 @@ namespace mirras
         float textAlignX = 0.58f; // For better centering X, Y and Z inside the button across different font sizes
     };
 
-    static void drawControl(const char* label, float& value, const ImVec4& color, const ImVec2& buttonSize, const ControlParams& params = {})
+    static void drawControl(const char* label, float& value, const ImVec4& color, const ControlParams& params = {})
     {
+        float frameHeight = ImGui::GetFrameHeight();
+        ImVec2 buttonSize{frameHeight, frameHeight};
+
         ImGui::TableNextColumn();
         {
             ImGui::PushStyleColor(ImGuiCol_Button, color);
@@ -54,8 +59,11 @@ namespace mirras
         drawControl("Y", y, GREEN, buttonSize, id, params);
     }*/
 
-    static void drawDisabledControl(const char* label, const ImVec4& color, const ImVec2& buttonSize, float textAlignX = 0.58f)
+    static void drawDisabledControl(const char* label, const ImVec4& color, float textAlignX = 0.58f)
     {
+        float frameHeight = ImGui::GetFrameHeight();
+        ImVec2 buttonSize{frameHeight, frameHeight};
+
         ImGui::TableNextColumn();
         {
             ImGui::BeginDisabled();
@@ -97,37 +105,47 @@ namespace mirras
         ImGui::PopID(); // Label
     }
 
+    // Meant to be used when the component table has more than 2 columns, as we can't easily merge columns in ImGui
+    static void drawColorEdit(glm::vec4& color, float firstColumnWidth)
+    {
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetStyle().ItemSpacing.y);
+
+        if(ImGui::BeginTable("Color", 2, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+            
+            beginRow("Color");
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::ColorEdit4("##c", glm::value_ptr(color));
+            endRow();
+
+            ImGui::EndTable();
+        }
+    }
+
     void draw(TransformComponent& transform, float firstColumnWidth)
     {
         if(ImGui::BeginTable("Transform", 4, ImGuiTableFlags_NoPadInnerX))
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
-            
-            float frameHeight = ImGui::GetFrameHeight();
-            ImVec2 buttonSize{frameHeight, frameHeight};
- 
+
             beginRow("Translation");
-            {
-                drawControl("X", transform.position.x, RED, buttonSize);
-                drawControl("Y", transform.position.y, GREEN, buttonSize);
-                drawControl("Z", transform.position.z, BLUE, buttonSize, {.max = 1.f, .speed = 0.01f, .flags = ImGuiSliderFlags_AlwaysClamp});
-            }
+                drawControl("X", transform.position.x, RED);
+                drawControl("Y", transform.position.y, GREEN);
+                drawControl("Z", transform.position.z, BLUE, {.max = 1.f, .speed = 0.01f, .flags = ImGuiSliderFlags_AlwaysClamp});
             endRow();
 
             beginRow("Scale");
-            {
-                drawControl("X", transform.scale.x, RED, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
-                drawControl("Y", transform.scale.y, GREEN, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
-                drawDisabledControl("Z", BLUE, buttonSize);
-            }
+                drawControl("X", transform.scale.x, RED, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawControl("Y", transform.scale.y, GREEN, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawDisabledControl("Z", BLUE);
             endRow();
 
             beginRow("Rotation");
-            {
-                drawDisabledControl("X", RED, buttonSize);
-                drawDisabledControl("Y", GREEN, buttonSize);
-                drawControl("Z", transform.rotation, BLUE, buttonSize);
-            }
+                drawDisabledControl("X", RED);
+                drawDisabledControl("Y", GREEN);
+                drawControl("Z", transform.rotation, BLUE);
             endRow();
 
             ImGui::EndTable();
@@ -150,21 +168,16 @@ namespace mirras
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
 
-            float frameHeight = ImGui::GetFrameHeight();
-            ImVec2 buttonSize{frameHeight, frameHeight};
-
             beginRow("Size");
-            {
-                drawControl("X", rectangle.size.x, RED, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
-                drawControl("Y", rectangle.size.y, GREEN, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
-                drawDisabledControl("Z", BLUE, buttonSize);
-            }
+                drawControl("X", rectangle.size.x, RED, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
+                drawControl("Y", rectangle.size.y, GREEN, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
+                drawDisabledControl("Z", BLUE);
             endRow();
 
             ImGui::EndTable();
         }
-
-        ImGui::ColorEdit4("Color", glm::value_ptr(rectangle.color));
+        
+        drawColorEdit(rectangle.color, firstColumnWidth);
     }
 
     void draw(CircleComponent& circle, float firstColumnWidth)
@@ -173,28 +186,83 @@ namespace mirras
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
 
-            float frameHeight = ImGui::GetFrameHeight();
-            ImVec2 buttonSize{frameHeight, frameHeight};
-
             beginRow("Radius");
-                drawControl("##r", circle.radius, WHITE, buttonSize, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 100.f});
+                drawControl("##r", circle.radius, WHITE, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 100.f});
             endRow();
             
             beginRow("Fill");
-                drawControl("##f", circle.fillFactor, WHITE, buttonSize, {.max = 1.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawControl("##f", circle.fillFactor, WHITE, {.max = 1.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
             endRow();
 
             beginRow("Fade");
-                drawControl("##fa", circle.fadeFactor, WHITE, buttonSize, {.max = 4.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 0.007f});
+                drawControl("##fa", circle.fadeFactor, WHITE, {.max = 4.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 0.007f});
+            endRow();
+
+            beginRow("Color");
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::ColorEdit4("##c", glm::value_ptr(circle.color));
             endRow();
 
             ImGui::EndTable();
         }
-        ImGui::ColorEdit4("Color", glm::value_ptr(circle.color));
+    }
+
+    template<unsigned N>
+    bool inputTextMultiline(const char* label, std::u32string& source, ImGuiInputTextFlags flags = 0)
+    {
+        std::string temp = u32stringToString(source);
+
+        // No need to initialize the buffer here, as it's going to only be used in this 
+        char buffer[N + 1]; // function (std::string ctor taking a char* stops at the 1st '\0')
+        uint32 numBytes = temp.size();
+
+        if(numBytes > N)
+            numBytes = N;
+
+        std::memcpy(buffer, temp.c_str(), numBytes);
+        buffer[numBytes] = '\0';
+
+        ImGui::PushID(&source);
+
+        bool modified = ImGui::InputTextMultiline(label, buffer, sizeof(buffer), {}, flags);
+
+        ImGui::PopID();
+
+        if(modified)
+            source = stringToU32string(buffer);
+
+        return modified;
     }
 
     void draw(TextComponent& text, float firstColumnWidth)
     {
-        ImGui::Text("Text");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        inputTextMultiline<2048>("##t", text.text);
+
+        if(ImGui::BeginTable("Text", 2, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            beginRow("Font Size");
+                drawControl("##f", text.fontSize, WHITE, {.resetValue = 40.f});
+            endRow();
+
+            beginRow("Kerning");
+                drawControl("##k", text.kerning, WHITE, {.speed = 0.01f});
+            endRow();
+
+            beginRow("Line Spacing");
+                drawControl("##l", text.lineSpacing, WHITE, {.speed = 0.01f});
+            endRow();
+
+            beginRow("Color");
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::ColorEdit4("##c", glm::value_ptr(text.color));
+            endRow();
+
+            ImGui::EndTable();
+        }
     }
 } // namespace mirras

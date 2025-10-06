@@ -75,6 +75,8 @@ namespace mirras
                 ImGui::EndTable();
             }
 
+            ImGui::Separator();
+
             struct ComponentInfo
             {
                 const char* name = nullptr;
@@ -108,8 +110,6 @@ namespace mirras
 
                 ImGui::EndPopup();
             }
-
-            ImGui::Separator();
 
             ImGui::End();
         }

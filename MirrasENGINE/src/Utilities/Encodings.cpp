@@ -16,6 +16,8 @@ namespace mirras
         if(codepoints.capacity() > str.size() * 8)
             codepoints.shrink_to_fit();
 
+        codepoints.clear();
+
         msdf_atlas::utf8Decode(codepoints, str.data());
 
         return std::u32string{codepoints.begin(), codepoints.end()};

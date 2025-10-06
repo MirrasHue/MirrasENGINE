@@ -10,8 +10,6 @@ namespace mirras
     template<typename CompType>
     inline void drawComponent(Entity entity, const char* compName)
     {
-        ImGui::Separator();
-
         constexpr auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth |
             ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_AllowOverlap;
 
@@ -52,7 +50,7 @@ namespace mirras
 
             // Calculate the first column width based on the longest string that will be displayed
             // on it. This takes into acount variable font sizes, which I intend to add later
-            draw(component, ImGui::CalcTextSize("Translation").x + 10.f);
+            draw(component, ImGui::CalcTextSize("Translation").x + 20.f);
 
             ImGui::PopID();
 
@@ -61,6 +59,8 @@ namespace mirras
 
         if(removeComponent)
             entity.remove<CompType>();
+
+        ImGui::Separator();
     }
 
     template<typename CompType>
