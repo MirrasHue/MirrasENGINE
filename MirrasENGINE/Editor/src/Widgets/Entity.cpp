@@ -7,7 +7,7 @@
 static constexpr ImVec4 RED{1.f, 0.f, 0.f, 1.f};
 static constexpr ImVec4 GREEN{0.f, 0.9f, 0.f, 1.f};
 static constexpr ImVec4 BLUE{0.f, 0.f, 1.f, 1.f};
-static constexpr ImVec4 WHITE{1.f, 1.f, 1.f, 1.f};
+static constexpr ImVec4 GRAY{0.78f, 0.78f, 0.78f, 1.f}; // Light gray
 
 namespace mirras
 {
@@ -113,7 +113,7 @@ namespace mirras
         if(ImGui::BeginTable("Color", 2, ImGuiTableFlags_NoPadInnerX))
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
-            
+
             beginRow("Color");
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth(-FLT_MIN);
@@ -154,12 +154,65 @@ namespace mirras
 
     void draw(CameraComponent& camera, float firstColumnWidth)
     {
-        ImGui::Text("Camera");
+        if(ImGui::BeginTable("Camera", 4, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            beginRow("Offset");
+                drawControl("X", camera.camera.offset.x, RED);
+                drawControl("Y", camera.camera.offset.y, GREEN);
+                drawDisabledControl("Z", BLUE);
+            endRow();
+
+            beginRow("Zoom");
+                drawControl("##z", camera.camera.zoom, GRAY, {.min = 0.1f, .max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+            endRow();
+
+            ImGui::EndTable();
+        }
     }
 
     void draw(SpriteComponent& sprite, float firstColumnWidth)
     {
-        ImGui::Text("Sprite");
+        float frameHeight = ImGui::GetFrameHeight();
+
+        if(ImGui::BeginTable("Sprite", 2, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            beginRow("Sample Area");
+                ImGui::SetItemTooltip("x, y, width, height");
+                ImGui::TableNextColumn();
+
+                ImGui::PushStyleColor(ImGuiCol_Button, GRAY);
+                if(ImGui::Button("##s", {frameHeight, frameHeight}))
+                    sprite.texSampleArea = {};
+                ImGui::PopStyleColor();
+
+                ImGui::SameLine(0.f, 0.f);
+
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::DragFloat4("##d", &sprite.texSampleArea.x, 0.1f, 0.f, FLT_MAX, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+            endRow();
+
+            beginRow("Filter");
+                ImGui::TableNextColumn();
+
+                static int32 currentItem = (int32)sprite.textureFilter;
+
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                if(ImGui::Combo("Filter", &currentItem, "Linear\0Nearest\0\0"))
+                    sprite.texture->applyFilter(TextureFilter{currentItem});
+            endRow();
+
+            beginRow("Tint Color");
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::ColorEdit4("##c", glm::value_ptr(sprite.tintColor));
+            endRow();
+
+            ImGui::EndTable();
+        }
     }
 
     void draw(RectangleComponent& rectangle, float firstColumnWidth)
@@ -187,15 +240,15 @@ namespace mirras
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
 
             beginRow("Radius");
-                drawControl("##r", circle.radius, WHITE, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 100.f});
+                drawControl("##r", circle.radius, GRAY, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 100.f});
             endRow();
             
             beginRow("Fill");
-                drawControl("##f", circle.fillFactor, WHITE, {.max = 1.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawControl("##f", circle.fillFactor, GRAY, {.max = 1.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
             endRow();
 
             beginRow("Fade");
-                drawControl("##fa", circle.fadeFactor, WHITE, {.max = 4.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 0.007f});
+                drawControl("##fa", circle.fadeFactor, GRAY, {.max = 4.f, .speed = 0.01, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 0.007f});
             endRow();
 
             beginRow("Color");
@@ -245,15 +298,15 @@ namespace mirras
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
 
             beginRow("Font Size");
-                drawControl("##f", text.fontSize, WHITE, {.resetValue = 40.f});
+                drawControl("##f", text.fontSize, GRAY, {.resetValue = 40.f});
             endRow();
 
             beginRow("Kerning");
-                drawControl("##k", text.kerning, WHITE, {.speed = 0.01f});
+                drawControl("##k", text.kerning, GRAY, {.speed = 0.01f});
             endRow();
 
             beginRow("Line Spacing");
-                drawControl("##l", text.lineSpacing, WHITE, {.speed = 0.01f});
+                drawControl("##l", text.lineSpacing, GRAY, {.speed = 0.01f});
             endRow();
 
             beginRow("Color");

@@ -61,13 +61,20 @@ namespace mirras
     {
         Camera2D* camera = nullptr;
 
-        registry.view<CameraComponent>().each([&camera](auto entity, auto& cameraComp)
+        registry.view<TransformComponent, CameraComponent>().each([&camera](auto entity, auto& transform, auto& cameraComp)
         {
+            cameraComp.camera.position = glm::vec2{transform.position};
+            cameraComp.camera.rotation = transform.rotation;
             camera = &cameraComp.camera;
         });
 
         if(camera)
+        {
             draw(*camera);
+            return;
+        }
+
+        ENGINE_LOG_WARN("Need a camera with transform component in order to draw the scene");
     }
 
     void Scene::draw(Camera2D& camera)

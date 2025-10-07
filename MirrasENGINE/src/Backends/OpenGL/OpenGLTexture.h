@@ -13,6 +13,7 @@ namespace mirras
 
         virtual void makeActive()   const override;
         virtual void makeInactive() const override;
+        virtual void applyFilter(TextureFilter filter) const override;
 
         virtual ~OpenGLTexture();
     };

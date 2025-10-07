@@ -25,7 +25,7 @@ namespace mirras
         return format;
     }
 
-    static void applyTextureFilter(uint32 id, TextureFilter filter)
+    void OpenGLTexture::applyFilter(TextureFilter filter) const
     {
         switch(filter)
         {
@@ -67,7 +67,7 @@ namespace mirras
             return;
         }
 
-        applyTextureFilter(id, filter);
+        applyFilter(filter);
     }
 
     OpenGLTexture::OpenGLTexture(const TextureSpecs& specs) 
@@ -90,7 +90,7 @@ namespace mirras
         channels = specs.channels;
         mipmaps = specs.mipmaps;
 
-        applyTextureFilter(id, specs.filter);
+        applyFilter(specs.filter);
     }
 
     void OpenGLTexture::makeActive() const

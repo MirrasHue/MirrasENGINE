@@ -35,6 +35,7 @@ namespace mirras
     public:
         virtual void makeActive()   const = 0;
         virtual void makeInactive() const = 0;
+        virtual void applyFilter(TextureFilter filter) const = 0;
 
         static single_ref<Texture> loadFrom(const fs::path& imageFilepath, TextureFilter filter = TextureFilter::Linear);
         static single_ref<Texture> createFrom(const TextureSpecs& specs);
