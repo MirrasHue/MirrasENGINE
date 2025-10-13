@@ -308,9 +308,7 @@ namespace mirras
 
         entityProperties.draw(activeScene ? activeScene->selectedEntity : Entity{});
 
-        ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_NoTitleBar);
-
-        ImGui::End();
+        contentBrowser.draw();
 
         ImGui::ShowDemoWindow();
     }

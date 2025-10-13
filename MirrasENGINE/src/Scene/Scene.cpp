@@ -117,7 +117,7 @@ namespace mirras
         {
             if(!text.font.atlasTexture)
             {
-                ENGINE_LOG_ERROR("TextComponent has no atlas texture assigned to font");
+                //ENGINE_LOG_ERROR("TextComponent has no atlas texture assigned to font");
                 return;
             }
 

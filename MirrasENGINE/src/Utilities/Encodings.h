@@ -4,8 +4,13 @@
 
 #include <string>
 
-namespace mirras
+namespace mirras::utf
 {
-    std::u32string stringToU32string(const std::string& str);
-    std::string u32stringToString(const std::u32string& u32str);
+    inline std::string toString(const std::u8string& u8str)
+    {
+        return std::string{u8str.begin(), u8str.end()};
+    }
+
+    std::u32string toU32string(const std::string& str);
+    std::string toString(const std::u32string& u32str);
 } // namespace mirras

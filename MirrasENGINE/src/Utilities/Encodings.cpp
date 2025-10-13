@@ -4,9 +4,9 @@
 
 #include <msdf/utf8.h>
 
-namespace mirras
+namespace mirras::utf
 {
-    std::u32string stringToU32string(const std::string& str)
+    std::u32string toU32string(const std::string& str)
     {
         static std::vector<uint32> codepoints;
         // To avoid reallocating every time the function is called or the string size changes
@@ -23,7 +23,7 @@ namespace mirras
         return std::u32string{codepoints.begin(), codepoints.end()};
     }
 
-    std::string u32stringToString(const std::u32string& u32str)
+    std::string toString(const std::u32string& u32str)
     {
         static std::vector<char> str;
 

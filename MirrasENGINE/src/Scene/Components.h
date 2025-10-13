@@ -6,6 +6,7 @@
 #include "Core/Types/Reference.h"
 
 #include "Utilities/UUID.h"
+#include "Utilities/Encodings.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -108,7 +109,7 @@ namespace mirras
 
         scale = {glm::length(col0), glm::length(col1)};
 
-        //if(scale.x != 0.f) col0 /= scale.x; // The normalization doesn't seem necessary
+        //if(scale.x != 0.f) col0 /= scale.x; // After some testing, the normalization doesn't seem necessary
 
         // Rotation around Z axis
         rotation = glm::degrees(std::atan2(col0.y, col0.x));
@@ -118,16 +119,21 @@ namespace mirras
     {
         texture = Texture::loadFrom(filepath, filter);
 
-        if(texture->id > 0)
+        if(texture->id == 0)
         {
-            imageFilepath = filepath.generic_string();
-            textureFilter = filter;
+            texture.reset();
+            return;
         }
+
+        imageFilepath = utf::toString(filepath.generic_u8string());
+        textureFilter = filter;
+        texSampleArea.width = texture->width;
+        texSampleArea.height = texture->height;
     }
 
     inline void TextComponent::loadFontFrom(const fs::path& filepath)
     {
         if(font.loadFrom(filepath))
-            fontFilepath = filepath.generic_string();
+            fontFilepath = utf::toString(filepath.generic_u8string());
     }
 } // namespace mirras

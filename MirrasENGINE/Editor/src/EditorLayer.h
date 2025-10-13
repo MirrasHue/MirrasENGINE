@@ -7,6 +7,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/EntityPropertiesPanel.h"
+#include "Panels/ContentBrowserPanel.h"
 
 #include <vector>
 
@@ -34,6 +35,7 @@ namespace mirras
 
         SceneHierarchyPanel sceneHierarchy;
         EntityPropertiesPanel entityProperties;
+        ContentBrowserPanel contentBrowser;
 
         //float fontSize = 17.f; // Used by ImGui text
     };

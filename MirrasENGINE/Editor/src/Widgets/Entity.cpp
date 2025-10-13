@@ -1,5 +1,6 @@
 #include "Widgets/Entity.h"
 
+#include "Core/Log.h"
 #include "Utilities/Encodings.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -88,11 +89,11 @@ namespace mirras
         }
     }
 
-    static void beginRow(const char* label)
+    static void beginRow(const char* label, float minRowHeight = 0.f)
     {
         ImGui::PushID(label);
 
-        ImGui::TableNextRow();
+        ImGui::TableNextRow(0, minRowHeight);
         ImGui::TableNextColumn();
         {
             ImGui::AlignTextToFramePadding();
@@ -174,11 +175,75 @@ namespace mirras
 
     void draw(SpriteComponent& sprite, float firstColumnWidth)
     {
-        float frameHeight = ImGui::GetFrameHeight();
-
         if(ImGui::BeginTable("Sprite", 2, ImGuiTableFlags_NoPadInnerX))
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            float frameHeight = ImGui::GetFrameHeight();
+            ImVec2 texButtonSize = {frameHeight * 2.f, frameHeight * 2.f};
+
+            beginRow("Texture", texButtonSize.y + ImGui::GetStyle().FramePadding.y * 1.5f);
+                ImGui::TableNextColumn();
+                bool clicked = false;
+
+                if(sprite.texture)
+                {
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0.f, 0.f});
+                    ImGui::ImageButton("##i", sprite.texture->id, texButtonSize);
+                    ImGui::SetItemTooltip("Double click to remove texture");
+                    ImGui::PopStyleVar();
+
+                    // This work around is meant to make single and double clicks on the same button behave
+                    // nicely (also avoids missing clicks when leaving the button area right after clicking)
+                    static bool singleClick = false;
+
+                    if(ImGui::IsItemHovered())
+                    {
+                        if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                        {
+                            sprite.texture.reset();
+                            singleClick = false;
+                        }
+                        else
+                        if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                            singleClick = true;
+                    }
+
+                    if(singleClick)
+                    {
+                        ImGuiIO& io = ImGui::GetIO();
+                        bool releasedWithDelay = ImGui::IsMouseReleasedWithDelay(ImGuiMouseButton_Left, io.MouseDoubleClickTime);
+
+                        if(releasedWithDelay && io.MouseClickedLastCount[ImGuiMouseButton_Left] == 1)
+                        {
+                            clicked = true;
+                            singleClick = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if(ImGui::Button("##b", texButtonSize))
+                        clicked = true;
+                }
+
+                if(clicked)
+                {
+                    // TODO: select image using file dialog
+                }
+
+                if(ImGui::BeginDragDropTarget())
+                {
+                    if(const auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                    {
+                        auto filepath = (const char8_t*)payload->Data;
+
+                        sprite.loadTextureFrom(filepath, sprite.textureFilter);
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+            endRow();
 
             beginRow("Sample Area");
                 ImGui::SetItemTooltip("x, y, width, height");
@@ -186,7 +251,12 @@ namespace mirras
 
                 ImGui::PushStyleColor(ImGuiCol_Button, GRAY);
                 if(ImGui::Button("##s", {frameHeight, frameHeight}))
-                    sprite.texSampleArea = {};
+                {
+                    if(sprite.texture)
+                        sprite.texSampleArea = rect4f(0.f, 0.f, sprite.texture->width, sprite.texture->height);
+                    else
+                        sprite.texSampleArea = {};
+                }
                 ImGui::PopStyleColor();
 
                 ImGui::SameLine(0.f, 0.f);
@@ -197,12 +267,18 @@ namespace mirras
 
             beginRow("Filter");
                 ImGui::TableNextColumn();
-
                 static int32 currentItem = (int32)sprite.textureFilter;
 
                 ImGui::SetNextItemWidth(-FLT_MIN);
-                if(ImGui::Combo("Filter", &currentItem, "Linear\0Nearest\0\0"))
-                    sprite.texture->applyFilter(TextureFilter{currentItem});
+                if(ImGui::Combo("Filter", &currentItem, "Nearest\0Linear\0\0"))
+                {
+                    TextureFilter filter{currentItem};
+
+                    if(sprite.texture && sprite.textureFilter != filter)
+                        sprite.texture->applyFilter(filter);
+
+                    sprite.textureFilter = filter;
+                }
             endRow();
 
             beginRow("Tint Color");
@@ -264,7 +340,7 @@ namespace mirras
     template<unsigned N>
     bool inputTextMultiline(const char* label, std::u32string& source, ImGuiInputTextFlags flags = 0)
     {
-        std::string temp = u32stringToString(source);
+        std::string temp = utf::toString(source);
 
         // No need to initialize the buffer here, as it's going to only be used in this 
         char buffer[N + 1]; // function (std::string ctor taking a char* stops at the 1st '\0')
@@ -283,7 +359,7 @@ namespace mirras
         ImGui::PopID();
 
         if(modified)
-            source = stringToU32string(buffer);
+            source = utf::toU32string(buffer);
 
         return modified;
     }
@@ -296,6 +372,28 @@ namespace mirras
         if(ImGui::BeginTable("Text", 2, ImGuiTableFlags_NoPadInnerX))
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            float frameHeight = ImGui::GetFrameHeight();
+            ImVec2 fontButtonSize = {frameHeight * 2.f, frameHeight * 2.f};
+
+            beginRow("Font", fontButtonSize.y + ImGui::GetStyle().FramePadding.y * 1.5f);
+                ImGui::TableNextColumn();
+
+                ImGui::Button(".ttf", fontButtonSize);
+                ImGui::SetItemTooltip(text.fontFilepath.c_str());
+
+                if(ImGui::BeginDragDropTarget())
+                {
+                    if(const auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_FILE"))
+                    {
+                        auto filepath = (const char8_t*)payload->Data;
+
+                        text.loadFontFrom(filepath);
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+            endRow();
 
             beginRow("Font Size");
                 drawControl("##f", text.fontSize, GRAY, {.resetValue = 40.f});

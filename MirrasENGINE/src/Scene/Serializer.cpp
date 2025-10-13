@@ -152,7 +152,7 @@ namespace mirras
     {
         node = fkyaml::node::mapping();
         node["Font"] = c.fontFilepath;
-        node["TextString"] = u32stringToString(c.text);
+        node["TextString"] = utf::toString(c.text);
         node["Color"] = c.color;
         node["FontSize"] = c.fontSize;
         node["Kerning"] = c.kerning;
@@ -165,7 +165,7 @@ namespace mirras
             c.loadFontFrom(node["Font"].get_value<std::string>());
 
         if(node["TextString"] != nullptr)
-            c.text = stringToU32string(node["TextString"].get_value<std::string>());
+            c.text = utf::toU32string(node["TextString"].get_value<std::string>());
 
         c.color = node["Color"].get_value<glm::vec4>();
         c.fontSize = node["FontSize"].get_value<float>();
