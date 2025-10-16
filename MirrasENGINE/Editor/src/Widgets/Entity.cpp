@@ -2,6 +2,7 @@
 
 #include "Core/Log.h"
 #include "Utilities/Encodings.h"
+#include "Widgets/AddOns.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -193,33 +194,13 @@ namespace mirras
                     ImGui::SetItemTooltip("Double click to remove texture");
                     ImGui::PopStyleVar();
 
-                    // This work around is meant to make single and double clicks on the same button behave
-                    // nicely (also avoids missing clicks when leaving the button area right after clicking)
-                    static bool singleClick = false;
+                    auto clickCount = isItemSingleOrDoubleClicked(ImGuiMouseButton_Left);
 
-                    if(ImGui::IsItemHovered())
-                    {
-                        if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-                        {
-                            sprite.texture.reset();
-                            singleClick = false;
-                        }
-                        else
-                        if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                            singleClick = true;
-                    }
-
-                    if(singleClick)
-                    {
-                        ImGuiIO& io = ImGui::GetIO();
-                        bool releasedWithDelay = ImGui::IsMouseReleasedWithDelay(ImGuiMouseButton_Left, io.MouseDoubleClickTime);
-
-                        if(releasedWithDelay && io.MouseClickedLastCount[ImGuiMouseButton_Left] == 1)
-                        {
-                            clicked = true;
-                            singleClick = false;
-                        }
-                    }
+                    if(clickCount == 1)
+                        clicked = true;
+                    else
+                    if(clickCount == 2)
+                        sprite.texture.reset();
                 }
                 else
                 {
@@ -234,7 +215,7 @@ namespace mirras
 
                 if(ImGui::BeginDragDropTarget())
                 {
-                    if(const auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                    if(const auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_FILE"))
                     {
                         auto filepath = (const char8_t*)payload->Data;
 
@@ -337,33 +318,6 @@ namespace mirras
         }
     }
 
-    template<unsigned N>
-    bool inputTextMultiline(const char* label, std::u32string& source, ImGuiInputTextFlags flags = 0)
-    {
-        std::string temp = utf::toString(source);
-
-        // No need to initialize the buffer here, as it's going to only be used in this 
-        char buffer[N + 1]; // function (std::string ctor taking a char* stops at the 1st '\0')
-        uint32 numBytes = temp.size();
-
-        if(numBytes > N)
-            numBytes = N;
-
-        std::memcpy(buffer, temp.c_str(), numBytes);
-        buffer[numBytes] = '\0';
-
-        ImGui::PushID(&source);
-
-        bool modified = ImGui::InputTextMultiline(label, buffer, sizeof(buffer), {}, flags);
-
-        ImGui::PopID();
-
-        if(modified)
-            source = utf::toU32string(buffer);
-
-        return modified;
-    }
-
     void draw(TextComponent& text, float firstColumnWidth)
     {
         ImGui::SetNextItemWidth(-FLT_MIN);
@@ -381,6 +335,22 @@ namespace mirras
 
                 ImGui::Button(".ttf", fontButtonSize);
                 ImGui::SetItemTooltip(text.fontFilepath.c_str());
+
+                auto clickCount = isItemSingleOrDoubleClicked(ImGuiMouseButton_Left);
+
+                if(clickCount == 1)
+                {
+                    // TODO: select font(.ttf) using file dialog
+                }
+                else
+                if(clickCount == 2)
+                {
+                    text.font.atlasTexture.reset();
+                    // To free geometry, we would need to include FontGeometry.h, or store font as a single_ref
+                    // in TextComponent and just call text.font.reset(). They will be freed next time loadFontFrom()
+                    // is called, but we manually free atlasTexture in order for the text to stop being rendered
+                    //text.font.geometry.reset();
+                }
 
                 if(ImGui::BeginDragDropTarget())
                 {
