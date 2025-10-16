@@ -7,8 +7,6 @@
 
 #include <imgui/imgui.h>
 
-#include <cstring>
-
 namespace mirras
 {
     class EntityPropertiesPanel

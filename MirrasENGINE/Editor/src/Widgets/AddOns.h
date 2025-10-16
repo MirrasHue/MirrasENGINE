@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <cstring>
 
 #include <imgui/imgui.h>
 
@@ -63,31 +63,37 @@ namespace mirras
     {
         // This workaround is meant to make single and double clicks on the same item behave
         // nicely (also avoids missing clicks when leaving the button area right after clicking)
-        static std::unordered_map<ImGuiID, bool> singleClickMap;
+        static ImGuiID singleClickID = -1; // Uses -1 (max uint32) because 0 is a valid ID for ImGui::Text
 
-        // It will insert a default {ID, false} pair the first time the ID is used
-        bool& singleClick = singleClickMap[ImGui::GetItemID()];
+        const ImGuiID itemID = ImGui::GetItemID();
+        bool isHovered = ImGui::IsItemHovered();
 
-        if(ImGui::IsItemHovered())
+        if(isHovered)
         {
-            if(ImGui::IsMouseDoubleClicked(button))
+            if(singleClickID == itemID && ImGui::IsMouseDoubleClicked(button))
             {
-                singleClick = false;
+                singleClickID = -1;
                 return 2;
             }
-            else
+
             if(ImGui::IsMouseClicked(button))
-                singleClick = true;
+                singleClickID = itemID;
+        }
+        else
+        if(!isHovered && singleClickID == itemID)
+        {
+            singleClickID = -1;
+            return 1;
         }
 
-        if(singleClick)
+        if(singleClickID == itemID)
         {
             ImGuiIO& io = ImGui::GetIO();
             bool releasedWithDelay = ImGui::IsMouseReleasedWithDelay(button, io.MouseDoubleClickTime);
 
             if(releasedWithDelay && io.MouseClickedLastCount[button] == 1)
             {
-                singleClick = false;
+                singleClickID = -1;
                 return 1;
             }
         }
