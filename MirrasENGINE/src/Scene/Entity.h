@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene/Components.h"
+#include "Core/Asserts.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -32,7 +33,16 @@ namespace mirras
         template<typename T>
         T& get() const
         {
+            // We could also make this return pointers instead of references, but it would require checking for null every time
+            MIRR_ASSERT_CORE(has<T>(), "This entity doesn't have the requested component: {}", entt::type_name<T>::value());
+
             return registry->get<T>(handle);
+        }
+
+        template<typename T>
+        T* tryGet() const
+        {
+            return registry->try_get<T>(handle);
         }
 
         template<typename... T>

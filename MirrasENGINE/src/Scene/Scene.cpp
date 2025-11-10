@@ -6,6 +6,8 @@
 #include "Scene/Entity.h"
 #include "Scene/Components.h"
 
+#include <sol/table.hpp>
+
 namespace mirras
 {
     Entity Scene::createEntity(UUID uuid)
@@ -54,6 +56,27 @@ namespace mirras
             }
             
             cpp.script->onUpdate(dt);
+        });
+
+        registry.view<ScriptComponent>().each([dt, this](auto entity, auto& script)
+        {
+            if(!script.instance.hasData())
+                return;
+
+            sol::table data = script.instance.env[".data"];
+            sol::protected_function fn = data["on_update"];
+
+            if(!fn.valid())
+                return;
+
+            sol::set_environment(script.instance.env, fn);
+            auto result = fn(data, dt);
+
+            if(!result.valid())
+            {
+                sol::error error = result;
+                ENGINE_LOG_ERROR("Error while executing Lua script [on_update()]: {}", error.what());
+            }
         });
     }
 

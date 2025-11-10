@@ -7,8 +7,8 @@
 #include "Events/WindowEvents.h"
 #include "Events/MouseEvents.h"
 
+#include "Scripting/ScriptManager.h"
 #include "Input/Input.h"
-
 #include "UI/ImGui.h"
 
 #include <ranges>
@@ -39,6 +39,7 @@ namespace mirras
         Renderer::setClearColor(0.2f, 0.2f, 0.2f);
 
         imgui::init();
+        ScriptManager::init();
 
         fixedTimestep = 1.f / appSpecs.fixedUpdateRate;
         handleStopOnClose = appSpecs.autoStopOnClose;

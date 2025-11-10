@@ -30,7 +30,7 @@ namespace mirras::reflect
     template<typename CompType>
     inline void registerFunctions(const char* name)
     {
-        entt::meta_factory<CompType>()
+        entt::meta_factory<CompType>{}
             .type(entt::type_hash<CompType>::value(), name)
             .template func<&drawComponent<CompType>>("drawComponent()") // Defined in Widgets/Entity.h
             .template func<&addComponent<CompType>>("addComponent()");
@@ -39,6 +39,7 @@ namespace mirras::reflect
     inline void registerComponentsFunctions()
     {
         registerFunctions<TransformComponent>("Transform");
+        registerFunctions<ScriptComponent>("Script");
         registerFunctions<CameraComponent>("Camera");
         registerFunctions<SpriteComponent>("Sprite");
         registerFunctions<RectangleComponent>("Rectangle");

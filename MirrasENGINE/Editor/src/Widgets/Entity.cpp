@@ -386,4 +386,111 @@ namespace mirras
             ImGui::EndTable();
         }
     }
+
+    void draw(ScriptComponent& script, Entity entity, float firstColumnWidth)
+    {
+
+        if(ImGui::BeginTable("Script", 2, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            float frameHeight = ImGui::GetFrameHeight();
+            ImVec2 scriptButtonSize = {frameHeight * 2.f, frameHeight * 2.f};
+
+            beginRow("Script", scriptButtonSize.y + ImGui::GetStyle().FramePadding.y * 1.5f);
+                ImGui::TableNextColumn();
+                bool clicked = false;
+
+                /*if(script.instance.env.valid())
+                {
+                    ImGui::Button("##i", scriptButtonSize);
+                    
+                    auto clickCount = isItemSingleOrDoubleClicked(ImGuiMouseButton_Left);
+
+                    if(clickCount == 1)
+                        clicked = true;
+                    else
+                    if(clickCount == 2)
+                        sprite.texture.reset();
+                }
+                else*/
+                {
+                    if(ImGui::Button(".lua", scriptButtonSize))
+                        clicked = true;
+                }
+
+                if(clicked)
+                {
+                    // TODO: select script using file dialog
+                }
+
+                if(ImGui::BeginDragDropTarget())
+                {
+                    if(const auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_FILE"))
+                    {
+                        auto filepath = (const char8_t*)payload->Data;
+
+                        script.loadScriptFrom(filepath, entity);
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+            endRow();
+
+            if(script.instance.hasData())
+            {
+                sol::table data = script.instance.env[".data"].get<sol::table>();
+
+                for(const auto& [key, value] : data)
+                {
+                    if(value.is_function())
+                        continue;
+
+                    beginRow(key.as<std::string>().c_str());
+                        ImGui::TableNextColumn();
+
+                        sol::type type = value.get_type();
+    
+                        // Switch clause was too indented to the right
+                        if(type == sol::type::boolean)
+                        {
+                            bool b = value.as<bool>();
+                            if(ImGui::Checkbox("##c", &b))
+                                data[key] = b;
+                        }
+                        else
+                        if(value.is_integer())
+                        {
+                            ENGINE_LOG_ERROR("{} {}", key.as<std::string>().c_str(), (int)value.get_type());
+                            int64 i = value.as<int64>();
+                            if(ImGui::DragScalar("##s", ImGuiDataType_S64, &i))
+                                data[key] = i;
+                        }
+                        else
+                        // Integers will also be interpreted as double, that's why we need to check them before
+                        if(type == sol::type::number)
+                        {
+                            ENGINE_LOG_WARN("{} {}", key.as<std::string>().c_str(), (int)value.get_type());
+                            double d = value.as<double>();
+                            if(ImGui::DragScalar("##d", ImGuiDataType_Double, &d))
+                                data[key] = d;
+                        }
+                        else
+                        if(type == sol::type::string)
+                        {
+                            std::string str = value.as<std::string>();
+                            if(inputText<1024>("##t", str))
+                                data[key] = str;
+                        }
+                        else
+                        {
+                            ENGINE_LOG_WARN("Unhandled Lua type: {}", (int32)type);
+                        }
+                    endRow();
+                }
+            }
+
+            ImGui::EndTable();
+        }
+    }
 } // namespace mirras

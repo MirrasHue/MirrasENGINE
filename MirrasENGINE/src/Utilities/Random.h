@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Core/Types/Integer.h"
+#include "Core/Asserts.h"
+
+#include <type_traits>
 
 namespace mirras
 {
@@ -14,7 +17,23 @@ namespace mirras
         static double nextNormalized();
 
         template<typename T>
-        static T range(T min, T max);
+        static T range(T min, T max)
+        {
+            MIRR_ASSERT_RETURN_VALUE(min < max, {}, "Invalid range, Max must be greater than Min");
+            
+            if constexpr(std::is_integral_v<T>)
+            {
+                uint64 rangeSize = uint64(max) - uint64(min) + 1;
+                return min + T(nextUnder(rangeSize));
+            }
+            else
+            if constexpr(std::is_floating_point_v<T>)
+            {
+                return min + (max - min) * T(nextNormalized());
+            }
+            else
+                static_assert(false, "Error, not a number");
+        }
 
         static void seed(uint64 value);
         // Seeds the generator with a random value and returns the seed in case it's needed

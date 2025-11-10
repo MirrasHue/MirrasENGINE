@@ -1,10 +1,7 @@
 #include "Utilities/Random.h"
 
-#include "Core/Asserts.h"
-
 #include <random>
 #include <chrono>
-#include <type_traits>
 
 namespace mirras
 {
@@ -25,25 +22,6 @@ namespace mirras
         // Take the top 53 bits to use as the mantissa
         return (next() >> 11) * (1.0 / (1ull << 53));  // Normalize to [0.0, 1.0)
     }
-
-    template<typename T>
-    T Rand::range(T min, T max)
-    {
-        MIRR_ASSERT_RETURN_VALUE(min < max, {}, "Invalid range, Max must be greater than Min");
-        
-        if constexpr(std::is_integral_v<T>)
-        {
-            uint64 rangeSize = uint64(max) - uint64(min) + 1;
-            return min + T(nextUnder(rangeSize));
-        }
-        else
-        if constexpr(std::is_floating_point_v<T>)
-        {
-            return min + (max - min) * T(nextNormalized());
-        }
-        else
-            static_assert(false, "Error, not a number");
-    }  
 
     void Rand::seed(uint64 value)
     {

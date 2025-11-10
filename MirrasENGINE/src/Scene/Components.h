@@ -4,6 +4,7 @@
 #include "Core/Renderer/Camera2D.h"
 #include "Core/Renderer/Font.h"
 #include "Core/Types/Reference.h"
+#include "Core/Scripting/ScriptManager.h"
 
 #include "Utilities/UUID.h"
 #include "Utilities/Encodings.h"
@@ -79,6 +80,16 @@ namespace mirras
         void loadFontFrom(const fs::path& fontFilepath);
     };
 
+    struct ScriptComponent
+    {
+        ScriptInstance instance;
+        std::string scriptFilepath;
+
+        void loadScriptFrom(const fs::path& scriptFilepath, const Entity& entity);
+    };
+
+    // Will not be used in the editor (only useful if using this library as a
+    // framework, where the user scripts get compiled alongside the framework code)
     struct CppScriptComponent
     {
         single_ref<EntityScript> script;
@@ -135,5 +146,16 @@ namespace mirras
     {
         if(font.loadFrom(filepath))
             fontFilepath = utf::toString(filepath.generic_u8string());
+    }
+
+    inline void ScriptComponent::loadScriptFrom(const fs::path& filepath, const Entity& entity)
+    {
+        auto inst = ScriptManager::loadScriptFrom(filepath, entity);
+
+        if(inst.env.valid())
+        {
+            instance = inst;
+            scriptFilepath = utf::toString(filepath.generic_u8string());
+        }
     }
 } // namespace mirras

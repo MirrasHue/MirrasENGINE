@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Core/Types/Basic.h"
+#include "Utilities/Encodings.h"
+
+#include <string>
 #include <cstring>
 
 #include <imgui/imgui.h>
@@ -59,45 +63,5 @@ namespace mirras
         return modified;
     }
 
-    inline uint8 isItemSingleOrDoubleClicked(ImGuiMouseButton button)
-    {
-        // This workaround is meant to make single and double clicks on the same item behave
-        // nicely (also avoids missing clicks when leaving the button area right after clicking)
-        static ImGuiID singleClickID = -1; // Uses -1 (max uint32) because 0 is a valid ID for ImGui::Text
-
-        const ImGuiID itemID = ImGui::GetItemID();
-        bool isHovered = ImGui::IsItemHovered();
-
-        if(isHovered)
-        {
-            if(singleClickID == itemID && ImGui::IsMouseDoubleClicked(button))
-            {
-                singleClickID = -1;
-                return 2;
-            }
-
-            if(ImGui::IsMouseClicked(button))
-                singleClickID = itemID;
-        }
-        else
-        if(!isHovered && singleClickID == itemID)
-        {
-            singleClickID = -1;
-            return 1;
-        }
-
-        if(singleClickID == itemID)
-        {
-            ImGuiIO& io = ImGui::GetIO();
-            bool releasedWithDelay = ImGui::IsMouseReleasedWithDelay(button, io.MouseDoubleClickTime);
-
-            if(releasedWithDelay && io.MouseClickedLastCount[button] == 1)
-            {
-                singleClickID = -1;
-                return 1;
-            }
-        }
-
-        return 0;
-    }
+    uint8 isItemSingleOrDoubleClicked(ImGuiMouseButton button);
 } // namespace mirras

@@ -1,6 +1,8 @@
 #include "Audio/Audio.h"
 
-#include "raylib/raudio.h"
+#include "Utilities/Encodings.h"
+
+#include <raylib/raudio.h>
 
 namespace mirras
 {
@@ -24,7 +26,7 @@ namespace mirras
         if(sound)
             UnloadSound(*sound);
 
-        sound = instantiate<::Sound>(LoadSound(soundFilepath.string().c_str()));
+        sound = instantiate<::Sound>(LoadSound(utf::toString(soundFilepath.u8string()).c_str()));
     }
 
     void Sound::play()

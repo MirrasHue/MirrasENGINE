@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/Texture.h"
 #include "Core/Log.h"
+#include "Utilities/Encodings.h"
 
 #include <msdf/msdf-atlas-gen.h>
 
@@ -62,7 +63,7 @@ namespace mirras
             return false;
         }
 
-        FontHandle fontHandle{msdfgen::loadFont(ftHandle.get(), fontFilepath.string().c_str())};
+        FontHandle fontHandle{msdfgen::loadFont(ftHandle.get(), utf::toString(fontFilepath.u8string()).c_str())};
 
         if(!fontHandle)
         {

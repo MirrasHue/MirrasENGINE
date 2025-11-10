@@ -91,6 +91,9 @@ namespace mirras
                     if(editorScene.hovered)
                         zoomController.updateZoom();
 
+                    // For testing purposes
+                    //editorScene.scene->update(dt);
+
                     break;
                 }
 
@@ -183,7 +186,7 @@ namespace mirras
             ImGui::SetNextWindowDockID(mainDockID, ImGuiCond_FirstUseEver);
 
             // ImGui::Begin doesn't take into consideration the ID stack to generate a unique ID for the viewport,
-            // so PushID will not work here. That's why I'm concatenating with "##" to differentiate equal names
+            // so PushID will not work here. That's why we're concatenating with "##" to differentiate equal names
             std::string name = editorScene.scene->name + "##" + std::to_string(sceneCount++);
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});

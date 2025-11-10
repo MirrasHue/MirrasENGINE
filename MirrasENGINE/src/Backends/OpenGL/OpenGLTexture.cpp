@@ -4,6 +4,7 @@
 #include "Core/Asserts.h"
 
 #include "Utilities/FileIO.h"
+#include "Utilities/Encodings.h"
 
 #include <raylib/rlgl.h>
 #include <glad/glad.h>
@@ -43,7 +44,7 @@ namespace mirras
 
     OpenGLTexture::OpenGLTexture(const fs::path& imageFilepath, TextureFilter filter)
     {
-        auto* image = stbi_load(imageFilepath.string().c_str(), &width, &height, &channels, 0);
+        auto* image = stbi_load(utf::toString(imageFilepath.u8string()).c_str(), &width, &height, &channels, 0);
 
         if(!image)
         {

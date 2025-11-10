@@ -2,8 +2,6 @@
 
 #include <imgui/imgui.h>
 
-#include <msdf/msdf-atlas-gen.h>
-
 class CameraScript : public mirras::EntityScript
 {
 public:

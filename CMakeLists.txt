@@ -28,6 +28,7 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}
         MirrasENGINE/src
         MirrasENGINE/3rdParty/Glad/include
+        MirrasENGINE/3rdParty/sol2/include
         MirrasENGINE/3rdParty/stb/include
         MirrasENGINE/3rdParty/fkYAML/include
 )
@@ -37,22 +38,16 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(MirrasENGINE/3rdParty/GLFW)
-
 add_subdirectory(MirrasENGINE/3rdParty/raylib)
-
 add_subdirectory(MirrasENGINE/3rdParty/ImGui)
-
 add_subdirectory(MirrasENGINE/3rdParty/EnTT)
-
 add_subdirectory(MirrasENGINE/3rdParty/GLM)
-
 add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
-
+add_subdirectory(MirrasENGINE/3rdParty/Lua)
 add_subdirectory(MirrasENGINE/3rdParty/ImGuizmo)
-
 add_subdirectory(MirrasENGINE/3rdParty/PortableFileDialogs)
 
-target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT glm msdf-atlas-gen ImGuizmo pfd)
+target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT glm msdf-atlas-gen Lua ImGuizmo pfd)
 
 # Don't include spdlog in the distribution build
 if(NOT DEFINED PRESET_NAME OR NOT PRESET_NAME STREQUAL "distribution")
