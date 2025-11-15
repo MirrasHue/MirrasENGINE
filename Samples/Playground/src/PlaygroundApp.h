@@ -4,6 +4,8 @@
 
 #include <glm/vec3.hpp>
 
+#include <array>
+
 class PlaygroundApp : public mirras::App
 {
 public:

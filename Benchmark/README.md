@@ -1,6 +1,6 @@
 # Compiling benchmarks
 
-_You will need **CMake (3.28+)** and a recent compiler that supports **C++23**_
+_You will need **CMake (3.28+)** and a recent compiler that supports **C++23**. (Only tested on Windows 11 with GCC 14.1, which can be found at: [Winlibs](https://winlibs.com/#download-release))_
 
 For each framework directory, run (**Ninja** generator is recommended):
 

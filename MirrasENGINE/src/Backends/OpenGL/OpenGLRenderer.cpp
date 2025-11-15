@@ -29,6 +29,7 @@
 #include <msdf/msdf-atlas-gen.h> // For font rendering
 
 #include <numbers>
+#include <array>
 #include <cmath>
 
 // Using raylib's core as a reference on how to use rlgl.h

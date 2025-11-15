@@ -23,6 +23,10 @@ if(BUILD_BENCHMARK)
     add_executable(mirras_multi_textures Benchmark/src/multi_textures.cpp)
     target_link_libraries(mirras_multi_textures MirrasENGINE)
 
+    if(MSVC)
+        target_link_options(mirras_single_texture PRIVATE /STACK:2048000)
+    endif()
+
 endif()
 
 #############################################################################
