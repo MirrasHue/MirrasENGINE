@@ -461,7 +461,6 @@ namespace mirras
                         else
                         if(value.is_integer())
                         {
-                            ENGINE_LOG_ERROR("{} {}", key.as<std::string>().c_str(), (int)value.get_type());
                             int64 i = value.as<int64>();
                             if(ImGui::DragScalar("##s", ImGuiDataType_S64, &i))
                                 data[key] = i;
@@ -470,7 +469,6 @@ namespace mirras
                         // Integers will also be interpreted as double, that's why we need to check them before
                         if(type == sol::type::number)
                         {
-                            ENGINE_LOG_WARN("{} {}", key.as<std::string>().c_str(), (int)value.get_type());
                             double d = value.as<double>();
                             if(ImGui::DragScalar("##d", ImGuiDataType_Double, &d))
                                 data[key] = d;
