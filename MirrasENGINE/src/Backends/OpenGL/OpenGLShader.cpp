@@ -24,10 +24,16 @@ namespace mirras
         init(vertexSrc, fragmentSrc);
     }
 
+    void OpenGLShader::unload()
+    {
+        if(id > 0 && id != rlGetDefaultShaderId() && rlglValid())
+            rlUnloadShaderProgram(id);
+    }
+
     void OpenGLShader::init(std::string_view vertexSrc, std::string_view fragmentSrc)
     {
         id = rlLoadShaderCode(vertexSrc.data(), fragmentSrc.data());
-            
+
         // After shader loading, we try to set default location names
 
         // Default shader attribute locations have been bound before linking:
@@ -203,7 +209,6 @@ namespace mirras
 
     OpenGLShader::~OpenGLShader()
     {
-        if(id != rlGetDefaultShaderId() && id > 0)
-            rlUnloadShaderProgram(id);
+        unload();
     }
 } // namespace mirras

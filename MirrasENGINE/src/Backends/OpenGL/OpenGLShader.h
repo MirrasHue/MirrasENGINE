@@ -10,8 +10,12 @@ namespace mirras
     class OpenGLShader : public Shader
     {
     public:
+        OpenGLShader() = default;
         OpenGLShader(std::string_view vertexSrc, std::string_view fragmentSrc);
         OpenGLShader(const fs::path& vertexFilepath, const fs::path& fragmentFilepath);
+
+        void init(std::string_view vertexSrc, std::string_view fragmentSrc);
+        void unload(); // So that shaders that are static or global can be cleaned up before the OpenGL context is destroyed
 
         virtual void makeActive()   override;
         virtual void makeInactive() override;
@@ -43,7 +47,6 @@ namespace mirras
         virtual ~OpenGLShader();
 
     private:
-        void init(std::string_view vertexSrc, std::string_view fragmentSrc);
         bool findUniform(std::string_view name, int32& outLocation) const;
         bool isValid(int32 location) const;
 

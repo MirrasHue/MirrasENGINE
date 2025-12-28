@@ -103,6 +103,8 @@ namespace mirras
         }
         
         glfwSetWindowIcon(windowHandle, 1, &icon);
+
+        std::atexit(glfwTerminate);
     }
 
     void OSWindow::makeContextCurrent(bool makeCurrent) const
@@ -290,7 +292,6 @@ namespace mirras
     OSWindow::~OSWindow()
     {
         glfwDestroyWindow(windowHandle);
-        std::atexit(glfwTerminate);
     }
 
     class glfw_error : public std::runtime_error

@@ -749,7 +749,8 @@ RLAPI void rlSetBlendFactorsSeparate(int glSrcRGB, int glDstRGB, int glSrcAlpha,
 // rlgl initialization functions
 RLAPI void rlglInit(int width, int height);             // Initialize rlgl (buffers, shaders, textures, states)
 RLAPI void rlglClose(void);                             // De-initialize rlgl (buffers, shaders, textures)
-RLAPI void rlLoadExtensions(/*void *loader*/);              // Load OpenGL extensions (loader function required)
+RLAPI bool rlglValid(void);                             // Check if rlgl is in a valid state (initialized)
+RLAPI void rlLoadExtensions(/*void *loader*/);          // Load OpenGL extensions (loader function required)
 RLAPI int rlGetVersion(void);                           // Get current OpenGL version
 RLAPI void rlSetFramebufferWidth(int width);            // Set current framebuffer width
 RLAPI int rlGetFramebufferWidth(void);                  // Get default framebuffer width
@@ -1071,6 +1072,7 @@ typedef struct rlglData {
         int glBlendEquationRGB;             // Blending equation for RGB
         int glBlendEquationAlpha;           // Blending equation for alpha
         bool glCustomBlendModeModified;     // Custom blending factor and equation modification status
+        bool initialized;
 
         int framebufferWidth;               // Current framebuffer width
         int framebufferHeight;              // Current framebuffer height
@@ -2315,6 +2317,8 @@ void rlglInit(int width, int height)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);                   // Set clear color (black)
     glClearDepth(1.0f);                                     // Set clear depth value (default)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear color and depth buffers (depth buffer required for 3D)
+
+    RLGL.State.initialized = true;
 }
 
 // Vertex Buffer Object deinitialization (memory free)
@@ -2327,7 +2331,18 @@ void rlglClose(void)
 
     glDeleteTextures(1, &RLGL.State.defaultTextureId); // Unload default texture
     TRACELOG(RL_LOG_INFO, "TEXTURE: [ID %i] Default texture unloaded successfully", RLGL.State.defaultTextureId);
+
+    RLGL.State.initialized = false;
 #endif
+}
+
+bool rlglValid(void)
+{
+    bool initialized = false;
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+    initialized = RLGL.State.initialized;
+#endif
+    return initialized;
 }
 
 // Load OpenGL extensions
@@ -4869,7 +4884,7 @@ static void rlLoadShaderDefault(void)
     "in int pixelOutputData; \n"
     "out vec2 fragTexCoord;  \n"
     "out vec4 fragColor;     \n"
-    "out int fragOutputData; \n"
+    "flat out int fragOutputData; \n"
 #endif
 
 #if defined(GRAPHICS_API_OPENGL_ES3)

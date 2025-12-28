@@ -12,6 +12,7 @@
 #include "UI/ImGui.h"
 
 #include <ranges>
+#include <cstdlib>
 #include <filesystem_fs>
 
 #ifdef RUN_UPDATE_THREAD
@@ -43,6 +44,8 @@ namespace mirras
 
         fixedTimestep = 1.f / appSpecs.fixedUpdateRate;
         handleStopOnClose = appSpecs.autoStopOnClose;
+
+        std::atexit(Renderer::shutdown);
     }
 
     void App::run()
@@ -172,6 +175,8 @@ namespace mirras
 
                 window.swapBuffers();
             }
+
+            window.makeContextCurrent(false);
         }
 
         void App::handleResize(int32 width, int32 height)
@@ -253,7 +258,10 @@ namespace mirras
 
     App::~App()
     {
+        ASYNC_UPDATE (
+            window.makeContextCurrent(true);
+        )
+
         imgui::shutdown();
-        Renderer::shutdown();
     }
 } // namespace mirras

@@ -42,6 +42,9 @@ namespace mirras
     static vec2i framebufferSize;
     static vec2i currentFbInitialSize;
 
+    static OpenGLShader circleShader;
+    static OpenGLShader msdfTextShader;
+
     void OpenGLRenderer::init()
     {
         OpenGLLog::init();
@@ -64,10 +67,87 @@ namespace mirras
         // So that we can use the Z axis to determine the draw order
         // independent of the draw call order (for different Z values)
         rlEnableDepthTest();
+
+        // Embed fragment source here, it seemed overkill to load it from a file in disk (it would also complicate things
+        // because it depends on the working directory, which is defined by the client, or where the executable is located)
+        // TODO: use #embed when it gets widely supported
+        const std::string_view circleFragSrc = R"(
+            #version 330 core
+
+            in vec2 fragTexCoord;
+            in vec4 fragColor;
+            flat in int fragOutputData;
+
+            out vec4 finalColor;
+            out int pixelOutputData;
+
+            uniform float fillFactor;
+            uniform float fadeFactor;
+
+            void main()
+            {
+                // Adapted from Cherno's circle shader
+                float distance = 1.f - length(fragTexCoord);
+                float alpha = smoothstep(0.f, fadeFactor, distance);
+                alpha *= smoothstep(fillFactor + fadeFactor + 0.0001f, fillFactor, distance);
+
+                if(alpha == 0.f)
+                    discard;
+
+                finalColor = fragColor;
+                finalColor.a *= alpha;
+                pixelOutputData = fragOutputData;
+            }
+        )";
+
+        const std::string_view msdfFragSrc = R"(
+            #version 330 core
+
+            in vec2 fragTexCoord;
+            in vec4 fragColor;
+            flat in int fragOutputData;
+
+            out vec4 finalColor;
+            out int pixelOutputData;
+
+            uniform sampler2D msdfFontAtlas;
+
+            float screenPxRange()
+            {
+                const float pxRange = 2.0; // Set to the same pixel range value used in TightAtlasPacker
+                vec2 unitRange = vec2(pxRange) / vec2(textureSize(msdfFontAtlas, 0));
+                vec2 screenTexSize = vec2(1.0) / fwidth(fragTexCoord);
+                return max(0.5 * dot(unitRange, screenTexSize), 1.0);
+            }
+
+            float median(float r, float g, float b)
+            {
+                return max(min(r, g), min(max(r, g), b));
+            }
+
+            void main()
+            {
+                vec3 msd = texture(msdfFontAtlas, fragTexCoord).rgb;
+                float sd = median(msd.r, msd.g, msd.b);
+                float screenPxDistance = screenPxRange() * (sd - 0.5);
+                float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+                
+                vec4 bgColor = vec4(0.0);
+
+                finalColor = mix(bgColor, fragColor, opacity);
+                pixelOutputData = fragOutputData;
+            }
+        )";
+
+        circleShader.init({}, circleFragSrc);
+        msdfTextShader.init({}, msdfFragSrc);
     }
 
     void OpenGLRenderer::shutdown()
     {
+        msdfTextShader.unload();
+        circleShader.unload();
+
         rlglClose();
     }
 
@@ -292,40 +372,6 @@ namespace mirras
             ENGINE_LOG_WARN("Fill or fade factors can't be negative");
             return;
         }
-
-        // Embed fragment source here, it seemed overkill to load it from a file in disk (it would also complicate things
-        // because it depends on the working directory, which is defined by the client, or where the executable is located)
-        // TODO: use #embed when it gets widely supported
-        static const std::string_view circleFragSrc = R"(
-            #version 330 core
-
-            in vec2 fragTexCoord;
-            in vec4 fragColor;
-            flat in int fragOutputData;
-
-            out vec4 finalColor;
-            out int pixelOutputData;
-
-            uniform float fillFactor;
-            uniform float fadeFactor;
-
-            void main()
-            {
-                // Adapted from Cherno's circle shader
-                float distance = 1.f - length(fragTexCoord);
-                float alpha = smoothstep(0.f, fadeFactor, distance);
-                alpha *= smoothstep(fillFactor + fadeFactor + 0.0001f, fillFactor, distance);
-
-                if(alpha == 0.f)
-                    discard;
-
-                finalColor = fragColor;
-                finalColor.a *= alpha;
-                pixelOutputData = fragOutputData;
-            }
-        )";
-        
-        static OpenGLShader circleShader{{}, circleFragSrc};
         
         static int32 fillFactorLoc = circleShader.getUniformLocation("fillFactor");
         static int32 fadeFactorLoc = circleShader.getUniformLocation("fadeFactor");
@@ -426,47 +472,6 @@ namespace mirras
             return;
         }
 
-        static const std::string_view msdfFragSrc = R"(
-            #version 330 core
-
-            in vec2 fragTexCoord;
-            in vec4 fragColor;
-            flat in int fragOutputData;
-
-            out vec4 finalColor;
-            out int pixelOutputData;
-
-            uniform sampler2D msdfFontAtlas;
-
-            float screenPxRange()
-            {
-                const float pxRange = 2.0; // Set to the same pixel range value used in TightAtlasPacker
-                vec2 unitRange = vec2(pxRange) / vec2(textureSize(msdfFontAtlas, 0));
-                vec2 screenTexSize = vec2(1.0) / fwidth(fragTexCoord);
-                return max(0.5 * dot(unitRange, screenTexSize), 1.0);
-            }
-
-            float median(float r, float g, float b)
-            {
-                return max(min(r, g), min(max(r, g), b));
-            }
-
-            void main()
-            {
-                vec3 msd = texture(msdfFontAtlas, fragTexCoord).rgb;
-                float sd = median(msd.r, msd.g, msd.b);
-                float screenPxDistance = screenPxRange() * (sd - 0.5);
-                float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
-                
-                vec4 bgColor = vec4(0.0);
-
-                finalColor = mix(bgColor, fragColor, opacity);
-                pixelOutputData = fragOutputData;
-            }
-        )";
-        
-        static OpenGLShader msdfTextShader{{}, msdfFragSrc};
-
         const auto& fontGeometry = *font.geometry;
         const auto& metrics = fontGeometry.getMetrics();
         const auto& fontAtlas = *font.atlasTexture;
@@ -507,7 +512,7 @@ namespace mirras
             }
 
             auto glyph = fontGeometry.getGlyph(character);
-            
+
             if(!glyph)
                 glyph = fontGeometry.getGlyph('?');
 

@@ -6,8 +6,8 @@
 #include "Utilities/FileIO.h"
 #include "Utilities/Encodings.h"
 
-#include <raylib/rlgl.h>
 #include <glad/glad.h>
+#include <raylib/rlgl.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/image.h>
