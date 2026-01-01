@@ -41,13 +41,14 @@ add_subdirectory(MirrasENGINE/3rdParty/GLFW)
 add_subdirectory(MirrasENGINE/3rdParty/raylib)
 add_subdirectory(MirrasENGINE/3rdParty/ImGui)
 add_subdirectory(MirrasENGINE/3rdParty/EnTT)
+add_subdirectory(MirrasENGINE/3rdParty/Box2D)
 add_subdirectory(MirrasENGINE/3rdParty/GLM)
 add_subdirectory(MirrasENGINE/3rdParty/MSDF-Atlas-Gen)
 add_subdirectory(MirrasENGINE/3rdParty/Lua)
 add_subdirectory(MirrasENGINE/3rdParty/ImGuizmo)
 add_subdirectory(MirrasENGINE/3rdParty/PortableFileDialogs)
 
-target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT glm msdf-atlas-gen Lua ImGuizmo pfd)
+target_link_libraries(${PROJECT_NAME} glfw raylib ImGui EnTT box2d glm msdf-atlas-gen Lua ImGuizmo pfd)
 
 # Don't include spdlog in the distribution build
 if(NOT DEFINED PRESET_NAME OR NOT PRESET_NAME STREQUAL "distribution")

@@ -9,6 +9,7 @@
 #include "Utilities/UUID.h"
 #include "Utilities/Encodings.h"
 
+#include <box2d/types.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <filesystem_fs>
@@ -21,7 +22,7 @@ namespace mirras
     {
         glm::vec3 position{0.f};
         glm::vec2 scale{1.f};
-        float rotation{};
+        float rotation{}; // In degrees
 
         glm::mat4 getTransformMatrix() const;
         void decomposeTransform(const glm::mat4& transform);
@@ -98,6 +99,31 @@ namespace mirras
         single_ref<EntityScript>(*instantiateScript)();
     };
 
+    struct RigidBodyComponent
+    {
+        //enum class BodyType { Static, Kinematic, Dynamic };
+
+        b2BodyId id{};
+        b2BodyDef def = b2DefaultBodyDef();
+    };
+
+    struct BoxColliderComponent
+    {
+        glm::vec2 offset;
+        glm::vec2 size{1.f};
+
+        b2ShapeId id{};
+        b2ShapeDef def = b2DefaultShapeDef();
+    };
+
+    struct CircleColliderComponent
+    {
+        glm::vec2 offset;
+        float radius{1.f};
+
+        b2ShapeId id{};
+        b2ShapeDef def = b2DefaultShapeDef();
+    };
 
     inline glm::mat4 TransformComponent::getTransformMatrix() const
     {

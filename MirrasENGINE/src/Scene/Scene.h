@@ -5,6 +5,8 @@
 
 #include <entt/entity/registry.hpp>
 
+#include <box2d/id.h>
+
 #include <string>
 
 namespace mirras
@@ -22,13 +24,21 @@ namespace mirras
         void deleteEntity(Entity entity);
 
         void update(float dt);
-        void draw(Camera2D& camera);
+        void fixedUpdate(float ts);
         void draw();
+        void draw(const Camera2D& camera);
         void onEvent(Event& event);
+
+        void onRuntimeStart();
+        void onRuntimeStop();
 
     public:
         std::string name;
         entt::registry registry;
+
+    private:
+        b2WorldId physicsWorldId = {};
+        //b2WorldDef physicsDef = b2DefaultWorldDef();
     };
 
 } // namespace mirras

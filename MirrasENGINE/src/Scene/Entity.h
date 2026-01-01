@@ -74,7 +74,7 @@ namespace mirras
     public:
         virtual void onInit() {}
         virtual void onUpdate(float dt) {}
-        virtual void onFixedUpdate(float dt) {}
+        virtual void onFixedUpdate(float ts) {}
         virtual void onCleanup() {}
 
         template<typename T>
