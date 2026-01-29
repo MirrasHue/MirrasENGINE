@@ -6,12 +6,13 @@
 #include "Core/Types/Reference.h"
 
 #include "Scene/Scene.h"
+#include "Scene/Entity.h"
 
 #include <glm/vec2.hpp>
 
 // Matched the values from ImGuizmo, so that we don't have
 // to include it and imgui.h just for the OPERATION enum
-enum GizmoType
+enum GizmoType : uint16
 {
     None = 0,
     Translate = 3,
@@ -25,7 +26,8 @@ namespace mirras
     enum class SceneState : uint8
     {
         Editing,
-        Playing
+        Playing,
+        Simulating
     };
 
     struct EditorScene

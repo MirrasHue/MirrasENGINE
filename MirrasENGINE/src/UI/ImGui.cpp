@@ -29,8 +29,8 @@ namespace mirras::imgui
         ImGui::StyleColorsDark();
 
         ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowRounding = 5.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        style.WindowRounding = 5.f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.f;
         style.Colors[ImGuiCol_Tab] = ImVec4{0.15f, 0.15f, 0.3f, 1.f};
         style.FramePadding = ImVec2{4.f, 5.f};
         style.TabBarOverlineSize = 0.f;

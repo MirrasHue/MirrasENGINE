@@ -19,10 +19,15 @@ namespace mirras
     {
         reflect::registerComponentsFunctions();
 
+        playIcon = Texture::loadFrom("Resources/Icons/play.png");
+        pauseIcon = Texture::loadFrom("Resources/Icons/pause.png");
+        stopIcon = Texture::loadFrom("Resources/Icons/stop.png");
+        simulateIcon = Texture::loadFrom("Resources/Icons/simulate.png");
+
         ImGuiIO& io = ImGui::GetIO();
 
         io.ConfigDpiScaleFonts = true;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-SemiBold.ttf");
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto-SemiBold.ttf");
         io.ConfigWindowsMoveFromTitleBarOnly = true;
 
         auto scene1 = instantiate<Scene>("Scene1");
@@ -32,7 +37,7 @@ namespace mirras
 
         auto textEntity = scene1->createEntity("Text");
         auto& text = textEntity.add<TextComponent>();
-        text.loadFontFrom("Assets/Fonts/Doto_Rounded-Black.ttf");
+        text.loadFontFrom("Resources/Fonts/Doto_Rounded-Black.ttf");
         text.text = U"Hello \n World!";
         text.fontSize = 48.f;
 
@@ -54,7 +59,13 @@ namespace mirras
 
     void EditorLayer::update(float dt)
     {
-        std::erase_if(scenes, [](const auto& scene){ return !scene.open; });
+        std::erase_if(scenes, [this](const auto& scene)
+        {
+            bool remove = !scene.open;
+            if(remove && activeScene == &scene)
+                activeScene = nullptr;
+            return remove;
+        });
 
         bool ctrlDown = Input::isKeyDown(Key::LeftControl) || Input::isKeyDown(Key::RightControl);
         bool shiftDown = Input::isKeyDown(Key::LeftShift) || Input::isKeyDown(Key::RightShift);
@@ -90,9 +101,6 @@ namespace mirras
 
                     if(editorScene.hovered)
                         zoomController.updateZoom();
-
-                    // For testing purposes
-                    //editorScene.scene->update(dt);
 
                     break;
                 }
@@ -138,6 +146,8 @@ namespace mirras
         }
     }
 
+    static ImGuiWindow* activeSceneWindow = nullptr;
+
     void EditorLayer::drawImGui()
     {
         auto mainDockID = ImGui::DockSpaceOverViewport();
@@ -175,8 +185,11 @@ namespace mirras
 
         //ImGui::SetNextWindowSizeConstraints({800, 450}, {FLT_MAX, FLT_MAX});
         ImGuizmo::BeginFrame();
-        activeScene = nullptr;
-        uint32 sceneCount{};
+        uint32 sceneCount = 0;
+        bool playing = false;
+
+        if(activeScene && activeScene->state == SceneState::Playing)
+            playing = true;
 
         for(auto& editorScene : scenes)
         {
@@ -189,12 +202,15 @@ namespace mirras
             // so PushID will not work here. That's why we're concatenating with "##" to differentiate equal names
             std::string name = editorScene.scene->name + "##" + std::to_string(sceneCount++);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{});
             ImGui::Begin(name.c_str(), &editorScene.open, ImGuiWindowFlags_NoCollapse);
             {
                 auto [viewportX, viewportY] = ImGui::GetCursorScreenPos();
                 auto [width, height] = ImGui::GetContentRegionAvail();
                 editorScene.size = {width, height};
+
+                if(activeScene == &editorScene)
+                    activeSceneWindow = ImGui::GetCurrentWindow();
 
                 if(ImGui::GetCurrentWindow()->Hidden)
                 {
@@ -203,9 +219,17 @@ namespace mirras
                     continue;
                 }
 
+                // Disable other windows when playing
+                if(playing && activeScene != &editorScene)
+                {
+                    ImGui::InvisibleButton(name.c_str(), {width, height});
+                    ImGui::BeginDisabled();
+                    ImGui::SetCursorScreenPos({viewportX, viewportY});
+                }
+
                 editorScene.focused = false;
 
-                if(ImGui::IsWindowFocused())
+                if(!playing && ImGui::IsWindowFocused())
                 {
                     cameraController.setCamera(&editorScene.camera);
                     editorScene.focused = true;
@@ -215,7 +239,7 @@ namespace mirras
                 editorScene.hovered = false;
                 auto [mouseX, mouseY] = ImGui::GetMousePos();
 
-                if(ImGui::IsWindowHovered())
+                if(!playing && ImGui::IsWindowHovered())
                 {
                     zoomController.setCamera(&editorScene.camera);
                     editorScene.hovered = true;
@@ -259,13 +283,13 @@ namespace mirras
 
                 bool hasTransform = editorScene.selectedEntity ? editorScene.selectedEntity.has<TransformComponent>() : false;
 
-                if(hasTransform && editorScene.gizmoType != GizmoType::None)
+                if(hasTransform && editorScene.gizmoType != GizmoType::None && !playing)
                 {
                     ImGuizmo::PushID(&editorScene);
                     ImGuizmo::SetOrthographic(true);
                     ImGuizmo::SetDrawlist();
                     ImGuizmo::SetRect(viewportX, viewportY, width, height);
-                    
+
                     vec2i fbSize{editorScene.canvas.width, editorScene.canvas.height};
 
                     glm::mat4 view = editorScene.camera.getViewMatrix(fbSize, editorScene.canvas.initialSize);
@@ -283,28 +307,34 @@ namespace mirras
                     ImGuizmo::PopID();
                 }
 
-                static bool rClicked = false;
+                static bool rightClicked = false;
 
                 if(editorScene.hovered && mouseY <= height && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
                 {
                     ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
-                    rClicked = true;
+                    rightClicked = true;
                 }
 
-                if(rClicked && editorScene.hovered && ImGui::IsMouseDragging(ImGuiMouseButton_Right, 0.f))
+                if(rightClicked && editorScene.hovered && ImGui::IsMouseDragging(ImGuiMouseButton_Right, 0.f))
                 {
                     auto[dx, dy] = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.f);
                     editorScene.camera.position -= glm::vec2{dx, dy} * (1.f / editorScene.camera.zoom);
                 }
                 else
-                if(rClicked && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-                    rClicked = false;
+                if(rightClicked && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+                    rightClicked = false;
 
                 ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
+
+                if(playing && activeScene != &editorScene)
+                    ImGui::EndDisabled();
             }
             ImGui::End();
             ImGui::PopStyleVar();
         }
+
+        if(sceneCount == 1)
+            activeScene = scenes.data();
 
         sceneHierarchy.setContext(activeScene);
         sceneHierarchy.draw();
@@ -313,7 +343,153 @@ namespace mirras
 
         contentBrowser.draw();
 
+        toolbar();
+
         ImGui::ShowDemoWindow();
+    }
+
+    static void drawDisabledImageButton(const char* str, uint32 textureID, ImVec2 buttonSize)
+    {
+        ImGui::BeginDisabled();
+        ImGui::ImageButton(str, textureID, buttonSize);
+        ImGui::EndDisabled();
+    }
+
+    void EditorLayer::toolbar()
+    {
+        static ImGuiID toolbarDockID = 0;
+        static const ImGuiWindow* focusedWindow = nullptr;
+        const int32 itemCount = 4;
+        const ImVec2 windowPadding = {10.f, 2.f};
+
+        ImGuiWindowClass windowClass;
+        windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoResizeY |
+            ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+        ImGui::SetNextWindowClass(&windowClass);
+
+        float frameHeight = ImGui::GetFrameHeight();
+        float itemsWidth = itemCount * frameHeight + (itemCount - 1) * ImGui::GetStyle().ItemSpacing.x;
+        ImVec2 buttonSize = {frameHeight, frameHeight};
+
+        if(toolbarDockID != 0)
+        {
+            auto* node = ImGui::DockBuilderGetNode(toolbarDockID);
+
+            float nodeWidth = node->Size.x;
+
+            if(nodeWidth < 1.f) // node->Size.x is 0 in the 1st frame
+                nodeWidth = itemsWidth;
+
+            ImGui::DockBuilderSetNodeSize(toolbarDockID, ImVec2{nodeWidth, frameHeight + windowPadding.y * 2.f});
+        }
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, windowPadding);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
+        ImGui::Begin("toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollWithMouse);
+        {
+            toolbarDockID = ImGui::IsWindowDocked() ? ImGui::GetWindowDockID() : 0;
+
+            if(ImGui::GetCurrentContext()->NavWindow != ImGui::GetCurrentWindow())
+                focusedWindow = ImGui::GetCurrentContext()->NavWindow;
+
+            ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - itemsWidth) * 0.5f + windowPadding.x);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{});
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{});
+
+            if(!activeScene)
+            {
+                ImGui::BeginDisabled();
+                    ImGui::ImageButton("play", playIcon->id, buttonSize);
+                    ImGui::SameLine();
+                    ImGui::ImageButton("pause", pauseIcon->id, buttonSize);
+                    ImGui::SameLine();
+                    ImGui::ImageButton("stop", stopIcon->id, buttonSize);
+                    ImGui::SameLine();
+                    ImGui::ImageButton("simulate", simulateIcon->id, buttonSize);
+                    ImGui::PopStyleVar();
+                    ImGui::PopStyleColor();
+                ImGui::EndDisabled();
+
+                ImGui::End();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleVar();
+
+                return;
+            }
+
+            auto& state = activeScene->state;
+            bool& paused = activeScene->scene->paused;
+            
+            bool focusOnScene = false;
+            bool focusOnPreviousWindow = false;
+
+            bool playButton  = state == SceneState::Editing || (state == SceneState::Playing && paused);
+            bool pauseButton = state != SceneState::Editing && !paused;
+            bool stopButton  = state != SceneState::Editing;
+            bool simulateButton = state == SceneState::Editing || (state == SceneState::Simulating && paused);
+
+            if(!playButton)
+                drawDisabledImageButton("play", playIcon->id, buttonSize);
+            else
+            if(ImGui::ImageButton("play", playIcon->id, buttonSize))
+            {
+                state = SceneState::Playing;
+                activeScene->scene->onRuntimeStart();
+
+                paused = false;
+                focusOnScene = true;
+            }
+
+            ImGui::SameLine();
+
+            if(!pauseButton)
+                drawDisabledImageButton("pause", pauseIcon->id, buttonSize);
+            else
+            if(ImGui::ImageButton("pause", pauseIcon->id, buttonSize))
+            {
+                paused = true;
+                focusOnPreviousWindow = true;
+            }
+
+            ImGui::SameLine();
+
+            if(!stopButton)
+                drawDisabledImageButton("stop", stopIcon->id, buttonSize);
+            else
+            if(ImGui::ImageButton("stop", stopIcon->id, buttonSize))
+            {
+                activeScene->state = SceneState::Editing;
+                activeScene->scene->onRuntimeStop();
+
+                paused = false;
+                focusOnPreviousWindow = true;
+            }
+
+            ImGui::SameLine();
+
+            if(!simulateButton)
+                drawDisabledImageButton("simulate", simulateIcon->id, buttonSize);
+            else
+            if(ImGui::ImageButton("simulate", simulateIcon->id, buttonSize))
+            {
+                state = SceneState::Simulating;
+                activeScene->scene->onRuntimeStart();
+                paused = false;
+                focusOnScene = true;
+            }
+
+            if(focusOnScene)
+                ImGui::SetWindowFocus(activeSceneWindow->Name);
+            else
+            if(focusOnPreviousWindow && focusedWindow)
+                ImGui::SetWindowFocus(focusedWindow->Name);
+
+            ImGui::PopStyleColor();
+            ImGui::PopStyleVar();
+        }
+        ImGui::End();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
     }
 
     void EditorLayer::onEvent(Event& event)
@@ -324,6 +500,14 @@ namespace mirras
 
     void EditorLayer::newScene()
     {
+        if(!activeScene)
+        {
+            scenes.emplace_back(instantiate<Scene>("Untitled-" + std::to_string(scenes.size())));
+            return;
+        }
+
+        size_t idx = activeScene - scenes.data();
         scenes.emplace_back(instantiate<Scene>("Untitled-" + std::to_string(scenes.size())));
+        activeScene = &scenes[idx];
     }
 } // namespace mirras

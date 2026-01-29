@@ -1,7 +1,6 @@
 #pragma once
 
-#include "MirrasENGINE.h"
-
+#include "Core/Renderer/Texture.h"
 #include "Core/Types/Reference.h"
 
 #include <filesystem_fs>
@@ -20,7 +19,7 @@ namespace mirras
         fs::path currentDirectory;
         single_ref<Texture> directoryIcon;
         single_ref<Texture> fileIcon;
-        float iconSize = 128.0f;
-        float spacingX = 16.0f;
+        float iconSize = 128.f;
+        float spacingX = 16.f;
     };
 } // namespace mirras

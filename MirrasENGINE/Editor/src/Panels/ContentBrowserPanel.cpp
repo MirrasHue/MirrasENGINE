@@ -7,10 +7,10 @@
 namespace mirras
 {
     ContentBrowserPanel::ContentBrowserPanel() :
-        baseDirectory{"Assets"}, currentDirectory{"Assets"}
+        baseDirectory{"Resources"}, currentDirectory{"Resources"}
     {
-        directoryIcon = Texture::loadFrom("Assets/Icons/directory.png");
-        fileIcon = Texture::loadFrom("Assets/Icons/file.png");
+        directoryIcon = Texture::loadFrom("Resources/Icons/directory.png");
+        fileIcon = Texture::loadFrom("Resources/Icons/file.png");
     }
 
     void ContentBrowserPanel::draw()
@@ -25,7 +25,7 @@ namespace mirras
                 currentDirectory = currentDirectory.parent_path();
         }
         else
-            ImGui::InvisibleButton("##i", {frameHeight, frameHeight});
+            ImGui::InvisibleButton("##i", ImVec2{frameHeight, frameHeight});
 
         float framePaddingX = ImGui::GetStyle().FramePadding.x * 2.f;
         float columnWidth = iconSize + spacingX + framePaddingX;
@@ -57,9 +57,9 @@ namespace mirras
                 auto filename = utf::toString(path.filename().u8string());
                 const Texture& icon = pathEntry.is_directory() ? *directoryIcon : *fileIcon;
 
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{});
                 // TODO: Use a InvisibleButton or Selectable to cover both the icon and filename, so we can drag from the text as well
-                ImGui::ImageButton(filename.c_str(), icon.id, {iconSize, iconSize});
+                ImGui::ImageButton(filename.c_str(), icon.id, ImVec2{iconSize, iconSize});
                 ImGui::PopStyleColor();
 
                 // For now we don't need to use directories as drag and drop sources
@@ -67,7 +67,7 @@ namespace mirras
                 {
                     auto filePath = path.u8string();
 
-                    ImGui::Image(icon.id, {frameHeight, frameHeight});
+                    ImGui::Image(icon.id, ImVec2{frameHeight, frameHeight});
                     ImGui::SameLine();
                     ImGui::AlignTextToFramePadding();
                     ImGui::TextUnformatted(filename.c_str());

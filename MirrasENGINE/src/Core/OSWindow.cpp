@@ -53,7 +53,7 @@ namespace mirras
         if(windowSpecs.fullScreen)
         {
             monitor = glfwGetPrimaryMonitor();
-            auto videoMode = glfwGetVideoMode(monitor);
+            auto* videoMode = glfwGetVideoMode(monitor);
             width = videoMode->width;
             height = videoMode->height;
             glfwWindowHint(GLFW_RED_BITS, videoMode->redBits);
@@ -61,10 +61,14 @@ namespace mirras
             glfwWindowHint(GLFW_BLUE_BITS, videoMode->blueBits);
         }
 
-        auto title = windowSpecs.title;
+        const char* title = windowSpecs.title.empty() ? " " : windowSpecs.title.data();
+        
+        if(glfwPlatformSupported(GLFW_PLATFORM_WAYLAND))
+            glfwWindowHintString(GLFW_WAYLAND_APP_ID, title);
+
         glfwWindowHint(GLFW_VISIBLE, false); // Delay showing the window to avoid seeing a white filled one on Windows
 
-        windowHandle = glfwCreateWindow(width, height, title.empty() ? " " : title.data(), monitor, nullptr);
+        windowHandle = glfwCreateWindow(width, height, title, monitor, nullptr);
 
         // We don't use the size in the specs, because the created window can't always match the requested size
         OSWindow::initialFbSize = getFramebufferSize();

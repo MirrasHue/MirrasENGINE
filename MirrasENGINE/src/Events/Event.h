@@ -13,7 +13,7 @@ namespace mirras
 
     enum class EventCategory
     {
-        Window, 
+        Window,
         Keyboard,
         Mouse
     };
@@ -43,10 +43,7 @@ namespace mirras
     template <typename EventType>
     bool Event::is_a(Event& event)
     {
-        if(event.getEventType() == EventType::getEventTypeStatic())
-            return true;
-
-        return false;
+        return event.getEventType() == EventType::getEventTypeStatic();
     }
 
     template <typename EventType, auto func>

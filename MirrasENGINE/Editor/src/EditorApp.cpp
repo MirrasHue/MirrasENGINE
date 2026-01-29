@@ -27,7 +27,7 @@ namespace mirras
 
         WindowSpecs windowSpecs {
             .title = "MirrasENGINE Editor",
-            .iconFilepath = "Assets/Icons/icon.png",
+            .iconFilepath = "Resources/Icons/icon.png",
             .width = 1366,
             .height = 768,
             .minWidth = 600,

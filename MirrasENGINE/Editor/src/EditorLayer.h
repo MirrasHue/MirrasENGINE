@@ -24,6 +24,8 @@ namespace mirras
         virtual void unload() override {}
 
     private:
+        void toolbar();
+    
         void newScene();
 
     private:
@@ -36,6 +38,9 @@ namespace mirras
         SceneHierarchyPanel sceneHierarchy;
         EntityPropertiesPanel entityProperties;
         ContentBrowserPanel contentBrowser;
+
+        single_ref<Texture> playIcon, pauseIcon,
+                            stopIcon, simulateIcon;
 
         //float fontSize = 17.f; // Used by ImGui text
     };

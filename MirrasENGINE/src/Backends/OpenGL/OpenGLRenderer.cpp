@@ -511,7 +511,7 @@ namespace mirras
                 continue;
             }
 
-            auto glyph = fontGeometry.getGlyph(character);
+            auto* glyph = fontGeometry.getGlyph(character);
 
             if(!glyph)
                 glyph = fontGeometry.getGlyph('?');

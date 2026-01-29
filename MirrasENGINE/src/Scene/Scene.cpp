@@ -48,6 +48,9 @@ namespace mirras
 
     void Scene::update(float dt)
     {
+        if(paused)
+            return;
+
         registry.view<CppScriptComponent>().each([dt](auto enttID, auto& cpp)
         {            
             cpp.script->onUpdate(dt);
@@ -77,6 +80,9 @@ namespace mirras
 
     void Scene::fixedUpdate(float ts)
     {
+        if(paused)
+            return;
+
         const int32 subSteps = 4;
         b2World_Step(physicsWorldId, ts, subSteps);
 
@@ -200,6 +206,28 @@ namespace mirras
             }
         });
 
+        registry.view<ScriptComponent>().each([](auto enttID, auto& script)
+        {
+            if(!script.instance.hasData())
+                return;
+
+            sol::table data = script.instance.env[".data"];
+            sol::protected_function fn = data["on_init"];
+
+            if(!fn.valid())
+                return;
+
+            sol::set_environment(script.instance.env, fn);
+            auto result = fn(data);
+
+            if(!result.valid())
+            {
+                sol::error error = result;
+                ENGINE_LOG_ERROR("Error while executing Lua script [on_init()]: {}", error.what());
+            }
+        });
+
+        // TODO: each scene should have its own b2WorldDef that can be configured in the editor
         b2WorldDef def = b2DefaultWorldDef();
 
         physicsWorldId = b2CreateWorld(&def);
@@ -214,7 +242,7 @@ namespace mirras
 
             rigidBody.id = b2CreateBody(physicsWorldId, &rigidBody.def);
 
-            auto boxCollider = entity.tryGet<BoxColliderComponent>();
+            auto* boxCollider = entity.tryGet<BoxColliderComponent>();
 
             if(boxCollider)
             {
@@ -224,7 +252,7 @@ namespace mirras
                 boxCollider->id = b2CreatePolygonShape(rigidBody.id, &boxCollider->def, &box);
             }
 
-            auto circleCollider = entity.tryGet<CircleColliderComponent>();
+            auto* circleCollider = entity.tryGet<CircleColliderComponent>();
 
             if(circleCollider)
             {

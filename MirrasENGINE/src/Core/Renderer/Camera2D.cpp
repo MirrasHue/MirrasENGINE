@@ -2,8 +2,6 @@
 
 #include "Core/Asserts.h"
 
-#include "Events/WindowEvents.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace mirras

@@ -35,6 +35,7 @@ namespace mirras
     public:
         std::string name;
         entt::registry registry;
+        bool paused = false;
 
     private:
         b2WorldId physicsWorldId = {};
