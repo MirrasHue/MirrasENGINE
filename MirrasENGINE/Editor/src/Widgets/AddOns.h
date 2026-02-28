@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Types/Basic.h"
+#include "Core/Types/Integer.h"
 #include "Utilities/Encodings.h"
 
 #include <string>

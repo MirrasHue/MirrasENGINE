@@ -285,7 +285,7 @@ namespace mirras
         glm::vec2 bottomLeft{x, y + height};
         glm::vec2 bottomRight{x + width, y + height};
 
-        if(rotation)
+        if(std::abs(rotation) > 0.1f)
         {
             const float cosTheta = std::cos(glm::radians(rotation));
             const float sinTheta = std::sin(glm::radians(rotation));

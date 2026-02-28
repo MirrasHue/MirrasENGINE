@@ -116,13 +116,13 @@ namespace mirras
         components.set_function("get_camera", [entity]()
         {
             auto* cam = entity.tryGet<CameraComponent>();
-            return cam ? &cam->camera : nullptr_t{};
+            return cam ? &cam->camera : std::nullptr_t{};
         });
 
         components.set_function("get_tag", [entity]()
         {
             auto* tag = entity.tryGet<TagComponent>();
-            return tag ? &tag->tag : nullptr_t{};
+            return tag ? &tag->tag : std::nullptr_t{};
         });
 
         components.set_function("get_", [entity]()

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core/Types/Basic.h"
-
 #include <string>
 
 namespace mirras::utf

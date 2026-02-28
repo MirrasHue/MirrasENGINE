@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Types/Basic.h"
 #include "Core/Fwd.h"
 
 #define SOL_ALL_SAFETIES_ON 1

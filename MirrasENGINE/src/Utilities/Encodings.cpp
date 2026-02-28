@@ -1,6 +1,7 @@
 #include "Utilities/Encodings.h"
 
 #include "Core/Log.h"
+#include "Core/Types/Integer.h"
 
 #include <msdf/utf8.h>
 
