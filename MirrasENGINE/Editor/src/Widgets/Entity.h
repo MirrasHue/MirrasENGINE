@@ -77,6 +77,9 @@ namespace mirras
     void draw(TransformComponent& transform, float firstColumnWidth);
     void draw(CameraComponent& camera, float firstColumnWidth);
     void draw(SpriteComponent& sprite, float firstColumnWidth);
+    void draw(RigidBodyComponent& rigidBody, float firstColumnWidth);
+    void draw(BoxColliderComponent& boxCollider, float firstColumnWidth);
+    void draw(CircleColliderComponent& circleCollider, float firstColumnWidth);
     void draw(RectangleComponent& rectangle, float firstColumnWidth);
     void draw(CircleComponent& circle, float firstColumnWidth);
     void draw(TextComponent& text, float firstColumnWidth);

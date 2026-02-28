@@ -18,7 +18,15 @@ namespace mirras
         template<typename T, typename... Args>
         T& add(Args&&... args)
         {
-            return registry->emplace<T>(handle, std::forward<Args>(args)...);
+            T& ref = registry->emplace<T>(handle, std::forward<Args>(args)...);
+
+            if constexpr(std::is_same_v<T, BoxColliderComponent> || std::is_same_v<T, CircleColliderComponent>)
+            {
+                if(!has<RigidBodyComponent>())
+                    registry->emplace<RigidBodyComponent>(handle);
+            }
+
+            return ref;
         }
 
         template<typename ScriptType>
@@ -54,14 +62,30 @@ namespace mirras
         template<typename T>
         auto remove()
         {
-            return registry->remove<T>(handle);
+            uint64 removedCount = registry->remove<T>(handle);
+
+            if constexpr(std::is_same_v<T, BoxColliderComponent> || std::is_same_v<T, CircleColliderComponent>)
+            {
+                registry->remove<RigidBodyComponent>(handle);
+            }
+            else
+            if constexpr(std::is_same_v<T, RigidBodyComponent>)
+            {
+                if(has<BoxColliderComponent>())
+                    registry->remove<BoxColliderComponent>(handle);
+                else
+                if(has<CircleColliderComponent>())
+                    registry->remove<CircleColliderComponent>(handle);
+            }
+
+            return removedCount;
         }
 
         auto operator <=>(const Entity& rhs) const = default;
 
-        operator bool() { return handle != entt::null; }
-        operator entt::entity() { return handle; }
-        operator uint32() { return (uint32)handle; }
+        operator bool() const { return handle != entt::null; }
+        operator entt::entity() const { return handle; }
+        operator uint32() const { return (uint32)handle; }
     
     public:
         entt::entity handle = entt::null;

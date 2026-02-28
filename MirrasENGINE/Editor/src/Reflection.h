@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Scene/Entity.h"
 #include "Scene/Components.h"
 
 #include "Widgets/Entity.h"
@@ -42,6 +41,9 @@ namespace mirras::reflect
         registerFunctions<ScriptComponent>("Script");
         registerFunctions<CameraComponent>("Camera");
         registerFunctions<SpriteComponent>("Sprite");
+        registerFunctions<RigidBodyComponent>("Rigid Body");
+        registerFunctions<BoxColliderComponent>("Box Collider");
+        registerFunctions<CircleColliderComponent>("Circle Collider");
         registerFunctions<RectangleComponent>("Rectangle");
         registerFunctions<CircleComponent>("Circle");
         registerFunctions<TextComponent>("Text");

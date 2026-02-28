@@ -122,6 +122,12 @@ namespace mirras
             newScene();
     }
 
+    void EditorLayer::fixedUpdate(float ts)
+    {
+        if(activeScene && activeScene->state == SceneState::Playing)
+            activeScene->scene->fixedUpdate(ts);
+    }
+
     void EditorLayer::draw()
     {
         for(auto& editorScene : scenes)
@@ -297,7 +303,7 @@ namespace mirras
 
                     auto& transfComp = editorScene.selectedEntity.get<TransformComponent>();
                     glm::mat4 transform = transfComp.getTransformMatrix();
-                    
+
                     ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
                         (ImGuizmo::OPERATION)editorScene.gizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
 
@@ -367,7 +373,7 @@ namespace mirras
             ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
         ImGui::SetNextWindowClass(&windowClass);
 
-        float frameHeight = ImGui::GetFrameHeight();
+        float frameHeight = ImGui::GetFrameHeight() - windowPadding.y * 2.f;
         float itemsWidth = itemCount * frameHeight + (itemCount - 1) * ImGui::GetStyle().ItemSpacing.x;
         ImVec2 buttonSize = {frameHeight, frameHeight};
 
@@ -380,7 +386,7 @@ namespace mirras
             if(nodeWidth < 1.f) // node->Size.x is 0 in the 1st frame
                 nodeWidth = itemsWidth;
 
-            ImGui::DockBuilderSetNodeSize(toolbarDockID, ImVec2{nodeWidth, frameHeight + windowPadding.y * 2.f});
+            ImGui::DockBuilderSetNodeSize(toolbarDockID, ImVec2{nodeWidth, frameHeight + windowPadding.y * 2 - 1.f});
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, windowPadding);
@@ -419,7 +425,7 @@ namespace mirras
 
             auto& state = activeScene->state;
             bool& paused = activeScene->scene->paused;
-            
+
             bool focusOnScene = false;
             bool focusOnPreviousWindow = false;
 
@@ -433,9 +439,10 @@ namespace mirras
             else
             if(ImGui::ImageButton("play", playIcon->id, buttonSize))
             {
+                if(!paused)
+                    activeScene->scene->onRuntimeStart();
+            
                 state = SceneState::Playing;
-                activeScene->scene->onRuntimeStart();
-
                 paused = false;
                 focusOnScene = true;
             }
@@ -458,9 +465,8 @@ namespace mirras
             else
             if(ImGui::ImageButton("stop", stopIcon->id, buttonSize))
             {
-                activeScene->state = SceneState::Editing;
+                state = SceneState::Editing;
                 activeScene->scene->onRuntimeStop();
-
                 paused = false;
                 focusOnPreviousWindow = true;
             }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene/Components.h"
 #include "Scene/Entity.h"
 
 #include "Reflection.h"
@@ -65,7 +66,23 @@ namespace mirras
                 if(storage && storage->contains(entity))
                     reflect::call("drawComponent()", type_id, entity, meta.name());
                 else
+                {
+                    auto typeHash = meta.info().hash();
+
+                    // RigidBodyComponent is added when a collider is added, so the user don't need to take an extra step
+                    if(typeHash == entt::type_hash<RigidBodyComponent>::value())
+                        continue;
+
+                    // At the moment we don't allow having both a box and circle 
+                    // collider at the same time. It can change if it's needed
+                    if(typeHash == entt::type_hash<BoxColliderComponent>::value() && entity.has<CircleColliderComponent>())
+                        continue;
+
+                    if(typeHash == entt::type_hash<CircleColliderComponent>::value() && entity.has<BoxColliderComponent>())
+                        continue;
+
                     componentsToAdd.emplace_back(ComponentInfo{meta.name(), type_id});
+                }
             }
 
             if(addComponent)

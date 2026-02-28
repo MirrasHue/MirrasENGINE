@@ -18,6 +18,7 @@ namespace mirras
     public:
         virtual void load() override;
         virtual void update(float dt) override;
+        virtual void fixedUpdate(float ts) override;
         virtual void onEvent(Event& event) override;
         virtual void draw() override;
         virtual void drawImGui() override;

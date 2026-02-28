@@ -1,7 +1,6 @@
 #include "Widgets/Entity.h"
 
 #include "Core/Log.h"
-#include "Utilities/Encodings.h"
 #include "Widgets/AddOns.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -29,7 +28,7 @@ namespace mirras
     static void drawControl(const char* label, float& value, const ImVec4& color, const ControlParams& params = {})
     {
         float frameHeight = ImGui::GetFrameHeight();
-        ImVec2 buttonSize{frameHeight, frameHeight};
+        ImVec2 buttonSize = {frameHeight, frameHeight};
 
         ImGui::TableNextColumn();
         {
@@ -64,7 +63,7 @@ namespace mirras
     static void drawDisabledControl(const char* label, const ImVec4& color, float textAlignX = 0.58f)
     {
         float frameHeight = ImGui::GetFrameHeight();
-        ImVec2 buttonSize{frameHeight, frameHeight};
+        ImVec2 buttonSize = {frameHeight, frameHeight};
 
         ImGui::TableNextColumn();
         {
@@ -154,20 +153,20 @@ namespace mirras
         }
     }
 
-    void draw(CameraComponent& camera, float firstColumnWidth)
+    void draw(CameraComponent& cam, float firstColumnWidth)
     {
         if(ImGui::BeginTable("Camera", 4, ImGuiTableFlags_NoPadInnerX))
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
 
             beginRow("Offset");
-                drawControl("X", camera.camera.offset.x, RED);
-                drawControl("Y", camera.camera.offset.y, GREEN);
+                drawControl("X", cam.camera.offset.x, RED);
+                drawControl("Y", cam.camera.offset.y, GREEN);
                 drawDisabledControl("Z", BLUE);
             endRow();
 
             beginRow("Zoom");
-                drawControl("##z", camera.camera.zoom, GRAY, {.min = 0.1f, .max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+                drawControl("##z", cam.camera.zoom, GRAY, {.min = 0.1f, .max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
             endRow();
 
             ImGui::EndTable();
@@ -189,7 +188,7 @@ namespace mirras
 
                 if(sprite.texture)
                 {
-                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0.f, 0.f});
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{});
                     ImGui::ImageButton("##i", sprite.texture->id, texButtonSize);
                     ImGui::SetItemTooltip("Double click to remove texture");
                     ImGui::PopStyleVar();
@@ -272,6 +271,114 @@ namespace mirras
         }
     }
 
+    void draw(RigidBodyComponent& rigidBody, float firstColumnWidth)
+    {
+        if(ImGui::BeginTable("RigidBody", 2, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            beginRow("Type");
+                ImGui::TableNextColumn();
+                int32 currentType = (int32)rigidBody.def.type;
+
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                if(ImGui::Combo("Type", &currentType, "Static\0Kinematic\0Dynamic\0\0"))
+                {
+                    rigidBody.def.type = (b2BodyType)currentType;
+                }
+            endRow();
+
+            ImGui::EndTable();
+        }
+
+        auto pos = ImGui::GetCursorScreenPos();
+        ImGui::SetCursorScreenPos(ImVec2{pos.x, pos.y - ImGui::GetStyle().ItemSpacing.y});
+
+        if(ImGui::BeginTable("RigidBody", 4, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            beginRow("Linear Vel.");
+                ImGui::SetItemTooltip("Linear Velocity");
+                drawControl("X", rigidBody.def.linearVelocity.x, RED);
+                drawControl("Y", rigidBody.def.linearVelocity.y, GREEN);
+                drawDisabledControl("Z", BLUE);
+            endRow();
+
+            beginRow("Mass");
+                drawControl("##m", rigidBody.mass, GRAY, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+            endRow();
+
+            ImGui::EndTable();
+        }
+    }
+
+    template <typename T>
+    static void drawColliderWidgets(T& collider)
+    {
+        beginRow("Offset");
+            drawControl("X", collider.offset.x, RED);
+            drawControl("Y", collider.offset.y, GREEN);
+            drawDisabledControl("Z", BLUE);
+        endRow();
+
+        if constexpr(std::is_same_v<T, BoxColliderComponent>)
+        {
+            beginRow("Size");
+                drawControl("X", collider.size.x, RED, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
+                drawControl("Y", collider.size.y, GREEN, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 200.f});
+                drawDisabledControl("Z", BLUE);
+            endRow();
+        }
+        else
+        if constexpr(std::is_same_v<T, CircleColliderComponent>)
+        {
+            beginRow("Radius");
+                drawControl("##z", collider.radius, GRAY, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 100.f});
+            endRow();
+        }
+        else
+        {
+            MIRR_ASSERT(false, "This function only accepts BoxColliderComponent & CircleColliderComponent");
+        }
+
+        beginRow("Friction");
+            drawControl("##f", collider.def.material.friction, GRAY, {.max = 1.f, .speed = 0.01f, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 0.6f});
+        endRow();
+
+        beginRow("Restitution");
+            drawControl("##r", collider.def.material.restitution, GRAY, {.max = 1.f, .speed = 0.01f, .flags = ImGuiSliderFlags_AlwaysClamp});
+        endRow();
+
+        beginRow("Density");
+            drawControl("##d", collider.def.density, GRAY, {.max = FLT_MAX, .flags = ImGuiSliderFlags_AlwaysClamp, .resetValue = 1.f});
+        endRow();
+    }
+
+    void draw(BoxColliderComponent& boxCollider, float firstColumnWidth)
+    {
+        if(ImGui::BeginTable("BoxCollider", 4, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            drawColliderWidgets(boxCollider);
+
+            ImGui::EndTable();
+        }
+    }
+
+    void draw(CircleColliderComponent& circleCollider, float firstColumnWidth)
+    {
+        if(ImGui::BeginTable("CircleCollider", 4, ImGuiTableFlags_NoPadInnerX))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);
+
+            drawColliderWidgets(circleCollider);
+
+            ImGui::EndTable();
+        }
+    }
+
     void draw(RectangleComponent& rectangle, float firstColumnWidth)
     {
         if(ImGui::BeginTable("Rectangle", 4, ImGuiTableFlags_NoPadInnerX))
@@ -334,7 +441,9 @@ namespace mirras
                 ImGui::TableNextColumn();
 
                 ImGui::Button(".ttf", fontButtonSize);
-                ImGui::SetItemTooltip(text.fontFilepath.c_str());
+
+                if(!text.fontFilepath.empty())
+                    ImGui::SetItemTooltip(text.fontFilepath.c_str());
 
                 auto clickCount = isItemSingleOrDoubleClicked(ImGuiMouseButton_Left);
 
@@ -389,7 +498,6 @@ namespace mirras
 
     void draw(ScriptComponent& script, Entity entity, float firstColumnWidth)
     {
-
         if(ImGui::BeginTable("Script", 2, ImGuiTableFlags_NoPadInnerX))
         {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, firstColumnWidth);

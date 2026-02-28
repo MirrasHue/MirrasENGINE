@@ -101,16 +101,27 @@ namespace mirras
 
     struct RigidBodyComponent
     {
-        //enum class BodyType { Static, Kinematic, Dynamic };
+        //enum class BodyType : uint8 { Static, Kinematic, Dynamic };
 
         b2BodyId id{};
-        b2BodyDef def = b2DefaultBodyDef();
+        b2BodyDef def = b2DefaultBodyDef(); // b2BodyDef have many fields that we
+        // won't use, so later we'll select only those more significant
+        /*vec2f linearVelocity;
+        float angularVelocity;
+        float linearDamping;
+        float angularDamping;
+        float gravityScale;
+        BodyType type{};
+        bool lockXAxis;
+        bool lockYAxis;
+        bool lockRotation;*/
+        float mass{1.f};
     };
 
     struct BoxColliderComponent
     {
         glm::vec2 offset;
-        glm::vec2 size{1.f};
+        glm::vec2 size{200.f, 200.f};
 
         b2ShapeId id{};
         b2ShapeDef def = b2DefaultShapeDef();
@@ -119,7 +130,7 @@ namespace mirras
     struct CircleColliderComponent
     {
         glm::vec2 offset;
-        float radius{1.f};
+        float radius{100.f};
 
         b2ShapeId id{};
         b2ShapeDef def = b2DefaultShapeDef();

@@ -35,10 +35,11 @@ namespace mirras
     public:
         std::string name;
         entt::registry registry;
+        uint16 pixelsPerMeter = 100;
         bool paused = false;
 
     private:
-        b2WorldId physicsWorldId = {};
+        b2WorldId physicsWorldID = {};
         //b2WorldDef physicsDef = b2DefaultWorldDef();
     };
 
